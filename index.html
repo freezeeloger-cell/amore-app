@@ -155,6 +155,31 @@
     .btn-announce:active { background:rgba(91,141,239,0.25); }
     .doc-help { font-size:11px; color:#F2C14E; font-weight:600; margin-top:6px; cursor:pointer; }
     .doc-chk { cursor:pointer; }
+    /* --- микро-анимации --- */
+    .btn { transition: transform .12s ease, box-shadow .25s ease, filter .2s ease; }
+    .btn:active { transform: scale(.97); }
+    .btn-gold { box-shadow: 0 6px 20px rgba(242,193,78,.22); }
+    .btn-gold:active { box-shadow: 0 3px 12px rgba(242,193,78,.3); }
+    /* блик только на денежных кнопках внутри блока подписки */
+    .plan-box .btn-gold { position: relative; overflow: hidden; }
+    .plan-box .btn-gold::after { content:''; position:absolute; top:0; left:-70%; width:45%; height:100%;
+      background: linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent); transform: skewX(-20deg);
+      animation: sheen 3.6s ease-in-out infinite; }
+    @keyframes sheen { 0% { left:-70%; } 40%,100% { left:160%; } }
+    .ccard,.dircard,.lesson,.prow,.doc,.rv-thumb,.rv-shot { transition: transform .12s ease, background .2s ease; }
+    .ccard:active,.dircard:active,.lesson:active,.prow:active,.doc:active,.rv-thumb:active,.rv-shot:active { transform: scale(.985); }
+    .cp-btn { transition: transform .1s ease, background .2s ease; }
+    .cp-btn:active { transform: scale(.9); }
+    .nav-item .nav-ico { transition: transform .18s ease; }
+    .nav-item.on .nav-ico { transform: translateY(-2px) scale(1.08); }
+    .view:not(.hidden) { animation: viewIn .32s ease both; }
+    @keyframes viewIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+    .overlay:not(.hidden) { animation: ovFade .2s ease; }
+    .overlay:not(.hidden) .sheet { animation: sheetUp .3s cubic-bezier(.2,.8,.2,1); }
+    @keyframes ovFade { from { opacity:0; } to { opacity:1; } }
+    @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
+    .imgview.on img { animation: viewIn .25s ease both; }
+    @media (prefers-reduced-motion: reduce) { *, *::after, *::before { animation: none !important; transition: none !important; } }
   </style>
 </head>
 <body>
@@ -599,6 +624,11 @@
     /* ---------- ОБЩЕЕ ---------- */
     window.closeModal=function(){document.getElementById('modal').className='overlay hidden';document.getElementById('sheet').innerHTML='';};
     document.getElementById('modal').addEventListener('click',function(e){if(e.target.id==='modal')closeModal();});
+    // лёгкий виброотклик на тап по кнопкам (ощущение нативной апки)
+    document.addEventListener('click',function(e){
+      var t=e.target.closest&&e.target.closest('.btn, .cp-btn, .nav-item, .dircard, .ccard, .lesson, .prow, .doc-chk');
+      if(t){ try{ if(tg&&tg.HapticFeedback)tg.HapticFeedback.impactOccurred('light'); }catch(_){} }
+    });
 
     (function(){
       renderHome();
