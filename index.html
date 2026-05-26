@@ -138,6 +138,13 @@
     .rv-thumb { width:100%; aspect-ratio:16/9; border-radius:12px; background:#0e2c44 center/cover no-repeat; position:relative; display:grid; place-items:center; cursor:pointer; margin-top:4px; }
     .rv-thumb .play { width:46px; height:46px; border-radius:50%; background:rgba(8,18,28,.65); display:grid; place-items:center; color:#fff; font-size:18px; }
     audio { filter: invert(0.9) hue-rotate(180deg); border-radius: 10px; }
+    .rv-shot { width:100%; border-radius:12px; overflow:hidden; margin-top:4px; cursor:pointer; border:1px solid rgba(255,255,255,.08); background:#0a1622; }
+    .rv-shot img { width:100%; display:block; max-height:320px; object-fit:cover; object-position:top; }
+    .rv-shot-hint { font-size:10.5px; color:#7E96A8; text-align:center; padding:6px; }
+    .imgview { position:fixed; inset:0; background:rgba(2,6,11,.95); z-index:60; display:none; align-items:center; justify-content:center; padding:16px; }
+    .imgview.on { display:flex; }
+    .imgview img { max-width:100%; max-height:90vh; border-radius:10px; }
+    .imgview .x { position:absolute; top:16px; right:18px; font-size:26px; color:#fff; cursor:pointer; }
   </style>
 </head>
 <body>
@@ -197,6 +204,7 @@
   </div>
 
   <div class="overlay hidden" id="modal"><div class="sheet" id="sheet"></div></div>
+  <div class="imgview" id="imgview" onclick="closeImg()"><span class="x">✕</span><img id="imgview-src" src=""></div>
 
   <script>
     var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
@@ -372,6 +380,8 @@
         .catch(function(){document.getElementById('rvlist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
     window.playReview=function(i){ var r=window.__reviews[i]; if(r.videoId) playVid(r.videoId, r.name); };
+    window.openImg=function(src){ document.getElementById('imgview-src').src=src; document.getElementById('imgview').className='imgview on'; };
+    window.closeImg=function(){ document.getElementById('imgview').className='imgview'; document.getElementById('imgview-src').src=''; };
     function rvAvatar(r){
       var first=(r.name||'?').charAt(0);
       if(r.photo) return '<div class="rv-av" data-init="'+esc(first)+'" style="overflow:hidden"><img src="'+esc(r.photo)+'" style="width:100%;height:100%;object-fit:cover;object-position:center 18%" onerror="avFallback(this)"></div>';
@@ -389,6 +399,9 @@
         } else if(r.type==='audio'&&r.link){
           if(r.text)html+='<div class="rv-text">'+esc(r.text)+'</div>';
           html+='<audio controls preload="none" src="'+esc(r.link)+'" style="width:100%;margin-top:10px"></audio>';
+        } else if(r.type==='screenshot'&&r.link){
+          if(r.text)html+='<div class="rv-text" style="margin-bottom:10px">'+esc(r.text)+'</div>';
+          html+='<div class="rv-shot" onclick="openImg(\''+esc(r.link)+'\')"><img src="'+esc(r.link)+'"><div class="rv-shot-hint">нажми, чтобы открыть переписку крупно</div></div>';
         } else {
           html+='<div class="rv-text">'+esc(r.text)+'</div>';
         }
