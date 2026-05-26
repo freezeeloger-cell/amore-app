@@ -8,160 +8,253 @@
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Onest:wght@400;500;600;700&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      min-height: 100%;
-      font-family: 'Onest', -apple-system, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      color: #EAF2F8;
-      background:
-        radial-gradient(700px 400px at 20% -10%, rgba(59,196,184,0.12), transparent 60%),
-        radial-gradient(700px 500px at 110% 12%, rgba(242,193,78,0.10), transparent 55%),
-        linear-gradient(160deg, #04101B 0%, #071726 60%, #04101B 100%);
-    }
-    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; }
-
-    .head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
-    .logo {
-      width: 44px; height: 44px; border-radius: 13px; flex: 0 0 auto;
-      display: grid; place-items: center; font-family: 'Unbounded', sans-serif;
-      font-weight: 800; font-size: 22px; color: #0a1622;
-      background: linear-gradient(135deg, #F2C14E, #FF6A4D);
-    }
-    .greet { font-size: 17px; font-weight: 700; line-height: 1.2; }
-    .greet .name { background: linear-gradient(90deg, #F2C14E, #FF6A4D); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .sub { font-size: 11.5px; color: #7E96A8; margin-top: 3px; }
-
-    .status {
-      display: inline-flex; align-items: center; gap: 7px; margin: 16px 0 24px;
-      font-size: 12.5px; font-weight: 600; padding: 8px 14px; border-radius: 11px;
-    }
+    html, body { min-height: 100%; font-family: 'Onest', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; color: #EAF2F8;
+      background: radial-gradient(700px 400px at 20% -10%, rgba(59,196,184,0.12), transparent 60%),
+                  radial-gradient(700px 500px at 110% 12%, rgba(242,193,78,0.10), transparent 55%),
+                  linear-gradient(160deg,#04101B 0%,#071726 60%,#04101B 100%); }
+    .app { max-width: 480px; margin: 0 auto; padding: 18px 16px 90px; }
+    .head { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 42px; height: 42px; border-radius: 13px; flex: 0 0 auto; display: grid; place-items: center;
+      font-family: 'Unbounded'; font-weight: 800; font-size: 21px; color: #0a1622; background: linear-gradient(135deg,#F2C14E,#FF6A4D); }
+    .greet { font-size: 16px; font-weight: 700; line-height: 1.2; }
+    .greet .name { background: linear-gradient(90deg,#F2C14E,#FF6A4D); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .subt { font-size: 11px; color: #7E96A8; margin-top: 2px; }
+    .status { display: inline-flex; align-items: center; gap: 6px; margin: 14px 0 6px; font-size: 12px; font-weight: 600; padding: 7px 13px; border-radius: 10px; }
     .status.member { color: #3BC4B8; background: rgba(59,196,184,0.1); border: 1px solid rgba(59,196,184,0.3); }
-    .status.guest  { color: #F2C14E; background: rgba(242,193,78,0.1); border: 1px solid rgba(242,193,78,0.3); }
-    .status.load   { color: #7E96A8; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+    .status.guest { color: #F2C14E; background: rgba(242,193,78,0.1); border: 1px solid rgba(242,193,78,0.3); }
+    .status.load { color: #7E96A8; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
 
-    .sec-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-    .sec-title .ico { color: #FF6A4D; }
+    .sec-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 18px 2px 12px; }
+    .sec-title .c { margin-left: auto; font-size: 11px; font-weight: 600; color: #F2C14E; background: rgba(242,193,78,.12); border: 1px solid rgba(242,193,78,.25); padding: 3px 9px; border-radius: 999px; }
 
-    .card {
-      background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px; padding: 15px; margin-bottom: 12px;
-    }
+    .card { background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 14px; margin-bottom: 11px; }
     .card-top { display: flex; align-items: flex-start; gap: 8px; }
-    .role { font-size: 15px; font-weight: 600; line-height: 1.25; flex: 1; }
-    .badge {
-      font-size: 9.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px;
-      text-transform: uppercase; letter-spacing: 0.04em; flex: 0 0 auto;
-      background: rgba(255,106,77,0.16); color: #FF6A4D; border: 1px solid rgba(255,106,77,0.35);
-    }
-    .meta { font-size: 11.5px; color: #7E96A8; margin-top: 7px; }
-    .row { display: flex; align-items: center; gap: 14px; margin-top: 12px; flex-wrap: wrap; }
-    .pay { font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 700; color: #F2C14E; }
+    .role { font-size: 14.5px; font-weight: 600; line-height: 1.25; flex: 1; }
+    .badge { font-size: 9px; font-weight: 700; padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; flex: 0 0 auto;
+      background: rgba(255,106,77,.16); color: #FF6A4D; border: 1px solid rgba(255,106,77,.35); }
+    .badge.hire { background: rgba(59,196,184,.15); color: #3BC4B8; border-color: rgba(59,196,184,.3); }
+    .meta { font-size: 11.5px; color: #7E96A8; margin-top: 6px; }
+    .row { display: flex; align-items: center; gap: 14px; margin-top: 11px; flex-wrap: wrap; }
+    .pay { font-family: 'Unbounded'; font-size: 15px; font-weight: 700; color: #F2C14E; }
     .when { font-size: 11.5px; color: #7E96A8; }
-    .btn {
-      width: 100%; margin-top: 13px; padding: 11px; border: none; border-radius: 11px;
-      font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
-    }
-    .btn-gold { background: linear-gradient(135deg, #F2C14E, #E0A93B); color: #0a1622; }
+    .btn { width: 100%; margin-top: 12px; padding: 11px; border: none; border-radius: 11px; font-family: 'Onest'; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .btn-gold { background: linear-gradient(135deg,#F2C14E,#E0A93B); color: #0a1622; }
     .btn-lock { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #7E96A8; }
 
+    .search { display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 13px; }
+    .search input { flex: 1; background: transparent; border: none; outline: none; color: #EAF2F8; font-family: 'Onest'; font-size: 13.5px; }
+    .search input::placeholder { color: #7E96A8; }
+    .chips { display: flex; gap: 7px; overflow-x: auto; margin-top: 10px; padding-bottom: 2px; -ms-overflow-style: none; scrollbar-width: none; }
+    .chips::-webkit-scrollbar { display: none; }
+    .chip { flex: 0 0 auto; padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap;
+      border: 1px solid rgba(255,255,255,0.08); color: #7E96A8; background: rgba(255,255,255,0.04); }
+    .chip.on { background: linear-gradient(135deg,#F2C14E,#E0A93B); color: #0a1622; border-color: transparent; font-weight: 600; }
+    .found { font-size: 11px; color: #7E96A8; margin: 12px 2px; }
+    .found b { color: #EAF2F8; }
+
+    .ccard { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 9px; cursor: pointer; }
+    .cname { font-size: 13.5px; font-weight: 600; display: flex; align-items: center; gap: 7px; }
+    .cmeta { font-size: 11px; color: #7E96A8; margin-top: 4px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .avail { display: inline-flex; gap: 5px; color: #3BC4B8; }
+    .masked { color: #7E96A8; }
+    .more { width: 100%; padding: 11px; margin-top: 4px; border: 1px dashed rgba(242,193,78,.4); border-radius: 12px; background: rgba(242,193,78,.05); color: #F2C14E; font-family: 'Onest'; font-size: 12.5px; font-weight: 600; cursor: pointer; }
+
     .info { text-align: center; color: #7E96A8; font-size: 13px; padding: 30px 16px; line-height: 1.6; }
-    .foot { margin-top: 30px; text-align: center; font-size: 11px; color: #46586a; }
+    .view.hidden { display: none; }
+
+    .nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; background: rgba(7,21,33,0.92); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.08); padding: 9px 6px 13px; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: #7E96A8; font-size: 10px; font-weight: 600; }
+    .nav-item.on { color: #F2C14E; }
+    .nav-ico { font-size: 19px; line-height: 1; }
+
+    .overlay { position: fixed; inset: 0; background: rgba(3,9,15,.75); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: flex-end; }
+    .overlay.hidden { display: none; }
+    .sheet { width: 100%; max-width: 480px; margin: 0 auto; background: linear-gradient(180deg,#0c2236,#081826); border-top-left-radius: 24px; border-top-right-radius: 24px; border-top: 1px solid rgba(255,255,255,0.08); padding: 20px 18px 28px; }
+    .grip { width: 40px; height: 4px; border-radius: 99px; background: rgba(255,255,255,.18); margin: 0 auto 16px; }
+    .det-row { display: flex; align-items: center; gap: 11px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 9px; }
+    .det-ico { font-size: 18px; }
+    .det-k { font-size: 10.5px; color: #7E96A8; }
+    .det-v { font-size: 13px; font-weight: 600; margin-top: 1px; word-break: break-all; }
+    .det-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .det-sub { font-size: 12px; color: #7E96A8; margin-bottom: 16px; }
+    .close { text-align: center; font-size: 12.5px; color: #7E96A8; margin-top: 12px; cursor: pointer; }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="head">
       <div class="logo">A</div>
-      <div>
-        <div class="greet">Привет, <span class="name" id="uname">моряк</span>!</div>
-        <div class="sub">Сообщество AMORE</div>
-      </div>
+      <div><div class="greet">Привет, <span class="name" id="uname">моряк</span>!</div><div class="subt">Сообщество AMORE</div></div>
     </div>
-
     <div class="status load" id="status">⏳ Проверяем доступ…</div>
 
-    <div class="sec-title"><span class="ico">⚡</span> Вакансии</div>
-    <div id="list"><div class="info">Загружаем вакансии…</div></div>
+    <!-- ВАКАНСИИ -->
+    <div class="view" id="view-vacancies">
+      <div class="sec-title"><span style="color:#FF6A4D">⚡</span> Вакансии</div>
+      <div id="vlist"><div class="info">Загружаем вакансии…</div></div>
+    </div>
 
-    <div class="foot">Этап 3 · вакансии из таблицы</div>
+    <!-- БАЗА -->
+    <div class="view hidden" id="view-contacts">
+      <div class="sec-title"><span style="color:#FF6A4D">⚓</span> База работодателей <span class="c" id="ccount">…</span></div>
+      <div class="search">
+        <span>🔍</span>
+        <input id="csearch" placeholder="Поиск: компания, тип, страна…" />
+      </div>
+      <div class="chips" id="dirchips"></div>
+      <div class="chips" id="cntchips"></div>
+      <div class="found" id="cfound"></div>
+      <div id="clist"></div>
+    </div>
   </div>
+
+  <div class="nav">
+    <div class="nav-item on" id="nav-vacancies" onclick="switchView('vacancies')"><span class="nav-ico">⚡</span>Вакансии</div>
+    <div class="nav-item" id="nav-contacts" onclick="switchView('contacts')"><span class="nav-ico">⚓</span>База</div>
+  </div>
+
+  <div class="overlay hidden" id="modal"><div class="sheet" id="sheet"></div></div>
 
   <script>
     var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
-
     var tg = window.Telegram ? window.Telegram.WebApp : null;
     var isMember = false;
 
+    var FLAG = { "Норвегия": "🇳🇴", "Дания": "🇩🇰", "Британия": "🇬🇧" };
+    var DIRS = ["Все", "Рыболовные суда", "Замывка трюмов", "Яхты", "Торговый флот"];
+    var CNTS = ["Все", "Норвегия", "Дания", "Британия"];
+
+    var CONTACTS = [], cSearch = "", cDir = "Все", cCnt = "Все", cVisible = 30, PAGE = 30;
+
     function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
-    function popup(msg){ if(tg && tg.showAlert){tg.showAlert(msg);} else {alert(msg);} }
-    function setStatus(cls, text){ var s=document.getElementById('status'); s.className='status '+cls; s.textContent=text; }
+    function popup(m){ if(tg&&tg.showAlert)tg.showAlert(m); else alert(m); }
+    function setStatus(cls,t){var s=document.getElementById('status');s.className='status '+cls;s.textContent=t;}
 
-    function renderVacancies(list) {
-      var box = document.getElementById('list');
-      if (!list || list.length === 0) {
-        box.innerHTML = '<div class="info">Пока нет активных вакансий.<br>Добавь строку в таблицу — появится здесь.</div>';
-        return;
-      }
-      var html = '';
-      list.forEach(function (v) {
-        html += '<div class="card">';
-        html += '  <div class="card-top">';
-        html += '    <div class="role">' + esc(v.role) + '</div>';
-        if (v.urgent) html += '    <span class="badge">Срочно</span>';
-        html += '  </div>';
-        var metaParts = [];
-        if (v.company) metaParts.push(esc(v.company));
-        if (v.direction) metaParts.push(esc(v.direction));
-        if (metaParts.length) html += '  <div class="meta">📍 ' + metaParts.join(' · ') + '</div>';
-        html += '  <div class="row">';
-        if (v.pay) html += '    <span class="pay">' + esc(v.pay) + '</span>';
-        if (v.when) html += '    <span class="when">🕒 ' + esc(v.when) + '</span>';
-        html += '  </div>';
-        if (isMember) {
-          html += '  <button class="btn btn-gold" onclick="respond()">Откликнуться</button>';
-        } else {
-          html += '  <button class="btn btn-lock" onclick="lockMsg()">🔒 Открыть отклик</button>';
-        }
-        html += '</div>';
+    function switchView(v){
+      document.getElementById('view-vacancies').className = 'view' + (v==='vacancies'?'':' hidden');
+      document.getElementById('view-contacts').className = 'view' + (v==='contacts'?'':' hidden');
+      document.getElementById('nav-vacancies').className = 'nav-item' + (v==='vacancies'?' on':'');
+      document.getElementById('nav-contacts').className = 'nav-item' + (v==='contacts'?' on':'');
+      if (v==='contacts' && CONTACTS.length===0) loadContacts();
+    }
+
+    /* ---------- ВАКАНСИИ ---------- */
+    window.respond=function(){popup('Отклик отправлен. (Реальную отправку прикрутим позже.)');};
+    window.vlock=function(){popup('Отклики доступны участникам AMORE. Оформи подписку.');};
+    function renderVacancies(list){
+      var box=document.getElementById('vlist');
+      if(!list||!list.length){box.innerHTML='<div class="info">Пока нет активных вакансий.</div>';return;}
+      var html='';
+      list.forEach(function(v){
+        html+='<div class="card"><div class="card-top"><div class="role">'+esc(v.role)+'</div>';
+        if(v.urgent)html+='<span class="badge">Срочно</span>';
+        html+='</div>';
+        var mp=[];if(v.company)mp.push(esc(v.company));if(v.direction)mp.push(esc(v.direction));
+        if(mp.length)html+='<div class="meta">📍 '+mp.join(' · ')+'</div>';
+        html+='<div class="row">';
+        if(v.pay)html+='<span class="pay">'+esc(v.pay)+'</span>';
+        if(v.when)html+='<span class="when">🕒 '+esc(v.when)+'</span>';
+        html+='</div>';
+        html+= isMember ? '<button class="btn btn-gold" onclick="respond()">Откликнуться</button>'
+                        : '<button class="btn btn-lock" onclick="vlock()">🔒 Открыть отклик</button>';
+        html+='</div>';
       });
-      box.innerHTML = html;
+      box.innerHTML=html;
+    }
+    function loadVacancies(){
+      fetch(BACKEND_URL+'/vacancies').then(function(r){return r.json();})
+        .then(function(d){ if(d.ok)renderVacancies(d.vacancies); else document.getElementById('vlist').innerHTML='<div class="info">Не удалось загрузить вакансии.</div>'; })
+        .catch(function(){document.getElementById('vlist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
 
-    window.respond = function(){ popup('Отклик отправлен. (Реальную отправку заявки прикрутим на следующем этапе.)'); };
-    window.lockMsg = function(){ popup('Отклики доступны участникам AMORE. Оформи подписку, чтобы откликаться.'); };
+    /* ---------- БАЗА ---------- */
+    function renderChips(){
+      document.getElementById('dirchips').innerHTML = DIRS.map(function(d){return '<div class="chip'+(cDir===d?' on':'')+'" onclick="setDir(\''+d+'\')">'+d+'</div>';}).join('');
+      document.getElementById('cntchips').innerHTML = CNTS.map(function(c){var fl=c!=='Все'?FLAG[c]+' ':'';return '<div class="chip'+(cCnt===c?' on':'')+'" onclick="setCnt(\''+c+'\')">'+fl+c+'</div>';}).join('');
+    }
+    window.setDir=function(d){cDir=d;cVisible=PAGE;renderChips();renderContacts();};
+    window.setCnt=function(c){cCnt=c;cVisible=PAGE;renderChips();renderContacts();};
 
-    function loadVacancies() {
-      fetch(BACKEND_URL + '/vacancies')
-        .then(function(r){ return r.json(); })
-        .then(function(data){
-          if (data.ok) renderVacancies(data.vacancies);
-          else document.getElementById('list').innerHTML = '<div class="info">Не удалось загрузить вакансии.</div>';
+    function filtered(){
+      var t=cSearch.trim().toLowerCase();
+      return CONTACTS.filter(function(c){
+        if(cDir!=='Все'&&c.direction!==cDir)return false;
+        if(cCnt!=='Все'&&c.country!==cCnt)return false;
+        if(t){var hay=((c.company||'')+' '+(c.vessel||'')+' '+(c.country||'')+' '+(c.type||'')+' '+(c.direction||'')).toLowerCase();if(hay.indexOf(t)===-1)return false;}
+        return true;
+      });
+    }
+    function renderContacts(){
+      var box=document.getElementById('clist');
+      var list=filtered();
+      document.getElementById('cfound').innerHTML='Найдено <b>'+list.length+'</b>';
+      if(!list.length){box.innerHTML='<div class="info">Ничего не нашлось. Поменяй запрос или фильтр.</div>';return;}
+      var shown=list.slice(0,cVisible);
+      var html='';
+      shown.forEach(function(c,idx){
+        var fl=c.country?FLAG[c.country]||'':'';
+        var name = isMember ? esc(c.company||c.vessel||'—') : '<span class="masked">🔒 Контакт скрыт</span>';
+        html+='<div class="ccard" onclick="openContact('+idx+')">';
+        html+='<div style="flex:1;min-width:0"><div class="cname">'+name;
+        if(c.hiring)html+='<span class="badge hire">набирает</span>';
+        html+='</div><div class="cmeta">'+fl+' '+esc(c.country||'—');
+        if(c.type)html+=' · '+esc(c.type);
+        html+=' · '+esc(c.direction||'');
+        if(isMember&&(c.hasPhone||c.hasEmail)){html+=' <span class="avail">'+(c.hasPhone?'📞':'')+(c.hasEmail?'✉️':'')+'</span>';}
+        html+='</div></div>';
+        html+= isMember ? '<span style="color:#7E96A8">›</span>' : '<span style="color:#F2C14E">🔒</span>';
+        html+='</div>';
+      });
+      box.innerHTML=html;
+      // запоминаем текущий отфильтрованный список для open
+      window.__shown=shown;
+      if(list.length>cVisible){box.innerHTML+='<button class="more" onclick="showMore()">Показать ещё ('+cVisible+' из '+list.length+')</button>';}
+    }
+    window.showMore=function(){cVisible+=PAGE;renderContacts();};
+    window.openContact=function(idx){
+      var c=window.__shown[idx];
+      if(!isMember){popup('Контакты доступны участникам AMORE. Оформи подписку, чтобы открыть базу.');return;}
+      var fl=c.country?FLAG[c.country]||'':'';
+      var h='<div class="grip"></div>';
+      h+='<div class="det-title">'+esc(c.company||c.vessel||'—')+'</div>';
+      h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
+      if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
+      if(c.hasPhone)h+='<div class="det-row"><span class="det-ico">📞</span><div><div class="det-k">Телефон</div><div class="det-v">'+esc(c.phone)+'</div></div></div>';
+      if(c.hasEmail)h+='<div class="det-row"><span class="det-ico">✉️</span><div><div class="det-k">Email</div><div class="det-v">'+esc(c.email)+'</div></div></div>';
+      if(c.hasPhone)h+='<a class="btn btn-gold" style="display:block;text-align:center;text-decoration:none;margin-top:6px" href="tel:'+esc(c.phone)+'">Позвонить</a>';
+      if(c.hasEmail)h+='<a class="btn btn-lock" style="display:block;text-align:center;text-decoration:none" href="mailto:'+esc(c.email)+'">Написать на email</a>';
+      h+='<div class="close" onclick="closeModal()">Закрыть</div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+    };
+    window.closeModal=function(){document.getElementById('modal').className='overlay hidden';};
+    document.getElementById('modal').addEventListener('click',function(e){if(e.target.id==='modal')closeModal();});
+
+    function loadContacts(){
+      document.getElementById('clist').innerHTML='<div class="info">Загружаем базу…</div>';
+      fetch(BACKEND_URL+'/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(!d.ok){document.getElementById('clist').innerHTML='<div class="info">Не удалось загрузить базу.</div>';return;}
+          CONTACTS=d.contacts||[];
+          document.getElementById('ccount').textContent=d.count+' контактов';
+          renderChips();renderContacts();
         })
-        .catch(function(){ document.getElementById('list').innerHTML = '<div class="info">Сервер недоступен. Попробуй позже.</div>'; });
+        .catch(function(){document.getElementById('clist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
+    document.getElementById('csearch').addEventListener('input',function(e){cSearch=e.target.value;cVisible=PAGE;renderContacts();});
 
-    (function () {
-      if (!tg || !tg.initData) {
-        setStatus('guest', 'Открой через бота');
-        loadVacancies();
-        return;
-      }
+    /* ---------- СТАРТ ---------- */
+    (function(){
+      if(!tg||!tg.initData){ setStatus('guest','Открой через бота'); loadVacancies(); return; }
       tg.ready(); tg.expand();
-      var user = tg.initDataUnsafe && tg.initDataUnsafe.user;
-      if (user && user.first_name) document.getElementById('uname').textContent = user.first_name;
-
-      fetch(BACKEND_URL + '/check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ initData: tg.initData })
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(data){
-        if (data.ok && data.member) { isMember = true; setStatus('member', '✅ Ты участник'); }
-        else { isMember = false; setStatus('guest', '🔒 Гостевой доступ'); }
-      })
-      .catch(function(){ setStatus('guest', '⚠️ Нет связи с сервером'); })
-      .finally(function(){ loadVacancies(); });
+      var u=tg.initDataUnsafe&&tg.initDataUnsafe.user;
+      if(u&&u.first_name)document.getElementById('uname').textContent=u.first_name;
+      fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
+        .then(function(r){return r.json();})
+        .then(function(d){ if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
+        .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
+        .finally(function(){loadVacancies();});
     })();
   </script>
 </body>
