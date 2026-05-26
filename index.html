@@ -93,6 +93,33 @@
     .player { position: relative; width: 100%; padding-top: 56.25%; border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
     .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .close { text-align: center; font-size: 12.5px; color: #7E96A8; margin-top: 12px; cursor: pointer; }
+
+    .mentor { display: flex; gap: 13px; padding: 15px; border-radius: 16px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 11px; }
+    .m-av { width: 52px; height: 52px; border-radius: 15px; flex: 0 0 auto; display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 700; font-size: 17px; color: #0a1622; }
+    .m-name { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .m-dir { font-size: 10.5px; color: #F2C14E; font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; }
+    .m-bio { font-size: 12px; color: #7E96A8; margin-top: 7px; line-height: 1.45; }
+    .m-ask { margin-top: 10px; font-size: 12px; color: #3BC4B8; font-weight: 600; cursor: pointer; }
+    .prof-head { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 18px 0 6px; }
+    .prof-av { width: 72px; height: 72px; border-radius: 22px; display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 700; font-size: 26px; color: #0a1622; background: linear-gradient(135deg,#F2C14E,#FF6A4D); margin-bottom: 12px; }
+    .prof-name { font-size: 18px; font-weight: 700; }
+    .prof-tag { font-size: 11.5px; color: #7E96A8; margin-top: 3px; }
+    .plan-box { margin: 16px 0; padding: 17px; border-radius: 18px; background: linear-gradient(135deg,rgba(242,193,78,.13),rgba(255,106,77,.07)); border: 1px solid rgba(242,193,78,.25); }
+    .plan-price { font-family: 'Unbounded'; font-size: 28px; font-weight: 800; color: #F2C14E; }
+    .plan-per { font-size: 12px; color: #7E96A8; font-weight: 500; }
+    .prow { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 13px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 9px; cursor: pointer; }
+    .prow-ico { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,0.05); flex: 0 0 auto; font-size: 17px; }
+    .prow-t { font-size: 13.5px; font-weight: 600; }
+    .prow-s { font-size: 11px; color: #7E96A8; margin-top: 2px; }
+    .doc { display: flex; align-items: center; gap: 13px; padding: 13px; border-radius: 13px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 9px; cursor: pointer; }
+    .doc.done { background: rgba(59,196,184,.07); border-color: rgba(59,196,184,.25); }
+    .doc-chk { width: 24px; height: 24px; border-radius: 7px; border: 2px solid rgba(255,255,255,0.15); flex: 0 0 auto; display: grid; place-items: center; color: #04101b; }
+    .doc.done .doc-chk { background: #3BC4B8; border-color: #3BC4B8; }
+    .doc-name { font-size: 13.5px; font-weight: 600; }
+    .doc.done .doc-name { color: #7E96A8; text-decoration: line-through; }
+    .doc-sub { font-size: 11px; color: #7E96A8; margin-top: 2px; }
+    .prog { height: 7px; border-radius: 99px; background: rgba(255,255,255,.06); overflow: hidden; margin: 8px 0 4px; }
+    .prog-bar { height: 100%; background: linear-gradient(90deg,#3BC4B8,#F2C14E); border-radius: 99px; transition: width .3s; }
   </style>
 </head>
 <body>
@@ -120,12 +147,29 @@
       <div class="found" id="cfound"></div>
       <div id="clist"></div>
     </div>
+    <div class="view hidden" id="view-mentors">
+      <div class="sec-title"><span style="color:#FF6A4D">👥</span> Наставники</div>
+      <div style="font-size:12px;color:#7E96A8;margin:0 2px 14px;line-height:1.5">Каждый — практик в своём деле. Опыт и контакты сразу по нескольким флотам.</div>
+      <div id="mlist"></div>
+    </div>
+
+    <div class="view hidden" id="view-profile">
+      <div id="profbox"></div>
+    </div>
+
+    <div class="view hidden" id="view-docs">
+      <div class="back" onclick="switchView('profile')">← Назад</div>
+      <div class="sec-title"><span style="color:#FF6A4D">📋</span> Документы моряка</div>
+      <div id="docsbox"></div>
+    </div>
   </div>
 
   <div class="nav">
     <div class="nav-item on" id="nav-vacancies" onclick="switchView('vacancies')"><span class="nav-ico">⚡</span>Вакансии</div>
     <div class="nav-item" id="nav-plan" onclick="switchView('plan')"><span class="nav-ico">🧭</span>План</div>
     <div class="nav-item" id="nav-contacts" onclick="switchView('contacts')"><span class="nav-ico">⚓</span>База</div>
+    <div class="nav-item" id="nav-mentors" onclick="switchView('mentors')"><span class="nav-ico">👥</span>Наставники</div>
+    <div class="nav-item" id="nav-profile" onclick="switchView('profile')"><span class="nav-ico">👤</span>Профиль</div>
   </div>
 
   <div class="overlay hidden" id="modal"><div class="sheet" id="sheet"></div></div>
@@ -152,13 +196,21 @@
     function popup(m){ if(tg&&tg.showAlert)tg.showAlert(m); else alert(m); }
     function setStatus(cls,t){var s=document.getElementById('status');s.className='status '+cls;s.textContent=t;}
 
+    var NAV = ['vacancies','plan','contacts','mentors','profile'];
     function switchView(v){
-      ['vacancies','plan','contacts'].forEach(function(name){
-        document.getElementById('view-'+name).className = 'view' + (v===name?'':' hidden');
+      // прячем все вкладки, включая docs (он не в навигации)
+      NAV.concat(['docs']).forEach(function(name){
+        var el=document.getElementById('view-'+name);
+        if(el) el.className = 'view' + (v===name?'':' hidden');
+      });
+      NAV.forEach(function(name){
         document.getElementById('nav-'+name).className = 'nav-item' + (v===name?' on':'');
       });
       if(v==='contacts' && CONTACTS.length===0) loadContacts();
       if(v==='plan'){ planDir=null; if(LESSONS.length===0) loadLessons(); else renderPlan(); }
+      if(v==='mentors') renderMentors();
+      if(v==='profile') renderProfile();
+      if(v==='docs'){ document.getElementById('nav-profile').className='nav-item on'; renderDocs(); }
     }
 
     /* ---------- ВАКАНСИИ ---------- */
@@ -302,6 +354,78 @@
     }
     document.getElementById('csearch').addEventListener('input',function(e){cSearch=e.target.value;cVisible=PAGE;renderContacts();});
 
+    /* ---------- НАСТАВНИКИ ---------- */
+    var MENTORS = [
+      { init:"ДБ", grad:"linear-gradient(135deg,#F2C14E,#FF6A4D)", name:"Даниил Богатко", dir:"Краболовы · Рыбаки", bio:"В море с 2019 года, прошёл путь с нуля. 8 судов Норвегии, Дании и Британии." },
+      { init:"ВГ", grad:"linear-gradient(135deg,#3BC4B8,#2A8FA8)", name:"Владислав Ганчурин", dir:"Торговый флот", bio:"Офицер-механик. Балкеры, ro-ro, контейнеровозы — путь от кадета." },
+      { init:"ВМ", grad:"linear-gradient(135deg,#5B8DEF,#3B5BC4)", name:"Владислав Макаренко", dir:"Замывка трюмов", bio:"10 лет в профессии, бригадир. Химчистка, мойка, покраска на всех типах судов." },
+      { init:"НГ", grad:"linear-gradient(135deg,#E07AC4,#9B4FC4)", name:"Никита Гуменный", dir:"Яхтинг", bio:"От кадета на торговом флоте до офицера-механика на больших яхтах." }
+    ];
+    window.askMentor=function(name){
+      if(!isMember){ popup('Вопросы наставникам — для участников AMORE. Оформи подписку.'); return; }
+      popup('Задай вопрос наставнику ('+name+') в чате сообщества AMORE.');
+    };
+    function renderMentors(){
+      var html='';
+      MENTORS.forEach(function(m){
+        html+='<div class="mentor"><div class="m-av" style="background:'+m.grad+'">'+m.init+'</div>';
+        html+='<div style="flex:1"><div class="m-name">'+esc(m.name)+' <span style="color:#3BC4B8">✓</span></div>';
+        html+='<div class="m-dir">'+esc(m.dir)+'</div><div class="m-bio">'+esc(m.bio)+'</div>';
+        html+='<div class="m-ask" onclick="askMentor(\''+esc(m.name)+'\')">💬 Задать вопрос</div></div></div>';
+      });
+      document.getElementById('mlist').innerHTML=html;
+    }
+
+    /* ---------- ДОКУМЕНТЫ (чек-лист) ---------- */
+    var DOCS = [
+      { name:"STCW сертификаты", sub:"Базовая безопасность — обязательно" },
+      { name:"Мореходная книжка", sub:"Seaman's book" },
+      { name:"Медкомиссия", sub:"Медицинский сертификат моряка" },
+      { name:"Апостиль документов", sub:"Для подачи за границу" },
+      { name:"Виза (Дания / Британия)", sub:"Под конкретное направление" },
+      { name:"Загранпаспорт", sub:"Срок действия от 12 месяцев" }
+    ];
+    var docChecked = {};
+    window.toggleDoc=function(i){ docChecked[i]=!docChecked[i]; renderDocs(); };
+    function renderDocs(){
+      var done=0; for(var k in docChecked) if(docChecked[k]) done++;
+      var html='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#7E96A8">Готовность пакета</span><span style="font-weight:700;color:#F2C14E">'+done+' / '+DOCS.length+'</span></div>';
+      html+='<div class="prog"><div class="prog-bar" style="width:'+(done/DOCS.length*100)+'%"></div></div>';
+      html+='<div style="font-size:11px;color:#7E96A8">Отмечай, что уже сделано — увидишь, чего не хватает</div></div>';
+      DOCS.forEach(function(d,i){
+        html+='<div class="doc'+(docChecked[i]?' done':'')+'" onclick="toggleDoc('+i+')"><div class="doc-chk">'+(docChecked[i]?'✓':'')+'</div>';
+        html+='<div><div class="doc-name">'+esc(d.name)+'</div><div class="doc-sub">'+esc(d.sub)+'</div></div></div>';
+      });
+      html+='<div style="font-size:11.5px;color:#7E96A8;text-align:center;margin-top:12px;line-height:1.5">Не знаешь, с чего начать? Спроси наставника — подскажет порядок и где не переплатить.</div>';
+      document.getElementById('docsbox').innerHTML=html;
+    }
+
+    /* ---------- ПРОФИЛЬ ---------- */
+    var uName = "моряк";
+    window.subscribe=function(){ popup('Оформить подписку можно через бота AMORE. (Сюда позже подвяжем кнопку оплаты Tribute.)'); };
+    window.openDocs=function(){ switchView('docs'); };
+    window.soon=function(t){ popup(t+' — скоро будет доступно.'); };
+    function renderProfile(){
+      var initial = uName ? uName.charAt(0).toUpperCase() : "?";
+      var html='<div class="prof-head"><div class="prof-av">'+esc(initial)+'</div>';
+      html+='<div class="prof-name">'+esc(uName)+'</div>';
+      html+='<div class="prof-tag">'+(isMember?'Участник сообщества AMORE':'Гостевой доступ')+'</div></div>';
+      html+='<div class="plan-box"><div style="display:flex;align-items:center;gap:8px"><span style="color:#F2C14E">★</span><span style="font-size:13px;font-weight:700">Участие в AMORE</span>';
+      if(isMember)html+='<span class="badge hire" style="margin-left:auto">активна</span>';
+      html+='</div><div style="margin:12px 0 4px"><span class="plan-price">50€</span> <span class="plan-per">/ месяц</span></div>';
+      if(isMember){
+        html+='<div style="font-size:11.5px;color:#7E96A8">Доступ открыт: вакансии, база, уроки и наставники.</div>';
+      } else {
+        html+='<div style="font-size:11.5px;color:#7E96A8;margin-bottom:12px">Открой вакансии, базу контактов, уроки и наставников.</div>';
+        html+='<button class="btn btn-gold" onclick="subscribe()">Открыть доступ — 50€/мес</button>';
+      }
+      html+='</div>';
+      html+='<div class="prow" onclick="openDocs()"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист: что нужно собрать</div></div><span style="color:#7E96A8">›</span></div>';
+      html+='<div class="prow" onclick="soon(\'Моё резюме\')"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме</div><div class="prow-s">CV под конкретную вакансию</div></div><span style="color:#7E96A8">›</span></div>';
+      html+='<div class="prow" onclick="soon(\'Мои отклики\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">История твоих заявок</div></div><span style="color:#7E96A8">›</span></div>';
+      document.getElementById('profbox').innerHTML=html;
+    }
+
     /* ---------- ОБЩЕЕ ---------- */
     window.closeModal=function(){document.getElementById('modal').className='overlay hidden';document.getElementById('sheet').innerHTML='';};
     document.getElementById('modal').addEventListener('click',function(e){if(e.target.id==='modal')closeModal();});
@@ -310,7 +434,7 @@
       if(!tg||!tg.initData){ setStatus('guest','Открой через бота'); loadVacancies(); return; }
       tg.ready(); tg.expand();
       var u=tg.initDataUnsafe&&tg.initDataUnsafe.user;
-      if(u&&u.first_name)document.getElementById('uname').textContent=u.first_name;
+      if(u&&u.first_name){document.getElementById('uname').textContent=u.first_name;uName=u.first_name;}
       fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
         .then(function(r){return r.json();})
         .then(function(d){ if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
