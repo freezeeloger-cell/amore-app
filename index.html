@@ -9,98 +9,159 @@
     @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@600;700;800&family=Onest:wght@400;500;600;700&display=swap');
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      height: 100%;
+      min-height: 100%;
       font-family: 'Onest', -apple-system, sans-serif;
       -webkit-font-smoothing: antialiased;
       color: #EAF2F8;
       background:
         radial-gradient(700px 400px at 20% -10%, rgba(59,196,184,0.12), transparent 60%),
-        radial-gradient(700px 500px at 110% 15%, rgba(242,193,78,0.10), transparent 55%),
+        radial-gradient(700px 500px at 110% 12%, rgba(242,193,78,0.10), transparent 55%),
         linear-gradient(160deg, #04101B 0%, #071726 60%, #04101B 100%);
     }
-    .wrap {
-      min-height: 100%; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; text-align: center; padding: 32px 24px;
-    }
+    .app { max-width: 480px; margin: 0 auto; padding: 20px 16px 40px; }
+
+    .head { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
     .logo {
-      width: 84px; height: 84px; border-radius: 26px; display: grid; place-items: center;
-      font-family: 'Unbounded', sans-serif; font-weight: 800; font-size: 42px; color: #0a1622;
+      width: 44px; height: 44px; border-radius: 13px; flex: 0 0 auto;
+      display: grid; place-items: center; font-family: 'Unbounded', sans-serif;
+      font-weight: 800; font-size: 22px; color: #0a1622;
       background: linear-gradient(135deg, #F2C14E, #FF6A4D);
-      box-shadow: 0 20px 50px rgba(242,193,78,0.25); margin-bottom: 26px;
     }
-    .kicker { font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #F2C14E; font-weight: 600; margin-bottom: 14px; }
-    h1 { font-family: 'Unbounded', sans-serif; font-size: 25px; font-weight: 700; line-height: 1.25; margin-bottom: 14px; }
-    .name { background: linear-gradient(90deg, #F2C14E, #FF6A4D); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    p { font-size: 15px; color: #7E96A8; line-height: 1.6; max-width: 320px; }
+    .greet { font-size: 17px; font-weight: 700; line-height: 1.2; }
+    .greet .name { background: linear-gradient(90deg, #F2C14E, #FF6A4D); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .sub { font-size: 11.5px; color: #7E96A8; margin-top: 3px; }
+
     .status {
-      margin-top: 26px; display: inline-flex; align-items: center; gap: 9px;
-      font-size: 14px; font-weight: 600; padding: 12px 20px; border-radius: 14px;
+      display: inline-flex; align-items: center; gap: 7px; margin: 16px 0 24px;
+      font-size: 12.5px; font-weight: 600; padding: 8px 14px; border-radius: 11px;
     }
     .status.member { color: #3BC4B8; background: rgba(59,196,184,0.1); border: 1px solid rgba(59,196,184,0.3); }
     .status.guest  { color: #F2C14E; background: rgba(242,193,78,0.1); border: 1px solid rgba(242,193,78,0.3); }
     .status.load   { color: #7E96A8; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
-    .foot { margin-top: 40px; font-size: 11.5px; color: #46586a; }
+
+    .sec-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+    .sec-title .ico { color: #FF6A4D; }
+
+    .card {
+      background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px; padding: 15px; margin-bottom: 12px;
+    }
+    .card-top { display: flex; align-items: flex-start; gap: 8px; }
+    .role { font-size: 15px; font-weight: 600; line-height: 1.25; flex: 1; }
+    .badge {
+      font-size: 9.5px; font-weight: 700; padding: 4px 9px; border-radius: 999px;
+      text-transform: uppercase; letter-spacing: 0.04em; flex: 0 0 auto;
+      background: rgba(255,106,77,0.16); color: #FF6A4D; border: 1px solid rgba(255,106,77,0.35);
+    }
+    .meta { font-size: 11.5px; color: #7E96A8; margin-top: 7px; }
+    .row { display: flex; align-items: center; gap: 14px; margin-top: 12px; flex-wrap: wrap; }
+    .pay { font-family: 'Unbounded', sans-serif; font-size: 16px; font-weight: 700; color: #F2C14E; }
+    .when { font-size: 11.5px; color: #7E96A8; }
+    .btn {
+      width: 100%; margin-top: 13px; padding: 11px; border: none; border-radius: 11px;
+      font-family: 'Onest', sans-serif; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+    .btn-gold { background: linear-gradient(135deg, #F2C14E, #E0A93B); color: #0a1622; }
+    .btn-lock { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #7E96A8; }
+
+    .info { text-align: center; color: #7E96A8; font-size: 13px; padding: 30px 16px; line-height: 1.6; }
+    .foot { margin-top: 30px; text-align: center; font-size: 11px; color: #46586a; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="logo">A</div>
-    <div class="kicker">Сообщество AMORE</div>
-    <h1 id="greeting">Загрузка…</h1>
-    <p id="subtext">Проверяем доступ…</p>
-    <div class="status load" id="status">⏳ Проверяем подписку…</div>
-    <div class="foot">Этап 2 · проверка доступа через группу</div>
+  <div class="app">
+    <div class="head">
+      <div class="logo">A</div>
+      <div>
+        <div class="greet">Привет, <span class="name" id="uname">моряк</span>!</div>
+        <div class="sub">Сообщество AMORE</div>
+      </div>
+    </div>
+
+    <div class="status load" id="status">⏳ Проверяем доступ…</div>
+
+    <div class="sec-title"><span class="ico">⚡</span> Вакансии</div>
+    <div id="list"><div class="info">Загружаем вакансии…</div></div>
+
+    <div class="foot">Этап 3 · вакансии из таблицы</div>
   </div>
 
   <script>
-    // === ВПИШИ СЮДА СВОЙ АДРЕС RAILWAY (без слэша в конце) ===
     var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
 
-    (function () {
-      var tg = window.Telegram ? window.Telegram.WebApp : null;
-      var greeting = document.getElementById('greeting');
-      var subtext = document.getElementById('subtext');
-      var status = document.getElementById('status');
+    var tg = window.Telegram ? window.Telegram.WebApp : null;
+    var isMember = false;
 
-      function setStatus(cls, text) { status.className = 'status ' + cls; status.textContent = text; }
-      function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+    function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+    function popup(msg){ if(tg && tg.showAlert){tg.showAlert(msg);} else {alert(msg);} }
+    function setStatus(cls, text){ var s=document.getElementById('status'); s.className='status '+cls; s.textContent=text; }
 
-      if (!tg || !tg.initData) {
-        greeting.innerHTML = 'Привет, <span class="name">моряк</span>!';
-        subtext.textContent = 'Открывать приложение нужно через кнопку в твоём Telegram-боте.';
-        setStatus('guest', 'Открой через бота');
+    function renderVacancies(list) {
+      var box = document.getElementById('list');
+      if (!list || list.length === 0) {
+        box.innerHTML = '<div class="info">Пока нет активных вакансий.<br>Добавь строку в таблицу — появится здесь.</div>';
         return;
       }
+      var html = '';
+      list.forEach(function (v) {
+        html += '<div class="card">';
+        html += '  <div class="card-top">';
+        html += '    <div class="role">' + esc(v.role) + '</div>';
+        if (v.urgent) html += '    <span class="badge">Срочно</span>';
+        html += '  </div>';
+        var metaParts = [];
+        if (v.company) metaParts.push(esc(v.company));
+        if (v.direction) metaParts.push(esc(v.direction));
+        if (metaParts.length) html += '  <div class="meta">📍 ' + metaParts.join(' · ') + '</div>';
+        html += '  <div class="row">';
+        if (v.pay) html += '    <span class="pay">' + esc(v.pay) + '</span>';
+        if (v.when) html += '    <span class="when">🕒 ' + esc(v.when) + '</span>';
+        html += '  </div>';
+        if (isMember) {
+          html += '  <button class="btn btn-gold" onclick="respond()">Откликнуться</button>';
+        } else {
+          html += '  <button class="btn btn-lock" onclick="lockMsg()">🔒 Открыть отклик</button>';
+        }
+        html += '</div>';
+      });
+      box.innerHTML = html;
+    }
 
-      tg.ready();
-      tg.expand();
+    window.respond = function(){ popup('Отклик отправлен. (Реальную отправку заявки прикрутим на следующем этапе.)'); };
+    window.lockMsg = function(){ popup('Отклики доступны участникам AMORE. Оформи подписку, чтобы откликаться.'); };
+
+    function loadVacancies() {
+      fetch(BACKEND_URL + '/vacancies')
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+          if (data.ok) renderVacancies(data.vacancies);
+          else document.getElementById('list').innerHTML = '<div class="info">Не удалось загрузить вакансии.</div>';
+        })
+        .catch(function(){ document.getElementById('list').innerHTML = '<div class="info">Сервер недоступен. Попробуй позже.</div>'; });
+    }
+
+    (function () {
+      if (!tg || !tg.initData) {
+        setStatus('guest', 'Открой через бота');
+        loadVacancies();
+        return;
+      }
+      tg.ready(); tg.expand();
       var user = tg.initDataUnsafe && tg.initDataUnsafe.user;
-      greeting.innerHTML = 'Привет, <span class="name">' + esc(user && user.first_name ? user.first_name : 'моряк') + '</span>!';
+      if (user && user.first_name) document.getElementById('uname').textContent = user.first_name;
 
       fetch(BACKEND_URL + '/check', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ initData: tg.initData })
       })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (!data.ok) {
-          subtext.textContent = 'Не удалось проверить доступ. Попробуй открыть заново.';
-          setStatus('guest', '⚠️ Ошибка проверки');
-          return;
-        }
-        if (data.member) {
-          subtext.textContent = 'Доступ открыт — ты участник AMORE. Скоро тут появятся вакансии, база и уроки.';
-          setStatus('member', '✅ Ты участник');
-        } else {
-          subtext.textContent = 'Ты пока гость. Оформи подписку, чтобы открыть вакансии, базу контактов и уроки.';
-          setStatus('guest', '🔒 Доступ закрыт');
-        }
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (data.ok && data.member) { isMember = true; setStatus('member', '✅ Ты участник'); }
+        else { isMember = false; setStatus('guest', '🔒 Гостевой доступ'); }
       })
-      .catch(function () {
-        subtext.textContent = 'Сервер недоступен. Попробуй чуть позже.';
-        setStatus('guest', '⚠️ Нет связи с сервером');
-      });
+      .catch(function(){ setStatus('guest', '⚠️ Нет связи с сервером'); })
+      .finally(function(){ loadVacancies(); });
     })();
   </script>
 </body>
