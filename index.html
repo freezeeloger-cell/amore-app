@@ -148,6 +148,9 @@
     .rv-foot { font-size:13px; font-weight:700; color:#EAF2F8; margin-top:12px; }
     .rv-dir-i { color:#7E96A8; font-weight:500; }
     .rv-link { display:inline-block; margin-top:10px; font-size:12.5px; color:#3BC4B8; font-weight:600; text-decoration:none; }
+    .cp-btn { flex:0 0 auto; margin-left:6px; padding:8px 11px; border-radius:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#EAF2F8; font-size:14px; text-decoration:none; cursor:pointer; display:inline-grid; place-items:center; }
+    .cp-btn:active { background:rgba(242,193,78,0.2); }
+    .det-row { align-items:center; }
   </style>
 </head>
 <body>
@@ -231,13 +234,25 @@
       { photo:"m-gumenny.jpg", init:"НГ", grad:"linear-gradient(135deg,#E07AC4,#9B4FC4)", name:"Никита Гуменный", dir:"Яхтинг", tg:"shifvmmgf", bio:"От кадета на торговом флоте до офицера-механика на больших яхтах." }
     ];
     var REVIEWS = [];
-    var DOCS = [
-      { name:"STCW сертификаты", sub:"Базовая безопасность — обязательно" },
-      { name:"Мореходная книжка", sub:"Seaman's book" },
-      { name:"Медкомиссия", sub:"Медицинский сертификат моряка" },
-      { name:"Апостиль документов", sub:"Для подачи за границу" },
-      { name:"Виза (Дания / Британия)", sub:"Под конкретное направление" },
-      { name:"Загранпаспорт", sub:"Срок действия от 12 месяцев" }
+    var DOC_DIRS = [
+      { key:"crab", label:"Краболов / рыбак — Норвегия", ico:"⚓", grad:"linear-gradient(135deg,#F2C14E,#E0A93B)", docs:[
+        { name:"Basic Safety Training", sub:"Базовая безопасность (STCW)" },
+        { name:"Медкомиссия", sub:"Аккредитованная норвежская" }
+      ]},
+      { key:"wash", label:"Замывка трюмов", ico:"🧽", grad:"linear-gradient(135deg,#5B8DEF,#3B5BC4)", docs:[
+        { name:"4 базовых STCW", sub:"Базовые сертификаты безопасности" },
+        { name:"Seaman's book", sub:"Мореходная книжка" },
+        { name:"Медкомиссия", sub:"Медицинский сертификат моряка" }
+      ]},
+      { key:"yacht", label:"Яхтинг", ico:"🛥️", grad:"linear-gradient(135deg,#E07AC4,#9B4FC4)", docs:[
+        { name:"Basic Safety Training", sub:"Базовая безопасность (STCW)" },
+        { name:"ENG1", sub:"Британский медсертификат (вместо норвежской медкомиссии)" }
+      ]},
+      { key:"merchant", label:"Торговый флот — старт", ico:"🚢", grad:"linear-gradient(135deg,#3BC4B8,#2A8FA8)", docs:[
+        { name:"4 базовых STCW", sub:"Базовые сертификаты безопасности" },
+        { name:"Seaman's book", sub:"Мореходная книжка" },
+        { name:"Медкомиссия", sub:"Медицинский сертификат моряка" }
+      ]}
     ];
 
     var VACANCIES = [], CONTACTS = [], LESSONS = [], planDir = null;
@@ -290,8 +305,32 @@
     }
 
     /* ---------- ВАКАНСИИ ---------- */
-    window.respond=function(){popup('Отклик отправлен. (Реальную отправку прикрутим позже.)');};
-    window.vlock=function(){paywall('Отклик на вакансию','Откликаться на вакансии могут участники AMORE — это прямой выход на работодателя и помощь с заявкой.');};
+    function fallbackCopy(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);}catch(e){} }
+    window.copyText=function(t){
+      var ok=function(){ try{ if(tg&&tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success'); }catch(e){} popup('Скопировано: '+t); };
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok,function(){fallbackCopy(t);ok();}); return; } }catch(e){}
+      fallbackCopy(t); ok();
+    };
+    function contactRow(ico,label,value,href,act){
+      var h='<div class="det-row"><span class="det-ico">'+ico+'</span><div style="flex:1;min-width:0"><div class="det-k">'+label+'</div><div class="det-v">'+esc(value)+'</div></div>';
+      h+='<span class="cp-btn" onclick="copyText(\''+esc(value)+'\')">📋</span>';
+      if(href)h+='<a class="cp-btn" href="'+href+esc(value)+'">'+act+'</a>';
+      h+='</div>';
+      return h;
+    }
+    window.vlock=function(){paywall('Контакты по вакансии','Прямые контакты работодателя открыты участникам AMORE — звони и пиши напрямую.');};
+    window.vacContacts=function(i){
+      var v=VACANCIES[i];
+      var h='<div class="grip"></div><div class="det-title">'+esc(v.role)+'</div>';
+      var sub=[]; if(v.company)sub.push(esc(v.company)); if(v.direction)sub.push(esc(v.direction));
+      if(sub.length)h+='<div class="det-sub">'+sub.join(' · ')+'</div>';
+      if(v.phone)h+=contactRow('📞','Телефон',v.phone,'tel:','Позвонить');
+      if(v.email)h+=contactRow('✉️','Email',v.email,'mailto:','Написать');
+      if(!v.phone&&!v.email)h+='<div style="font-size:13px;color:#7E96A8;text-align:center;padding:6px 4px;line-height:1.5">Контакты по этой вакансии скоро добавим. А пока вся база работодателей — в разделе «База».</div>';
+      h+='<div class="close" onclick="closeModal()">Закрыть</div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+    };
     function vacCard(v){
       var h='<div class="card"><div class="card-top"><div class="role">'+esc(v.role)+'</div>';
       if(v.urgent)h+='<span class="badge">Срочно</span>';
@@ -302,7 +341,7 @@
       if(v.pay)h+='<span class="pay">'+esc(v.pay)+'</span>';
       if(v.when)h+='<span class="when">🕒 '+esc(v.when)+'</span>';
       h+='</div>';
-      h+= isMember ? '<button class="btn btn-gold" onclick="respond()">Откликнуться</button>' : '<button class="btn btn-lock" onclick="vlock()">🔒 Открыть отклик</button>';
+      h+= isMember ? '<button class="btn btn-gold" onclick="vacContacts('+v._i+')">Посмотреть контакты</button>' : '<button class="btn btn-lock" onclick="vlock()">🔒 Посмотреть контакты</button>';
       return h+'</div>';
     }
     function renderVacInto(id, limit){
@@ -313,7 +352,7 @@
     }
     function loadVacancies(){
       fetch(BACKEND_URL+'/vacancies').then(function(r){return r.json();})
-        .then(function(d){ if(d.ok){VACANCIES=d.vacancies||[];renderVacInto('vlist');renderVacInto('home-vac',2);} else document.getElementById('vlist').innerHTML='<div class="info">Не удалось загрузить вакансии.</div>'; })
+        .then(function(d){ if(d.ok){VACANCIES=d.vacancies||[];VACANCIES.forEach(function(v,i){v._i=i;});renderVacInto('vlist');renderVacInto('home-vac',2);} else document.getElementById('vlist').innerHTML='<div class="info">Не удалось загрузить вакансии.</div>'; })
         .catch(function(){document.getElementById('vlist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
 
@@ -421,17 +460,33 @@
       document.getElementById('rvlist').innerHTML=html;
     }
 
-    /* ---------- ДОКУМЕНТЫ ---------- */
-    window.toggleDoc=function(i){docChecked[i]=!docChecked[i];renderDocs();};
+    /* ---------- ДОКУМЕНТЫ (по направлениям) ---------- */
+    var docDir = null;
+    window.openDocDir=function(key){docDir=key;renderDocs();window.scrollTo(0,0);};
+    window.backDocDirs=function(){docDir=null;renderDocs();};
+    window.toggleDoc=function(i){var d=DOC_DIRS.filter(function(x){return x.key===docDir;})[0];var id=docDir+'-'+i;docChecked[id]=!docChecked[id];renderDocs();};
     function renderDocs(){
-      var done=0; for(var k in docChecked) if(docChecked[k]) done++;
-      var html='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#7E96A8">Готовность пакета</span><span style="font-weight:700;color:#F2C14E">'+done+' / '+DOCS.length+'</span></div>';
-      html+='<div class="prog"><div class="prog-bar" style="width:'+(done/DOCS.length*100)+'%"></div></div><div style="font-size:11px;color:#7E96A8">Отмечай, что уже сделано</div></div>';
-      DOCS.forEach(function(d,i){
-        html+='<div class="doc'+(docChecked[i]?' done':'')+'" onclick="toggleDoc('+i+')"><div class="doc-chk">'+(docChecked[i]?'✓':'')+'</div><div><div class="doc-name">'+esc(d.name)+'</div><div class="doc-sub">'+esc(d.sub)+'</div></div></div>';
+      var box=document.getElementById('docsbox');
+      if(docDir===null){
+        var html='<div style="font-size:12px;color:#7E96A8;margin:0 2px 14px;line-height:1.5">Выбери направление — покажу, какие документы нужны именно под него.</div>';
+        DOC_DIRS.forEach(function(d){
+          html+='<div class="dircard" onclick="openDocDir(\''+d.key+'\')"><div class="dirico" style="background:'+d.grad+'">'+d.ico+'</div>';
+          html+='<div style="flex:1"><div class="dirname">'+esc(d.label)+'</div><div class="dircount">'+d.docs.length+' документа</div></div><span style="color:#7E96A8">›</span></div>';
+        });
+        box.innerHTML=html; return;
+      }
+      var dir=DOC_DIRS.filter(function(x){return x.key===docDir;})[0];
+      var done=0; dir.docs.forEach(function(_,i){ if(docChecked[docDir+'-'+i]) done++; });
+      var html='<div class="back" onclick="backDocDirs()">← Все направления</div>';
+      html+='<div class="sec-title">'+esc(dir.label)+'</div>';
+      html+='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#7E96A8">Готовность пакета</span><span style="font-weight:700;color:#F2C14E">'+done+' / '+dir.docs.length+'</span></div>';
+      html+='<div class="prog"><div class="prog-bar" style="width:'+(done/dir.docs.length*100)+'%"></div></div><div style="font-size:11px;color:#7E96A8">Отмечай, что уже готово</div></div>';
+      dir.docs.forEach(function(d,i){
+        var on=docChecked[docDir+'-'+i];
+        html+='<div class="doc'+(on?' done':'')+'" onclick="toggleDoc('+i+')"><div class="doc-chk">'+(on?'✓':'')+'</div><div><div class="doc-name">'+esc(d.name)+'</div><div class="doc-sub">'+esc(d.sub)+'</div></div></div>';
       });
-      html+='<div style="font-size:11.5px;color:#7E96A8;text-align:center;margin-top:12px;line-height:1.5">Не знаешь, с чего начать? Спроси наставника.</div>';
-      document.getElementById('docsbox').innerHTML=html;
+      html+='<div style="font-size:11.5px;color:#7E96A8;text-align:center;margin-top:12px;line-height:1.5">Не знаешь, с чего начать? Спроси наставника в разделе «Наставники».</div>';
+      box.innerHTML=html;
     }
 
     /* ---------- ПРОФИЛЬ ---------- */
@@ -458,8 +513,7 @@
       if(isMember){html+='<div style="font-size:11.5px;color:#7E96A8">Доступ открыт: вакансии, база, обучение и наставники.</div>';}
       else{html+='<div style="font-size:11.5px;color:#7E96A8;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть доступ — 50€/мес</button>';}
       html+='</div>';
-      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист: что нужно собрать</div></div><span style="color:#7E96A8">›</span></div>';
-      html+='<div class="prow" onclick="soon(\'Моё резюме\')"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме</div><div class="prow-s">CV под конкретную вакансию</div></div><span style="color:#7E96A8">›</span></div>';
+      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#7E96A8">›</span></div>';
       html+='<div class="prow" onclick="soon(\'Мои отклики\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">История твоих заявок</div></div><span style="color:#7E96A8">›</span></div>';
       document.getElementById('profbox').innerHTML=html;
     }
@@ -508,10 +562,8 @@
       var h='<div class="grip"></div><div class="det-title">'+esc(c.company||c.vessel||'—')+'</div>';
       h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
       if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
-      if(c.hasPhone)h+='<div class="det-row"><span class="det-ico">📞</span><div><div class="det-k">Телефон</div><div class="det-v">'+esc(c.phone)+'</div></div></div>';
-      if(c.hasEmail)h+='<div class="det-row"><span class="det-ico">✉️</span><div><div class="det-k">Email</div><div class="det-v">'+esc(c.email)+'</div></div></div>';
-      if(c.hasPhone)h+='<a class="btn btn-gold" style="display:block;text-align:center;text-decoration:none;margin-top:6px" href="tel:'+esc(c.phone)+'">Позвонить</a>';
-      if(c.hasEmail)h+='<a class="btn btn-lock" style="display:block;text-align:center;text-decoration:none" href="mailto:'+esc(c.email)+'">Написать на email</a>';
+      if(c.hasPhone)h+=contactRow('📞','Телефон',c.phone,'tel:','Позвонить');
+      if(c.hasEmail)h+=contactRow('✉️','Email',c.email,'mailto:','Написать');
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
