@@ -180,6 +180,19 @@
     @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
     .imgview.on img { animation: viewIn .25s ease both; }
     @media (prefers-reduced-motion: reduce) { *, *::after, *::before { animation: none !important; transition: none !important; } }
+    /* --- скелетоны загрузки --- */
+    .skel { border-radius: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.06); margin-bottom: 11px; position: relative; overflow: hidden; }
+    .skel::after { content:''; position:absolute; inset:0; transform: translateX(-100%);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.07), transparent); animation: shimmer 1.3s infinite; }
+    @keyframes shimmer { 100% { transform: translateX(100%); } }
+    .skel-card { height: 116px; }
+    .skel-row { height: 64px; }
+    /* --- живой фон-море --- */
+    body::before { content:''; position: fixed; inset: -20% -20% -20% -20%; z-index: -1; pointer-events: none;
+      background: radial-gradient(600px 400px at 30% 20%, rgba(59,196,184,0.10), transparent 60%),
+                  radial-gradient(600px 400px at 75% 80%, rgba(242,193,78,0.08), transparent 60%);
+      animation: drift 22s ease-in-out infinite alternate; }
+    @keyframes drift { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-3%,2%) scale(1.05); } 100% { transform: translate(2%,-2%) scale(1); } }
   </style>
 </head>
 <body>
@@ -367,19 +380,43 @@
       var mp=[];if(v.company)mp.push(esc(v.company));if(v.direction)mp.push(esc(v.direction));
       if(mp.length)h+='<div class="meta">📍 '+mp.join(' · ')+'</div>';
       h+='<div class="row">';
-      if(v.pay)h+='<span class="pay">'+esc(v.pay)+'</span>';
+      if(v.pay)h+='<span class="pay">'+payHtml(v.pay)+'</span>';
       if(v.when)h+='<span class="when">🕒 '+esc(v.when)+'</span>';
       h+='</div>';
       h+= isMember ? '<button class="btn btn-gold" onclick="vacContacts('+v._i+')">Посмотреть контакты</button>' : '<button class="btn btn-lock" onclick="vlock()">🔒 Посмотреть контакты</button>';
       return h+'</div>';
+    }
+    // оборачиваем число в зарплате, чтобы его «накрутить»
+    function payHtml(pay){
+      var s=esc(pay);
+      return s.replace(/[\d][\d \u00A0]*\d|\d/, function(m){
+        var num=m.replace(/[ \u00A0]/g,'');
+        return '<span class="cnt" data-to="'+num+'">'+esc(m)+'</span>';
+      });
+    }
+    function animateCounts(box){
+      if(!box)return;
+      var els=box.querySelectorAll('.cnt');
+      els.forEach(function(el){
+        if(el.getAttribute('data-done'))return;
+        el.setAttribute('data-done','1');
+        var to=parseInt(el.getAttribute('data-to'),10); if(isNaN(to))return;
+        var dur=900, start=null;
+        function fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' '); }
+        function step(ts){ if(!start)start=ts; var p=Math.min((ts-start)/dur,1); var e=1-Math.pow(1-p,3); el.textContent=fmt(Math.round(to*e)); if(p<1)requestAnimationFrame(step); }
+        requestAnimationFrame(step);
+      });
     }
     function renderVacInto(id, limit){
       var box=document.getElementById(id); if(!box)return;
       if(!VACANCIES.length){box.innerHTML='<div class="info">Пока нет активных вакансий.</div>';return;}
       var list = limit ? VACANCIES.slice().sort(function(a,b){return (b.urgent?1:0)-(a.urgent?1:0);}).slice(0,limit) : VACANCIES;
       box.innerHTML=list.map(vacCard).join('');
+      animateCounts(box);
     }
+    function skel(cls,n){ var h=''; for(var i=0;i<n;i++)h+='<div class="skel '+cls+'"></div>'; return h; }
     function loadVacancies(){
+      var vb=document.getElementById('vlist'); if(vb)vb.innerHTML=skel('skel-card',3);
       fetch(BACKEND_URL+'/vacancies').then(function(r){return r.json();})
         .then(function(d){ if(d.ok){VACANCIES=d.vacancies||[];VACANCIES.forEach(function(v,i){v._i=i;});renderVacInto('vlist');renderVacInto('home-vac',2);} else document.getElementById('vlist').innerHTML='<div class="info">Не удалось загрузить вакансии.</div>'; })
         .catch(function(){document.getElementById('vlist').innerHTML='<div class="info">Сервер недоступен.</div>';});
@@ -387,7 +424,7 @@
 
     /* ---------- ОБУЧЕНИЕ ---------- */
     function loadLessons(){
-      document.getElementById('plist').innerHTML='<div class="info">Загружаем обучение…</div>';
+      document.getElementById('plist').innerHTML=skel('skel-row',4);
       fetch(BACKEND_URL+'/lessons',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
         .then(function(r){return r.json();})
         .then(function(d){ if(d.ok){LESSONS=d.lessons||[];renderPlan();} else document.getElementById('plist').innerHTML='<div class="info">Не удалось загрузить уроки.</div>'; })
@@ -612,7 +649,7 @@
       document.getElementById('modal').className='overlay';
     };
     function loadContacts(){
-      document.getElementById('clist').innerHTML='<div class="info">Загружаем базу…</div>';
+      document.getElementById('clist').innerHTML=skel('skel-row',5);
       fetch(BACKEND_URL+'/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
         .then(function(r){return r.json();})
         .then(function(d){ if(!d.ok){document.getElementById('clist').innerHTML='<div class="info">Не удалось загрузить базу.</div>';return;}
