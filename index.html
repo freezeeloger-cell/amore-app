@@ -44,7 +44,7 @@
     .search { display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 10px 13px; }
     .search input { flex: 1; background: transparent; border: none; outline: none; color: #EAF2F8; font-family: 'Onest'; font-size: 13.5px; }
     .search input::placeholder { color: #7E96A8; }
-    .chips { display: flex; gap: 7px; overflow-x: auto; margin-top: 10px; padding-bottom: 2px; -ms-overflow-style: none; scrollbar-width: none; }
+    .chips { display: flex; gap: 7px; overflow-x: auto; margin-top: 10px; padding-bottom: 2px; scrollbar-width: none; }
     .chips::-webkit-scrollbar { display: none; }
     .chip { flex: 0 0 auto; padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap;
       border: 1px solid rgba(255,255,255,0.08); color: #7E96A8; background: rgba(255,255,255,0.04); }
@@ -59,6 +59,19 @@
     .masked { color: #7E96A8; }
     .more { width: 100%; padding: 11px; margin-top: 4px; border: 1px dashed rgba(242,193,78,.4); border-radius: 12px; background: rgba(242,193,78,.05); color: #F2C14E; font-family: 'Onest'; font-size: 12.5px; font-weight: 600; cursor: pointer; }
 
+    .dircard { display: flex; align-items: center; gap: 13px; padding: 16px; border-radius: 16px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 11px; cursor: pointer; }
+    .dirico { width: 46px; height: 46px; border-radius: 14px; flex: 0 0 auto; display: grid; place-items: center; font-size: 22px; color: #0a1622; }
+    .dirname { font-size: 15px; font-weight: 700; }
+    .dircount { font-size: 11.5px; color: #F2C14E; font-weight: 600; margin-top: 3px; }
+    .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: #EAF2F8; margin: 6px 0 14px; cursor: pointer; }
+
+    .lesson { display: flex; gap: 12px; align-items: center; padding: 11px; border-radius: 14px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 9px; cursor: pointer; }
+    .thumb { width: 92px; height: 58px; border-radius: 10px; flex: 0 0 auto; background: linear-gradient(135deg,#0e2c44,#16415f); position: relative; display: grid; place-items: center; overflow: hidden; background-size: cover; background-position: center; }
+    .thumb .play { width: 28px; height: 28px; border-radius: 50%; background: rgba(8,18,28,.6); display: grid; place-items: center; color: #fff; font-size: 12px; }
+    .thumb .lk { position: absolute; top: 5px; right: 5px; font-size: 12px; }
+    .ltitle { font-size: 13px; font-weight: 600; line-height: 1.3; }
+    .ldur { font-size: 11px; color: #7E96A8; margin-top: 5px; }
+
     .info { text-align: center; color: #7E96A8; font-size: 13px; padding: 30px 16px; line-height: 1.6; }
     .view.hidden { display: none; }
 
@@ -67,7 +80,7 @@
     .nav-item.on { color: #F2C14E; }
     .nav-ico { font-size: 19px; line-height: 1; }
 
-    .overlay { position: fixed; inset: 0; background: rgba(3,9,15,.75); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: flex-end; }
+    .overlay { position: fixed; inset: 0; background: rgba(3,9,15,.78); backdrop-filter: blur(4px); z-index: 50; display: flex; align-items: flex-end; }
     .overlay.hidden { display: none; }
     .sheet { width: 100%; max-width: 480px; margin: 0 auto; background: linear-gradient(180deg,#0c2236,#081826); border-top-left-radius: 24px; border-top-right-radius: 24px; border-top: 1px solid rgba(255,255,255,0.08); padding: 20px 18px 28px; }
     .grip { width: 40px; height: 4px; border-radius: 99px; background: rgba(255,255,255,.18); margin: 0 auto 16px; }
@@ -77,6 +90,8 @@
     .det-v { font-size: 13px; font-weight: 600; margin-top: 1px; word-break: break-all; }
     .det-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
     .det-sub { font-size: 12px; color: #7E96A8; margin-bottom: 16px; }
+    .player { position: relative; width: 100%; padding-top: 56.25%; border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+    .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .close { text-align: center; font-size: 12.5px; color: #7E96A8; margin-top: 12px; cursor: pointer; }
   </style>
 </head>
@@ -88,19 +103,18 @@
     </div>
     <div class="status load" id="status">⏳ Проверяем доступ…</div>
 
-    <!-- ВАКАНСИИ -->
     <div class="view" id="view-vacancies">
       <div class="sec-title"><span style="color:#FF6A4D">⚡</span> Вакансии</div>
       <div id="vlist"><div class="info">Загружаем вакансии…</div></div>
     </div>
 
-    <!-- БАЗА -->
+    <div class="view hidden" id="view-plan">
+      <div id="plist"><div class="info">Загружаем план действий…</div></div>
+    </div>
+
     <div class="view hidden" id="view-contacts">
       <div class="sec-title"><span style="color:#FF6A4D">⚓</span> База работодателей <span class="c" id="ccount">…</span></div>
-      <div class="search">
-        <span>🔍</span>
-        <input id="csearch" placeholder="Поиск: компания, тип, страна…" />
-      </div>
+      <div class="search"><span>🔍</span><input id="csearch" placeholder="Поиск: компания, тип, страна…" /></div>
       <div class="chips" id="dirchips"></div>
       <div class="chips" id="cntchips"></div>
       <div class="found" id="cfound"></div>
@@ -110,6 +124,7 @@
 
   <div class="nav">
     <div class="nav-item on" id="nav-vacancies" onclick="switchView('vacancies')"><span class="nav-ico">⚡</span>Вакансии</div>
+    <div class="nav-item" id="nav-plan" onclick="switchView('plan')"><span class="nav-ico">🧭</span>План</div>
     <div class="nav-item" id="nav-contacts" onclick="switchView('contacts')"><span class="nav-ico">⚓</span>База</div>
   </div>
 
@@ -123,19 +138,27 @@
     var FLAG = { "Норвегия": "🇳🇴", "Дания": "🇩🇰", "Британия": "🇬🇧" };
     var DIRS = ["Все", "Рыболовные суда", "Замывка трюмов", "Яхты", "Торговый флот"];
     var CNTS = ["Все", "Норвегия", "Дания", "Британия"];
+    var PLAN_DIRS = [
+      { name: "Рыболовные суда", ico: "⚓", grad: "linear-gradient(135deg,#F2C14E,#E0A93B)" },
+      { name: "Замывка трюмов", ico: "🧽", grad: "linear-gradient(135deg,#5B8DEF,#3B5BC4)" },
+      { name: "Яхты", ico: "🛥️", grad: "linear-gradient(135deg,#E07AC4,#9B4FC4)" },
+      { name: "Торговый флот", ico: "🚢", grad: "linear-gradient(135deg,#3BC4B8,#2A8FA8)" }
+    ];
 
     var CONTACTS = [], cSearch = "", cDir = "Все", cCnt = "Все", cVisible = 30, PAGE = 30;
+    var LESSONS = [], planDir = null;
 
     function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
     function popup(m){ if(tg&&tg.showAlert)tg.showAlert(m); else alert(m); }
     function setStatus(cls,t){var s=document.getElementById('status');s.className='status '+cls;s.textContent=t;}
 
     function switchView(v){
-      document.getElementById('view-vacancies').className = 'view' + (v==='vacancies'?'':' hidden');
-      document.getElementById('view-contacts').className = 'view' + (v==='contacts'?'':' hidden');
-      document.getElementById('nav-vacancies').className = 'nav-item' + (v==='vacancies'?' on':'');
-      document.getElementById('nav-contacts').className = 'nav-item' + (v==='contacts'?' on':'');
-      if (v==='contacts' && CONTACTS.length===0) loadContacts();
+      ['vacancies','plan','contacts'].forEach(function(name){
+        document.getElementById('view-'+name).className = 'view' + (v===name?'':' hidden');
+        document.getElementById('nav-'+name).className = 'nav-item' + (v===name?' on':'');
+      });
+      if(v==='contacts' && CONTACTS.length===0) loadContacts();
+      if(v==='plan'){ planDir=null; if(LESSONS.length===0) loadLessons(); else renderPlan(); }
     }
 
     /* ---------- ВАКАНСИИ ---------- */
@@ -167,6 +190,54 @@
         .catch(function(){document.getElementById('vlist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
 
+    /* ---------- ПЛАН ДЕЙСТВИЙ ---------- */
+    function loadLessons(){
+      document.getElementById('plist').innerHTML='<div class="info">Загружаем план действий…</div>';
+      fetch(BACKEND_URL+'/lessons',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
+        .then(function(r){return r.json();})
+        .then(function(d){ if(d.ok){LESSONS=d.lessons||[];renderPlan();} else document.getElementById('plist').innerHTML='<div class="info">Не удалось загрузить уроки.</div>'; })
+        .catch(function(){document.getElementById('plist').innerHTML='<div class="info">Сервер недоступен.</div>';});
+    }
+    window.openDir=function(name){planDir=name;renderPlan();};
+    window.backToDirs=function(){planDir=null;renderPlan();};
+    function renderPlan(){
+      var box=document.getElementById('plist');
+      if(planDir===null){
+        var html='<div class="sec-title"><span style="color:#FF6A4D">🧭</span> План действий</div>';
+        PLAN_DIRS.forEach(function(p){
+          var n=LESSONS.filter(function(l){return l.direction===p.name;}).length;
+          html+='<div class="dircard" onclick="openDir(\''+p.name+'\')">';
+          html+='<div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div>';
+          html+='<div style="flex:1"><div class="dirname">'+p.name+'</div><div class="dircount">'+n+' уроков</div></div>';
+          html+='<span style="color:#7E96A8">›</span></div>';
+        });
+        box.innerHTML=html;
+        return;
+      }
+      var ls=LESSONS.filter(function(l){return l.direction===planDir;}).sort(function(a,b){return a.order-b.order;});
+      var html='<div class="back" onclick="backToDirs()">← Назад</div><div class="sec-title">'+esc(planDir)+'</div>';
+      if(!ls.length){ box.innerHTML=html+'<div class="info">В этом направлении пока нет уроков.</div>'; return; }
+      window.__lessons=ls;
+      ls.forEach(function(l,i){
+        var thumbStyle = l.videoId ? 'background-image:url(https://img.youtube.com/vi/'+l.videoId+'/mqdefault.jpg)' : '';
+        html+='<div class="lesson" onclick="openLesson('+i+')">';
+        html+='<div class="thumb" style="'+thumbStyle+'"><div class="play">▶</div>'+(l.videoId?'':'<span class="lk">🔒</span>')+'</div>';
+        html+='<div style="flex:1"><div class="ltitle">'+esc(l.title)+'</div><div class="ldur">▶ Урок '+(i+1)+(l.duration?' · '+esc(l.duration):'')+'</div></div>';
+        html+= l.videoId ? '' : '<span style="color:#F2C14E">🔒</span>';
+        html+='</div>';
+      });
+      box.innerHTML=html;
+    }
+    window.openLesson=function(i){
+      var l=window.__lessons[i];
+      if(!l.videoId){ popup('Уроки доступны участникам AMORE. Оформи подписку, чтобы смотреть видео.'); return; }
+      var h='<div class="grip"></div><div class="det-title">'+esc(l.title)+'</div>';
+      h+='<div class="player"><iframe src="https://www.youtube.com/embed/'+encodeURIComponent(l.videoId)+'" allow="encrypted-media; fullscreen" allowfullscreen></iframe></div>';
+      h+='<div class="close" onclick="closeModal()">Закрыть</div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+    };
+
     /* ---------- БАЗА ---------- */
     function renderChips(){
       document.getElementById('dirchips').innerHTML = DIRS.map(function(d){return '<div class="chip'+(cDir===d?' on':'')+'" onclick="setDir(\''+d+'\')">'+d+'</div>';}).join('');
@@ -174,7 +245,6 @@
     }
     window.setDir=function(d){cDir=d;cVisible=PAGE;renderChips();renderContacts();};
     window.setCnt=function(c){cCnt=c;cVisible=PAGE;renderChips();renderContacts();};
-
     function filtered(){
       var t=cSearch.trim().toLowerCase();
       return CONTACTS.filter(function(c){
@@ -185,38 +255,31 @@
       });
     }
     function renderContacts(){
-      var box=document.getElementById('clist');
-      var list=filtered();
+      var box=document.getElementById('clist'); var list=filtered();
       document.getElementById('cfound').innerHTML='Найдено <b>'+list.length+'</b>';
       if(!list.length){box.innerHTML='<div class="info">Ничего не нашлось. Поменяй запрос или фильтр.</div>';return;}
-      var shown=list.slice(0,cVisible);
+      var shown=list.slice(0,cVisible); window.__shown=shown;
       var html='';
       shown.forEach(function(c,idx){
         var fl=c.country?FLAG[c.country]||'':'';
         var name = isMember ? esc(c.company||c.vessel||'—') : '<span class="masked">🔒 Контакт скрыт</span>';
-        html+='<div class="ccard" onclick="openContact('+idx+')">';
-        html+='<div style="flex:1;min-width:0"><div class="cname">'+name;
+        html+='<div class="ccard" onclick="openContact('+idx+')"><div style="flex:1;min-width:0"><div class="cname">'+name;
         if(c.hiring)html+='<span class="badge hire">набирает</span>';
         html+='</div><div class="cmeta">'+fl+' '+esc(c.country||'—');
         if(c.type)html+=' · '+esc(c.type);
         html+=' · '+esc(c.direction||'');
-        if(isMember&&(c.hasPhone||c.hasEmail)){html+=' <span class="avail">'+(c.hasPhone?'📞':'')+(c.hasEmail?'✉️':'')+'</span>';}
-        html+='</div></div>';
-        html+= isMember ? '<span style="color:#7E96A8">›</span>' : '<span style="color:#F2C14E">🔒</span>';
-        html+='</div>';
+        if(isMember&&(c.hasPhone||c.hasEmail))html+=' <span class="avail">'+(c.hasPhone?'📞':'')+(c.hasEmail?'✉️':'')+'</span>';
+        html+='</div></div>'+(isMember?'<span style="color:#7E96A8">›</span>':'<span style="color:#F2C14E">🔒</span>')+'</div>';
       });
       box.innerHTML=html;
-      // запоминаем текущий отфильтрованный список для open
-      window.__shown=shown;
-      if(list.length>cVisible){box.innerHTML+='<button class="more" onclick="showMore()">Показать ещё ('+cVisible+' из '+list.length+')</button>';}
+      if(list.length>cVisible)box.innerHTML+='<button class="more" onclick="showMore()">Показать ещё ('+cVisible+' из '+list.length+')</button>';
     }
     window.showMore=function(){cVisible+=PAGE;renderContacts();};
     window.openContact=function(idx){
       var c=window.__shown[idx];
       if(!isMember){popup('Контакты доступны участникам AMORE. Оформи подписку, чтобы открыть базу.');return;}
       var fl=c.country?FLAG[c.country]||'':'';
-      var h='<div class="grip"></div>';
-      h+='<div class="det-title">'+esc(c.company||c.vessel||'—')+'</div>';
+      var h='<div class="grip"></div><div class="det-title">'+esc(c.company||c.vessel||'—')+'</div>';
       h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
       if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
       if(c.hasPhone)h+='<div class="det-row"><span class="det-ico">📞</span><div><div class="det-k">Телефон</div><div class="det-v">'+esc(c.phone)+'</div></div></div>';
@@ -227,24 +290,20 @@
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
     };
-    window.closeModal=function(){document.getElementById('modal').className='overlay hidden';};
-    document.getElementById('modal').addEventListener('click',function(e){if(e.target.id==='modal')closeModal();});
-
     function loadContacts(){
       document.getElementById('clist').innerHTML='<div class="info">Загружаем базу…</div>';
       fetch(BACKEND_URL+'/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
         .then(function(r){return r.json();})
-        .then(function(d){
-          if(!d.ok){document.getElementById('clist').innerHTML='<div class="info">Не удалось загрузить базу.</div>';return;}
-          CONTACTS=d.contacts||[];
-          document.getElementById('ccount').textContent=d.count+' контактов';
-          renderChips();renderContacts();
-        })
+        .then(function(d){ if(!d.ok){document.getElementById('clist').innerHTML='<div class="info">Не удалось загрузить базу.</div>';return;}
+          CONTACTS=d.contacts||[]; document.getElementById('ccount').textContent=d.count+' контактов'; renderChips(); renderContacts(); })
         .catch(function(){document.getElementById('clist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
     document.getElementById('csearch').addEventListener('input',function(e){cSearch=e.target.value;cVisible=PAGE;renderContacts();});
 
-    /* ---------- СТАРТ ---------- */
+    /* ---------- ОБЩЕЕ ---------- */
+    window.closeModal=function(){document.getElementById('modal').className='overlay hidden';document.getElementById('sheet').innerHTML='';};
+    document.getElementById('modal').addEventListener('click',function(e){if(e.target.id==='modal')closeModal();});
+
     (function(){
       if(!tg||!tg.initData){ setStatus('guest','Открой через бота'); loadVacancies(); return; }
       tg.ready(); tg.expand();
