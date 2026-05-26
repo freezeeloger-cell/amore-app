@@ -127,6 +127,14 @@
     .player { position: relative; width: 100%; padding-top: 56.25%; border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
     .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .close { text-align: center; font-size: 12.5px; color: #7E96A8; margin-top: 12px; cursor: pointer; }
+
+    .hero { padding: 18px; border-radius: 20px; background: linear-gradient(150deg, rgba(242,193,78,.12), rgba(59,196,184,.07)); border: 1px solid rgba(255,255,255,.08); margin-bottom: 14px; }
+    .hero-name { font-family:'Unbounded'; font-weight:800; font-size:24px; background:linear-gradient(90deg,#F2C14E,#FF6A4D); -webkit-background-clip:text; background-clip:text; color:transparent; }
+    .hero-tag { font-size:13px; font-weight:700; color:#EAF2F8; margin-top:2px; }
+    .hero-desc { font-size:12.5px; color:#7E96A8; line-height:1.55; margin-top:10px; }
+    .hero-row { display:flex; gap:8px; margin-top:8px; font-size:11px; color:#3BC4B8; font-weight:600; }
+    .hero-row span { flex:1; background:rgba(59,196,184,.08); border:1px solid rgba(59,196,184,.18); border-radius:9px; padding:7px 9px; text-align:center; }
+    .m-av img { object-position: center 18%; }
   </style>
 </head>
 <body>
@@ -250,6 +258,11 @@
     /* ---------- ГЛАВНАЯ ---------- */
     function renderHome(){
       var html='';
+      html+='<div class="hero"><div class="hero-name">⚓ AMORE</div>';
+      html+='<div class="hero-tag">Сообщество для работы в море</div>';
+      html+='<div class="hero-desc">Помогаем новичкам выйти в море с нуля, а опытным морякам — сменить направление и тип флота. Норвегия, Дания, Британия: краболовы и рыбаки, торговый флот, яхты, замывка трюмов.</div>';
+      html+='<div class="hero-row"><span>⚓ База работодателей</span><span>⚡ Свежие вакансии</span></div>';
+      html+='<div class="hero-row"><span>📚 Обучение с нуля</span><span>👥 Наставники-практики</span></div></div>';
       if(!isMember){
         html+='<div class="plan-box"><div style="font-size:14.5px;font-weight:700;margin-bottom:6px">Открой полный доступ к AMORE</div>';
         html+='<div style="font-size:12px;color:#7E96A8;margin-bottom:12px">Вакансии, база работодателей, обучение и наставники.</div>';
@@ -267,7 +280,7 @@
 
     /* ---------- ВАКАНСИИ ---------- */
     window.respond=function(){popup('Отклик отправлен. (Реальную отправку прикрутим позже.)');};
-    window.vlock=function(){popup('Отклики доступны участникам AMORE. Оформи подписку.');};
+    window.vlock=function(){paywall('Отклик на вакансию','Откликаться на вакансии могут участники AMORE — это прямой выход на работодателя и помощь с заявкой.');};
     function vacCard(v){
       var h='<div class="card"><div class="card-top"><div class="role">'+esc(v.role)+'</div>';
       if(v.urgent)h+='<span class="badge">Срочно</span>';
@@ -328,7 +341,7 @@
     }
     window.openLesson=function(i){
       var l=window.__lessons[i];
-      if(!l.videoId){popup('Уроки доступны участникам AMORE. Оформи подписку, чтобы смотреть видео.');return;}
+      if(!l.videoId){paywall('Видео-уроки','Полный путь на судно с нуля по твоему направлению. Обучение доступно участникам AMORE.');return;}
       var h='<div class="grip"></div><div class="det-title">'+esc(l.title)+'</div>';
       h+='<div class="player"><iframe src="https://www.youtube.com/embed/'+encodeURIComponent(l.videoId)+'" allow="encrypted-media; fullscreen" allowfullscreen></iframe></div>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
@@ -337,7 +350,7 @@
     };
 
     /* ---------- НАСТАВНИКИ ---------- */
-    window.askMentor=function(name){ if(!isMember){popup('Вопросы наставникам — для участников AMORE. Оформи подписку.');return;} popup('Задай вопрос наставнику ('+name+') в чате сообщества AMORE.'); };
+    window.askMentor=function(name){ if(!isMember){paywall('Вопрос наставнику','Наставники-практики ответят лично по твоему флоту. Доступно участникам AMORE.');return;} popup('Задай вопрос наставнику ('+name+') в чате сообщества AMORE.'); };
     function renderMentors(){
       var html='';
       MENTORS.forEach(function(m){
@@ -373,6 +386,17 @@
 
     /* ---------- ПРОФИЛЬ ---------- */
     window.subscribe=function(){ if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_URL);} else {window.open(TRIBUTE_URL,'_blank');} };
+    window.paywall=function(title, text){
+      var h='<div class="grip"></div>';
+      h+='<div style="text-align:center;font-size:36px;margin-bottom:6px">🔒</div>';
+      h+='<div class="det-title" style="text-align:center">'+title+'</div>';
+      h+='<div style="text-align:center;font-size:13px;color:#7E96A8;line-height:1.5;margin:8px 4px 18px">'+text+'</div>';
+      h+='<div class="plan-box" style="margin:0 0 8px"><div style="text-align:center;margin-bottom:6px"><span class="plan-price">50€</span> <span class="plan-per">/ месяц</span></div>';
+      h+='<button class="btn btn-gold" onclick="subscribe()">Оформить подписку</button></div>';
+      h+='<div class="close" onclick="closeModal()">Позже</div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+    };
     window.soon=function(t){popup(t+' — скоро будет доступно.');};
     function renderProfile(){
       var initial=uName?uName.charAt(0).toUpperCase():'?';
@@ -429,7 +453,7 @@
     window.showMore=function(){cVisible+=PAGE;renderContacts();};
     window.openContact=function(idx){
       var c=window.__shown[idx];
-      if(!isMember){popup('Контакты доступны участникам AMORE. Оформи подписку, чтобы открыть базу.');return;}
+      if(!isMember){paywall('База работодателей','Тысяча проверенных контактов с телефонами и почтой — звони работодателю напрямую. Открыто участникам AMORE.');return;}
       var fl=c.country?FLAG[c.country]||'':'';
       var h='<div class="grip"></div><div class="det-title">'+esc(c.company||c.vessel||'—')+'</div>';
       h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
