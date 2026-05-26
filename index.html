@@ -12,10 +12,9 @@
       background: radial-gradient(700px 400px at 20% -10%, rgba(59,196,184,0.12), transparent 60%),
                   radial-gradient(700px 500px at 110% 12%, rgba(242,193,78,0.10), transparent 55%),
                   linear-gradient(160deg,#04101B 0%,#071726 60%,#04101B 100%); }
-    .app { max-width: 480px; margin: 0 auto; padding: 18px 16px 90px; }
+    .app { max-width: 480px; margin: 0 auto; padding: 18px 16px 92px; }
     .head { display: flex; align-items: center; gap: 12px; }
-    .logo { width: 42px; height: 42px; border-radius: 13px; flex: 0 0 auto; display: grid; place-items: center;
-      font-family: 'Unbounded'; font-weight: 800; font-size: 21px; color: #0a1622; background: linear-gradient(135deg,#F2C14E,#FF6A4D); }
+    .logo { width: 42px; height: 42px; border-radius: 13px; flex: 0 0 auto; display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 800; font-size: 21px; color: #0a1622; background: linear-gradient(135deg,#F2C14E,#FF6A4D); }
     .greet { font-size: 16px; font-weight: 700; line-height: 1.2; }
     .greet .name { background: linear-gradient(90deg,#F2C14E,#FF6A4D); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .subt { font-size: 11px; color: #7E96A8; margin-top: 2px; }
@@ -25,13 +24,13 @@
     .status.load { color: #7E96A8; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
 
     .sec-title { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 18px 2px 12px; }
-    .sec-title .c { margin-left: auto; font-size: 11px; font-weight: 600; color: #F2C14E; background: rgba(242,193,78,.12); border: 1px solid rgba(242,193,78,.25); padding: 3px 9px; border-radius: 999px; }
+    .see { margin-left: auto; font-size: 11px; font-weight: 600; color: #F2C14E; cursor: pointer; }
+    .ccount { margin-left: auto; font-size: 11px; font-weight: 600; color: #F2C14E; background: rgba(242,193,78,.12); border: 1px solid rgba(242,193,78,.25); padding: 3px 9px; border-radius: 999px; }
 
     .card { background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 14px; margin-bottom: 11px; }
     .card-top { display: flex; align-items: flex-start; gap: 8px; }
     .role { font-size: 14.5px; font-weight: 600; line-height: 1.25; flex: 1; }
-    .badge { font-size: 9px; font-weight: 700; padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; flex: 0 0 auto;
-      background: rgba(255,106,77,.16); color: #FF6A4D; border: 1px solid rgba(255,106,77,.35); }
+    .badge { font-size: 9px; font-weight: 700; padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; flex: 0 0 auto; background: rgba(255,106,77,.16); color: #FF6A4D; border: 1px solid rgba(255,106,77,.35); }
     .badge.hire { background: rgba(59,196,184,.15); color: #3BC4B8; border-color: rgba(59,196,184,.3); }
     .meta { font-size: 11.5px; color: #7E96A8; margin-top: 6px; }
     .row { display: flex; align-items: center; gap: 14px; margin-top: 11px; flex-wrap: wrap; }
@@ -46,8 +45,7 @@
     .search input::placeholder { color: #7E96A8; }
     .chips { display: flex; gap: 7px; overflow-x: auto; margin-top: 10px; padding-bottom: 2px; scrollbar-width: none; }
     .chips::-webkit-scrollbar { display: none; }
-    .chip { flex: 0 0 auto; padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap;
-      border: 1px solid rgba(255,255,255,0.08); color: #7E96A8; background: rgba(255,255,255,0.04); }
+    .chip { flex: 0 0 auto; padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 500; cursor: pointer; white-space: nowrap; border: 1px solid rgba(255,255,255,0.08); color: #7E96A8; background: rgba(255,255,255,0.04); }
     .chip.on { background: linear-gradient(135deg,#F2C14E,#E0A93B); color: #0a1622; border-color: transparent; font-weight: 600; }
     .found { font-size: 11px; color: #7E96A8; margin: 12px 2px; }
     .found b { color: #EAF2F8; }
@@ -72,11 +70,47 @@
     .ltitle { font-size: 13px; font-weight: 600; line-height: 1.3; }
     .ldur { font-size: 11px; color: #7E96A8; margin-top: 5px; }
 
+    .mentor { display: flex; gap: 13px; padding: 15px; border-radius: 16px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 11px; }
+    .m-av { width: 56px; height: 56px; border-radius: 15px; flex: 0 0 auto; display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 700; font-size: 17px; color: #0a1622; overflow: hidden; }
+    .m-name { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .m-dir { font-size: 10.5px; color: #F2C14E; font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; }
+    .m-bio { font-size: 12px; color: #7E96A8; margin-top: 7px; line-height: 1.45; }
+    .m-ask { margin-top: 10px; font-size: 12px; color: #3BC4B8; font-weight: 600; cursor: pointer; }
+
+    .review { padding: 15px; border-radius: 16px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 11px; }
+    .rv-text { font-size: 13px; line-height: 1.5; color: #EAF2F8; }
+    .rv-who { display: flex; align-items: center; gap: 9px; margin-top: 12px; }
+    .rv-av { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 700; font-size: 13px; color: #0a1622; background: linear-gradient(135deg,#3BC4B8,#2A8FA8); flex: 0 0 auto; }
+    .rv-name { font-size: 12.5px; font-weight: 600; }
+    .rv-dir { font-size: 10.5px; color: #7E96A8; }
+    .rv-stars { color: #F2C14E; font-size: 12px; margin-bottom: 8px; }
+
+    .prof-head { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 18px 0 6px; }
+    .prof-av { width: 72px; height: 72px; border-radius: 22px; display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 700; font-size: 26px; color: #0a1622; background: linear-gradient(135deg,#F2C14E,#FF6A4D); margin-bottom: 12px; }
+    .prof-name { font-size: 18px; font-weight: 700; }
+    .prof-tag { font-size: 11.5px; color: #7E96A8; margin-top: 3px; }
+    .plan-box { margin: 16px 0; padding: 17px; border-radius: 18px; background: linear-gradient(135deg,rgba(242,193,78,.13),rgba(255,106,77,.07)); border: 1px solid rgba(242,193,78,.25); }
+    .plan-price { font-family: 'Unbounded'; font-size: 28px; font-weight: 800; color: #F2C14E; }
+    .plan-per { font-size: 12px; color: #7E96A8; font-weight: 500; }
+    .prow { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 13px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 9px; cursor: pointer; }
+    .prow-ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: rgba(255,255,255,0.05); flex: 0 0 auto; font-size: 18px; }
+    .prow-t { font-size: 13.5px; font-weight: 600; }
+    .prow-s { font-size: 11px; color: #7E96A8; margin-top: 2px; }
+    .doc { display: flex; align-items: center; gap: 13px; padding: 13px; border-radius: 13px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 9px; cursor: pointer; }
+    .doc.done { background: rgba(59,196,184,.07); border-color: rgba(59,196,184,.25); }
+    .doc-chk { width: 24px; height: 24px; border-radius: 7px; border: 2px solid rgba(255,255,255,0.15); flex: 0 0 auto; display: grid; place-items: center; color: #04101b; font-size: 13px; }
+    .doc.done .doc-chk { background: #3BC4B8; border-color: #3BC4B8; }
+    .doc-name { font-size: 13.5px; font-weight: 600; }
+    .doc.done .doc-name { color: #7E96A8; text-decoration: line-through; }
+    .doc-sub { font-size: 11px; color: #7E96A8; margin-top: 2px; }
+    .prog { height: 7px; border-radius: 99px; background: rgba(255,255,255,.06); overflow: hidden; margin: 8px 0 4px; }
+    .prog-bar { height: 100%; background: linear-gradient(90deg,#3BC4B8,#F2C14E); border-radius: 99px; transition: width .3s; }
+
     .info { text-align: center; color: #7E96A8; font-size: 13px; padding: 30px 16px; line-height: 1.6; }
     .view.hidden { display: none; }
 
-    .nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; background: rgba(7,21,33,0.92); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.08); padding: 9px 6px 13px; }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: #7E96A8; font-size: 10px; font-weight: 600; }
+    .nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; background: rgba(7,21,33,0.94); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,0.08); padding: 9px 4px 13px; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: #7E96A8; font-size: 9.5px; font-weight: 600; }
     .nav-item.on { color: #F2C14E; }
     .nav-ico { font-size: 19px; line-height: 1; }
 
@@ -93,33 +127,6 @@
     .player { position: relative; width: 100%; padding-top: 56.25%; border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
     .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .close { text-align: center; font-size: 12.5px; color: #7E96A8; margin-top: 12px; cursor: pointer; }
-
-    .mentor { display: flex; gap: 13px; padding: 15px; border-radius: 16px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 11px; }
-    .m-av { width: 52px; height: 52px; border-radius: 15px; flex: 0 0 auto; display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 700; font-size: 17px; color: #0a1622; }
-    .m-name { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-    .m-dir { font-size: 10.5px; color: #F2C14E; font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; }
-    .m-bio { font-size: 12px; color: #7E96A8; margin-top: 7px; line-height: 1.45; }
-    .m-ask { margin-top: 10px; font-size: 12px; color: #3BC4B8; font-weight: 600; cursor: pointer; }
-    .prof-head { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 18px 0 6px; }
-    .prof-av { width: 72px; height: 72px; border-radius: 22px; display: grid; place-items: center; font-family: 'Unbounded'; font-weight: 700; font-size: 26px; color: #0a1622; background: linear-gradient(135deg,#F2C14E,#FF6A4D); margin-bottom: 12px; }
-    .prof-name { font-size: 18px; font-weight: 700; }
-    .prof-tag { font-size: 11.5px; color: #7E96A8; margin-top: 3px; }
-    .plan-box { margin: 16px 0; padding: 17px; border-radius: 18px; background: linear-gradient(135deg,rgba(242,193,78,.13),rgba(255,106,77,.07)); border: 1px solid rgba(242,193,78,.25); }
-    .plan-price { font-family: 'Unbounded'; font-size: 28px; font-weight: 800; color: #F2C14E; }
-    .plan-per { font-size: 12px; color: #7E96A8; font-weight: 500; }
-    .prow { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 13px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 9px; cursor: pointer; }
-    .prow-ico { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: rgba(255,255,255,0.05); flex: 0 0 auto; font-size: 17px; }
-    .prow-t { font-size: 13.5px; font-weight: 600; }
-    .prow-s { font-size: 11px; color: #7E96A8; margin-top: 2px; }
-    .doc { display: flex; align-items: center; gap: 13px; padding: 13px; border-radius: 13px; background: rgba(255,255,255,0.035); border: 1px solid rgba(255,255,255,0.08); margin-bottom: 9px; cursor: pointer; }
-    .doc.done { background: rgba(59,196,184,.07); border-color: rgba(59,196,184,.25); }
-    .doc-chk { width: 24px; height: 24px; border-radius: 7px; border: 2px solid rgba(255,255,255,0.15); flex: 0 0 auto; display: grid; place-items: center; color: #04101b; }
-    .doc.done .doc-chk { background: #3BC4B8; border-color: #3BC4B8; }
-    .doc-name { font-size: 13.5px; font-weight: 600; }
-    .doc.done .doc-name { color: #7E96A8; text-decoration: line-through; }
-    .doc-sub { font-size: 11px; color: #7E96A8; margin-top: 2px; }
-    .prog { height: 7px; border-radius: 99px; background: rgba(255,255,255,.06); overflow: hidden; margin: 8px 0 4px; }
-    .prog-bar { height: 100%; background: linear-gradient(90deg,#3BC4B8,#F2C14E); border-radius: 99px; transition: width .3s; }
   </style>
 </head>
 <body>
@@ -130,32 +137,38 @@
     </div>
     <div class="status load" id="status">⏳ Проверяем доступ…</div>
 
-    <div class="view" id="view-vacancies">
+    <div class="view" id="view-home"><div id="homebox"></div></div>
+
+    <div class="view hidden" id="view-vacancies">
       <div class="sec-title"><span style="color:#FF6A4D">⚡</span> Вакансии</div>
       <div id="vlist"><div class="info">Загружаем вакансии…</div></div>
     </div>
 
-    <div class="view hidden" id="view-plan">
-      <div id="plist"><div class="info">Загружаем план действий…</div></div>
-    </div>
+    <div class="view hidden" id="view-plan"><div id="plist"><div class="info">Загружаем обучение…</div></div></div>
 
     <div class="view hidden" id="view-contacts">
-      <div class="sec-title"><span style="color:#FF6A4D">⚓</span> База работодателей <span class="c" id="ccount">…</span></div>
+      <div class="sec-title"><span style="color:#FF6A4D">⚓</span> База работодателей <span class="ccount" id="ccount">…</span></div>
       <div class="search"><span>🔍</span><input id="csearch" placeholder="Поиск: компания, тип, страна…" /></div>
       <div class="chips" id="dirchips"></div>
       <div class="chips" id="cntchips"></div>
       <div class="found" id="cfound"></div>
       <div id="clist"></div>
     </div>
+
     <div class="view hidden" id="view-mentors">
+      <div class="back" onclick="switchView('home')">← Назад</div>
       <div class="sec-title"><span style="color:#FF6A4D">👥</span> Наставники</div>
       <div style="font-size:12px;color:#7E96A8;margin:0 2px 14px;line-height:1.5">Каждый — практик в своём деле. Опыт и контакты сразу по нескольким флотам.</div>
       <div id="mlist"></div>
     </div>
 
-    <div class="view hidden" id="view-profile">
-      <div id="profbox"></div>
+    <div class="view hidden" id="view-reviews">
+      <div class="back" onclick="switchView('home')">← Назад</div>
+      <div class="sec-title"><span style="color:#FF6A4D">💬</span> Отзывы</div>
+      <div id="rvlist"></div>
     </div>
+
+    <div class="view hidden" id="view-profile"><div id="profbox"></div></div>
 
     <div class="view hidden" id="view-docs">
       <div class="back" onclick="switchView('profile')">← Назад</div>
@@ -165,10 +178,10 @@
   </div>
 
   <div class="nav">
-    <div class="nav-item on" id="nav-vacancies" onclick="switchView('vacancies')"><span class="nav-ico">⚡</span>Вакансии</div>
-    <div class="nav-item" id="nav-plan" onclick="switchView('plan')"><span class="nav-ico">🧭</span>План</div>
+    <div class="nav-item on" id="nav-home" onclick="switchView('home')"><span class="nav-ico">🏠</span>Главная</div>
+    <div class="nav-item" id="nav-plan" onclick="switchView('plan')"><span class="nav-ico">📚</span>Обучение</div>
+    <div class="nav-item" id="nav-vacancies" onclick="switchView('vacancies')"><span class="nav-ico">⚡</span>Вакансии</div>
     <div class="nav-item" id="nav-contacts" onclick="switchView('contacts')"><span class="nav-ico">⚓</span>База</div>
-    <div class="nav-item" id="nav-mentors" onclick="switchView('mentors')"><span class="nav-ico">👥</span>Наставники</div>
     <div class="nav-item" id="nav-profile" onclick="switchView('profile')"><span class="nav-ico">👤</span>Профиль</div>
   </div>
 
@@ -176,8 +189,9 @@
 
   <script>
     var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
+    var TRIBUTE_URL = "https://t.me/tribute/app?startapp=sUKo";
     var tg = window.Telegram ? window.Telegram.WebApp : null;
-    var isMember = false;
+    var isMember = false, uName = "моряк";
 
     var FLAG = { "Норвегия": "🇳🇴", "Дания": "🇩🇰", "Британия": "🇬🇧" };
     var DIRS = ["Все", "Рыболовные суда", "Замывка трюмов", "Яхты", "Торговый флот"];
@@ -188,103 +202,133 @@
       { value: "Яхты", label: "Яхты", ico: "🛥️", grad: "linear-gradient(135deg,#E07AC4,#9B4FC4)" },
       { value: "Торговый флот", label: "Торговый флот", ico: "🚢", grad: "linear-gradient(135deg,#3BC4B8,#2A8FA8)" }
     ];
+    var MENTORS = [
+      { photo:"m-danil.jpg", init:"ДБ", grad:"linear-gradient(135deg,#F2C14E,#FF6A4D)", name:"Даниил Богатко", dir:"Краболовы · Рыбаки", bio:"В море с 2019 года, прошёл путь с нуля. 8 судов Норвегии, Дании и Британии." },
+      { photo:"m-ganchurin.jpg", init:"ВГ", grad:"linear-gradient(135deg,#3BC4B8,#2A8FA8)", name:"Владислав Ганчурин", dir:"Торговый флот", bio:"Офицер-механик. Балкеры, ro-ro, контейнеровозы — путь от кадета." },
+      { photo:"m-makarenko.jpg", init:"ВМ", grad:"linear-gradient(135deg,#5B8DEF,#3B5BC4)", name:"Владислав Макаренко", dir:"Замывка трюмов", bio:"10 лет в профессии, бригадир. Химчистка, мойка, покраска на всех типах судов." },
+      { photo:"m-gumenny.jpg", init:"НГ", grad:"linear-gradient(135deg,#E07AC4,#9B4FC4)", name:"Никита Гуменный", dir:"Яхтинг", bio:"От кадета на торговом флоте до офицера-механика на больших яхтах." }
+    ];
+    var REVIEWS = [
+      { init:"Б", name:"Богдан, Одесса", dir:"Краболовы", text:"Зашёл на норвежское судно с нуля и прошёл первый рейс. Без AMORE искал бы вслепую — тут дали контакты и довели до выхода." },
+      { init:"С", name:"(пример отзыва)", dir:"Торговый флот", text:"Замени этот текст на реальный отзыв ученика — отзывы лучше всего убеждают гостя оформить подписку." }
+    ];
+    var DOCS = [
+      { name:"STCW сертификаты", sub:"Базовая безопасность — обязательно" },
+      { name:"Мореходная книжка", sub:"Seaman's book" },
+      { name:"Медкомиссия", sub:"Медицинский сертификат моряка" },
+      { name:"Апостиль документов", sub:"Для подачи за границу" },
+      { name:"Виза (Дания / Британия)", sub:"Под конкретное направление" },
+      { name:"Загранпаспорт", sub:"Срок действия от 12 месяцев" }
+    ];
 
-    var CONTACTS = [], cSearch = "", cDir = "Все", cCnt = "Все", cVisible = 30, PAGE = 30;
-    var LESSONS = [], planDir = null;
+    var VACANCIES = [], CONTACTS = [], LESSONS = [], planDir = null;
+    var cSearch = "", cDir = "Все", cCnt = "Все", cVisible = 30, PAGE = 30;
+    var docChecked = {};
 
     function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
     function popup(m){ if(tg&&tg.showAlert)tg.showAlert(m); else alert(m); }
     function setStatus(cls,t){var s=document.getElementById('status');s.className='status '+cls;s.textContent=t;}
+    window.avFallback=function(img){ var d=img.parentNode; d.textContent=d.getAttribute('data-init'); };
 
-    var NAV = ['vacancies','plan','contacts','mentors','profile'];
+    var NAV=['home','plan','vacancies','contacts','profile'];
+    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs'];
+    var PARENT={mentors:'home',reviews:'home',docs:'profile'};
     function switchView(v){
-      // прячем все вкладки, включая docs (он не в навигации)
-      NAV.concat(['docs']).forEach(function(name){
-        var el=document.getElementById('view-'+name);
-        if(el) el.className = 'view' + (v===name?'':' hidden');
-      });
-      NAV.forEach(function(name){
-        document.getElementById('nav-'+name).className = 'nav-item' + (v===name?' on':'');
-      });
+      ALLV.forEach(function(n){var el=document.getElementById('view-'+n);if(el)el.className='view'+(v===n?'':' hidden');});
+      var act = NAV.indexOf(v)>=0 ? v : (PARENT[v]||'home');
+      NAV.forEach(function(n){document.getElementById('nav-'+n).className='nav-item'+(n===act?' on':'');});
+      if(v==='home') renderHome();
       if(v==='contacts' && CONTACTS.length===0) loadContacts();
       if(v==='plan'){ planDir=null; if(LESSONS.length===0) loadLessons(); else renderPlan(); }
       if(v==='mentors') renderMentors();
+      if(v==='reviews') renderReviews();
       if(v==='profile') renderProfile();
-      if(v==='docs'){ document.getElementById('nav-profile').className='nav-item on'; renderDocs(); }
+      if(v==='docs') renderDocs();
+      window.scrollTo(0,0);
+    }
+
+    /* ---------- ГЛАВНАЯ ---------- */
+    function renderHome(){
+      var html='';
+      if(!isMember){
+        html+='<div class="plan-box"><div style="font-size:14.5px;font-weight:700;margin-bottom:6px">Открой полный доступ к AMORE</div>';
+        html+='<div style="font-size:12px;color:#7E96A8;margin-bottom:12px">Вакансии, база работодателей, обучение и наставники.</div>';
+        html+='<button class="btn btn-gold" onclick="subscribe()">Оформить — 50€/мес</button></div>';
+      }
+      html+='<div class="sec-title"><span style="color:#FF6A4D">⚡</span> Срочные вакансии <span class="see" onclick="switchView(\'vacancies\')">все ›</span></div>';
+      html+='<div id="home-vac"><div class="info">Загружаем…</div></div>';
+      html+='<div class="sec-title">Разделы</div>';
+      html+='<div class="prow" onclick="switchView(\'mentors\')"><div class="prow-ico">👥</div><div style="flex:1"><div class="prow-t">Наставники</div><div class="prow-s">Команда практиков по флотам</div></div><span style="color:#7E96A8">›</span></div>';
+      html+='<div class="prow" onclick="switchView(\'reviews\')"><div class="prow-ico">💬</div><div style="flex:1"><div class="prow-t">Отзывы</div><div class="prow-s">Истории учеников</div></div><span style="color:#7E96A8">›</span></div>';
+      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист: что собрать</div></div><span style="color:#7E96A8">›</span></div>';
+      document.getElementById('homebox').innerHTML=html;
+      renderVacInto('home-vac', 2);
     }
 
     /* ---------- ВАКАНСИИ ---------- */
     window.respond=function(){popup('Отклик отправлен. (Реальную отправку прикрутим позже.)');};
     window.vlock=function(){popup('Отклики доступны участникам AMORE. Оформи подписку.');};
-    function renderVacancies(list){
-      var box=document.getElementById('vlist');
-      if(!list||!list.length){box.innerHTML='<div class="info">Пока нет активных вакансий.</div>';return;}
-      var html='';
-      list.forEach(function(v){
-        html+='<div class="card"><div class="card-top"><div class="role">'+esc(v.role)+'</div>';
-        if(v.urgent)html+='<span class="badge">Срочно</span>';
-        html+='</div>';
-        var mp=[];if(v.company)mp.push(esc(v.company));if(v.direction)mp.push(esc(v.direction));
-        if(mp.length)html+='<div class="meta">📍 '+mp.join(' · ')+'</div>';
-        html+='<div class="row">';
-        if(v.pay)html+='<span class="pay">'+esc(v.pay)+'</span>';
-        if(v.when)html+='<span class="when">🕒 '+esc(v.when)+'</span>';
-        html+='</div>';
-        html+= isMember ? '<button class="btn btn-gold" onclick="respond()">Откликнуться</button>'
-                        : '<button class="btn btn-lock" onclick="vlock()">🔒 Открыть отклик</button>';
-        html+='</div>';
-      });
-      box.innerHTML=html;
+    function vacCard(v){
+      var h='<div class="card"><div class="card-top"><div class="role">'+esc(v.role)+'</div>';
+      if(v.urgent)h+='<span class="badge">Срочно</span>';
+      h+='</div>';
+      var mp=[];if(v.company)mp.push(esc(v.company));if(v.direction)mp.push(esc(v.direction));
+      if(mp.length)h+='<div class="meta">📍 '+mp.join(' · ')+'</div>';
+      h+='<div class="row">';
+      if(v.pay)h+='<span class="pay">'+esc(v.pay)+'</span>';
+      if(v.when)h+='<span class="when">🕒 '+esc(v.when)+'</span>';
+      h+='</div>';
+      h+= isMember ? '<button class="btn btn-gold" onclick="respond()">Откликнуться</button>' : '<button class="btn btn-lock" onclick="vlock()">🔒 Открыть отклик</button>';
+      return h+'</div>';
+    }
+    function renderVacInto(id, limit){
+      var box=document.getElementById(id); if(!box)return;
+      if(!VACANCIES.length){box.innerHTML='<div class="info">Пока нет активных вакансий.</div>';return;}
+      var list = limit ? VACANCIES.slice().sort(function(a,b){return (b.urgent?1:0)-(a.urgent?1:0);}).slice(0,limit) : VACANCIES;
+      box.innerHTML=list.map(vacCard).join('');
     }
     function loadVacancies(){
       fetch(BACKEND_URL+'/vacancies').then(function(r){return r.json();})
-        .then(function(d){ if(d.ok)renderVacancies(d.vacancies); else document.getElementById('vlist').innerHTML='<div class="info">Не удалось загрузить вакансии.</div>'; })
+        .then(function(d){ if(d.ok){VACANCIES=d.vacancies||[];renderVacInto('vlist');renderVacInto('home-vac',2);} else document.getElementById('vlist').innerHTML='<div class="info">Не удалось загрузить вакансии.</div>'; })
         .catch(function(){document.getElementById('vlist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
 
-    /* ---------- ПЛАН ДЕЙСТВИЙ ---------- */
+    /* ---------- ОБУЧЕНИЕ ---------- */
     function loadLessons(){
-      document.getElementById('plist').innerHTML='<div class="info">Загружаем план действий…</div>';
+      document.getElementById('plist').innerHTML='<div class="info">Загружаем обучение…</div>';
       fetch(BACKEND_URL+'/lessons',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
         .then(function(r){return r.json();})
         .then(function(d){ if(d.ok){LESSONS=d.lessons||[];renderPlan();} else document.getElementById('plist').innerHTML='<div class="info">Не удалось загрузить уроки.</div>'; })
         .catch(function(){document.getElementById('plist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
-    window.openDir=function(name){planDir=name;renderPlan();};
+    window.openDir=function(name){planDir=name;renderPlan();window.scrollTo(0,0);};
     window.backToDirs=function(){planDir=null;renderPlan();};
     function renderPlan(){
       var box=document.getElementById('plist');
       if(planDir===null){
-        var html='<div class="sec-title"><span style="color:#FF6A4D">🧭</span> План действий</div>';
+        var html='<div class="sec-title"><span style="color:#FF6A4D">📚</span> Обучение</div>';
         PLAN_DIRS.forEach(function(p){
           var n=LESSONS.filter(function(l){return l.direction===p.value;}).length;
-          html+='<div class="dircard" onclick="openDir(\''+p.value+'\')">';
-          html+='<div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div>';
-          html+='<div style="flex:1"><div class="dirname">'+esc(p.label)+'</div><div class="dircount">'+n+' уроков</div></div>';
-          html+='<span style="color:#7E96A8">›</span></div>';
+          html+='<div class="dircard" onclick="openDir(\''+p.value+'\')"><div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div>';
+          html+='<div style="flex:1"><div class="dirname">'+esc(p.label)+'</div><div class="dircount">'+n+' уроков</div></div><span style="color:#7E96A8">›</span></div>';
         });
-        box.innerHTML=html;
-        return;
+        box.innerHTML=html; return;
       }
       var ls=LESSONS.filter(function(l){return l.direction===planDir;}).sort(function(a,b){return a.order-b.order;});
       var dirObj=PLAN_DIRS.filter(function(p){return p.value===planDir;})[0];
-      var dirLabel=dirObj?dirObj.label:planDir;
-      var html='<div class="back" onclick="backToDirs()">← Назад</div><div class="sec-title">'+esc(dirLabel)+'</div>';
-      if(!ls.length){ box.innerHTML=html+'<div class="info">В этом направлении пока нет уроков.</div>'; return; }
+      var html='<div class="back" onclick="backToDirs()">← Назад</div><div class="sec-title">'+esc(dirObj?dirObj.label:planDir)+'</div>';
+      if(!ls.length){box.innerHTML=html+'<div class="info">В этом направлении пока нет уроков.</div>';return;}
       window.__lessons=ls;
       ls.forEach(function(l,i){
-        var thumbStyle = l.videoId ? 'background-image:url(https://img.youtube.com/vi/'+l.videoId+'/mqdefault.jpg)' : '';
-        html+='<div class="lesson" onclick="openLesson('+i+')">';
-        html+='<div class="thumb" style="'+thumbStyle+'"><div class="play">▶</div>'+(l.videoId?'':'<span class="lk">🔒</span>')+'</div>';
-        html+='<div style="flex:1"><div class="ltitle">'+esc(l.title)+'</div><div class="ldur">▶ Урок '+(i+1)+(l.duration?' · '+esc(l.duration):'')+'</div></div>';
-        html+= l.videoId ? '' : '<span style="color:#F2C14E">🔒</span>';
-        html+='</div>';
+        var ts=l.videoId?'background-image:url(https://img.youtube.com/vi/'+l.videoId+'/mqdefault.jpg)':'';
+        html+='<div class="lesson" onclick="openLesson('+i+')"><div class="thumb" style="'+ts+'"><div class="play">▶</div>'+(l.videoId?'':'<span class="lk">🔒</span>')+'</div>';
+        html+='<div style="flex:1"><div class="ltitle">'+esc(l.title)+'</div><div class="ldur">▶ Урок '+(i+1)+(l.duration?' · '+esc(l.duration):'')+'</div></div>'+(l.videoId?'':'<span style="color:#F2C14E">🔒</span>')+'</div>';
       });
       box.innerHTML=html;
     }
     window.openLesson=function(i){
       var l=window.__lessons[i];
-      if(!l.videoId){ popup('Уроки доступны участникам AMORE. Оформи подписку, чтобы смотреть видео.'); return; }
+      if(!l.videoId){popup('Уроки доступны участникам AMORE. Оформи подписку, чтобы смотреть видео.');return;}
       var h='<div class="grip"></div><div class="det-title">'+esc(l.title)+'</div>';
       h+='<div class="player"><iframe src="https://www.youtube.com/embed/'+encodeURIComponent(l.videoId)+'" allow="encrypted-media; fullscreen" allowfullscreen></iframe></div>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
@@ -292,10 +336,64 @@
       document.getElementById('modal').className='overlay';
     };
 
+    /* ---------- НАСТАВНИКИ ---------- */
+    window.askMentor=function(name){ if(!isMember){popup('Вопросы наставникам — для участников AMORE. Оформи подписку.');return;} popup('Задай вопрос наставнику ('+name+') в чате сообщества AMORE.'); };
+    function renderMentors(){
+      var html='';
+      MENTORS.forEach(function(m){
+        html+='<div class="mentor"><div class="m-av" data-init="'+m.init+'" style="background:'+m.grad+'"><img src="'+esc(m.photo)+'" style="width:100%;height:100%;object-fit:cover" onerror="avFallback(this)"></div>';
+        html+='<div style="flex:1"><div class="m-name">'+esc(m.name)+' <span style="color:#3BC4B8">✓</span></div><div class="m-dir">'+esc(m.dir)+'</div><div class="m-bio">'+esc(m.bio)+'</div>';
+        html+='<div class="m-ask" onclick="askMentor(\''+esc(m.name)+'\')">💬 Задать вопрос</div></div></div>';
+      });
+      document.getElementById('mlist').innerHTML=html;
+    }
+
+    /* ---------- ОТЗЫВЫ ---------- */
+    function renderReviews(){
+      var html='';
+      REVIEWS.forEach(function(r){
+        html+='<div class="review"><div class="rv-stars">★★★★★</div><div class="rv-text">'+esc(r.text)+'</div>';
+        html+='<div class="rv-who"><div class="rv-av">'+esc(r.init)+'</div><div><div class="rv-name">'+esc(r.name)+'</div><div class="rv-dir">'+esc(r.dir)+'</div></div></div></div>';
+      });
+      document.getElementById('rvlist').innerHTML=html;
+    }
+
+    /* ---------- ДОКУМЕНТЫ ---------- */
+    window.toggleDoc=function(i){docChecked[i]=!docChecked[i];renderDocs();};
+    function renderDocs(){
+      var done=0; for(var k in docChecked) if(docChecked[k]) done++;
+      var html='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#7E96A8">Готовность пакета</span><span style="font-weight:700;color:#F2C14E">'+done+' / '+DOCS.length+'</span></div>';
+      html+='<div class="prog"><div class="prog-bar" style="width:'+(done/DOCS.length*100)+'%"></div></div><div style="font-size:11px;color:#7E96A8">Отмечай, что уже сделано</div></div>';
+      DOCS.forEach(function(d,i){
+        html+='<div class="doc'+(docChecked[i]?' done':'')+'" onclick="toggleDoc('+i+')"><div class="doc-chk">'+(docChecked[i]?'✓':'')+'</div><div><div class="doc-name">'+esc(d.name)+'</div><div class="doc-sub">'+esc(d.sub)+'</div></div></div>';
+      });
+      html+='<div style="font-size:11.5px;color:#7E96A8;text-align:center;margin-top:12px;line-height:1.5">Не знаешь, с чего начать? Спроси наставника.</div>';
+      document.getElementById('docsbox').innerHTML=html;
+    }
+
+    /* ---------- ПРОФИЛЬ ---------- */
+    window.subscribe=function(){ if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_URL);} else {window.open(TRIBUTE_URL,'_blank');} };
+    window.soon=function(t){popup(t+' — скоро будет доступно.');};
+    function renderProfile(){
+      var initial=uName?uName.charAt(0).toUpperCase():'?';
+      var html='<div class="prof-head"><div class="prof-av">'+esc(initial)+'</div><div class="prof-name">'+esc(uName)+'</div>';
+      html+='<div class="prof-tag">'+(isMember?'Участник сообщества AMORE':'Гостевой доступ')+'</div></div>';
+      html+='<div class="plan-box"><div style="display:flex;align-items:center;gap:8px"><span style="color:#F2C14E">★</span><span style="font-size:13px;font-weight:700">Участие в AMORE</span>';
+      if(isMember)html+='<span class="badge hire" style="margin-left:auto">активна</span>';
+      html+='</div><div style="margin:12px 0 4px"><span class="plan-price">50€</span> <span class="plan-per">/ месяц</span></div>';
+      if(isMember){html+='<div style="font-size:11.5px;color:#7E96A8">Доступ открыт: вакансии, база, обучение и наставники.</div>';}
+      else{html+='<div style="font-size:11.5px;color:#7E96A8;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть доступ — 50€/мес</button>';}
+      html+='</div>';
+      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист: что нужно собрать</div></div><span style="color:#7E96A8">›</span></div>';
+      html+='<div class="prow" onclick="soon(\'Моё резюме\')"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме</div><div class="prow-s">CV под конкретную вакансию</div></div><span style="color:#7E96A8">›</span></div>';
+      html+='<div class="prow" onclick="soon(\'Мои отклики\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">История твоих заявок</div></div><span style="color:#7E96A8">›</span></div>';
+      document.getElementById('profbox').innerHTML=html;
+    }
+
     /* ---------- БАЗА ---------- */
     function renderChips(){
-      document.getElementById('dirchips').innerHTML = DIRS.map(function(d){return '<div class="chip'+(cDir===d?' on':'')+'" onclick="setDir(\''+d+'\')">'+d+'</div>';}).join('');
-      document.getElementById('cntchips').innerHTML = CNTS.map(function(c){var fl=c!=='Все'?FLAG[c]+' ':'';return '<div class="chip'+(cCnt===c?' on':'')+'" onclick="setCnt(\''+c+'\')">'+fl+c+'</div>';}).join('');
+      document.getElementById('dirchips').innerHTML=DIRS.map(function(d){return '<div class="chip'+(cDir===d?' on':'')+'" onclick="setDir(\''+d+'\')">'+d+'</div>';}).join('');
+      document.getElementById('cntchips').innerHTML=CNTS.map(function(c){var fl=c!=='Все'?FLAG[c]+' ':'';return '<div class="chip'+(cCnt===c?' on':'')+'" onclick="setCnt(\''+c+'\')">'+fl+c+'</div>';}).join('');
     }
     window.setDir=function(d){cDir=d;cVisible=PAGE;renderChips();renderContacts();};
     window.setCnt=function(c){cCnt=c;cVisible=PAGE;renderChips();renderContacts();};
@@ -316,7 +414,7 @@
       var html='';
       shown.forEach(function(c,idx){
         var fl=c.country?FLAG[c.country]||'':'';
-        var name = isMember ? esc(c.company||c.vessel||'—') : '<span class="masked">🔒 Контакт скрыт</span>';
+        var name=isMember?esc(c.company||c.vessel||'—'):'<span class="masked">🔒 Контакт скрыт</span>';
         html+='<div class="ccard" onclick="openContact('+idx+')"><div style="flex:1;min-width:0"><div class="cname">'+name;
         if(c.hiring)html+='<span class="badge hire">набирает</span>';
         html+='</div><div class="cmeta">'+fl+' '+esc(c.country||'—');
@@ -354,83 +452,12 @@
     }
     document.getElementById('csearch').addEventListener('input',function(e){cSearch=e.target.value;cVisible=PAGE;renderContacts();});
 
-    /* ---------- НАСТАВНИКИ ---------- */
-    var MENTORS = [
-      { init:"ДБ", grad:"linear-gradient(135deg,#F2C14E,#FF6A4D)", name:"Даниил Богатко", dir:"Краболовы · Рыбаки", bio:"В море с 2019 года, прошёл путь с нуля. 8 судов Норвегии, Дании и Британии." },
-      { init:"ВГ", grad:"linear-gradient(135deg,#3BC4B8,#2A8FA8)", name:"Владислав Ганчурин", dir:"Торговый флот", bio:"Офицер-механик. Балкеры, ro-ro, контейнеровозы — путь от кадета." },
-      { init:"ВМ", grad:"linear-gradient(135deg,#5B8DEF,#3B5BC4)", name:"Владислав Макаренко", dir:"Замывка трюмов", bio:"10 лет в профессии, бригадир. Химчистка, мойка, покраска на всех типах судов." },
-      { init:"НГ", grad:"linear-gradient(135deg,#E07AC4,#9B4FC4)", name:"Никита Гуменный", dir:"Яхтинг", bio:"От кадета на торговом флоте до офицера-механика на больших яхтах." }
-    ];
-    window.askMentor=function(name){
-      if(!isMember){ popup('Вопросы наставникам — для участников AMORE. Оформи подписку.'); return; }
-      popup('Задай вопрос наставнику ('+name+') в чате сообщества AMORE.');
-    };
-    function renderMentors(){
-      var html='';
-      MENTORS.forEach(function(m){
-        html+='<div class="mentor"><div class="m-av" style="background:'+m.grad+'">'+m.init+'</div>';
-        html+='<div style="flex:1"><div class="m-name">'+esc(m.name)+' <span style="color:#3BC4B8">✓</span></div>';
-        html+='<div class="m-dir">'+esc(m.dir)+'</div><div class="m-bio">'+esc(m.bio)+'</div>';
-        html+='<div class="m-ask" onclick="askMentor(\''+esc(m.name)+'\')">💬 Задать вопрос</div></div></div>';
-      });
-      document.getElementById('mlist').innerHTML=html;
-    }
-
-    /* ---------- ДОКУМЕНТЫ (чек-лист) ---------- */
-    var DOCS = [
-      { name:"STCW сертификаты", sub:"Базовая безопасность — обязательно" },
-      { name:"Мореходная книжка", sub:"Seaman's book" },
-      { name:"Медкомиссия", sub:"Медицинский сертификат моряка" },
-      { name:"Апостиль документов", sub:"Для подачи за границу" },
-      { name:"Виза (Дания / Британия)", sub:"Под конкретное направление" },
-      { name:"Загранпаспорт", sub:"Срок действия от 12 месяцев" }
-    ];
-    var docChecked = {};
-    window.toggleDoc=function(i){ docChecked[i]=!docChecked[i]; renderDocs(); };
-    function renderDocs(){
-      var done=0; for(var k in docChecked) if(docChecked[k]) done++;
-      var html='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#7E96A8">Готовность пакета</span><span style="font-weight:700;color:#F2C14E">'+done+' / '+DOCS.length+'</span></div>';
-      html+='<div class="prog"><div class="prog-bar" style="width:'+(done/DOCS.length*100)+'%"></div></div>';
-      html+='<div style="font-size:11px;color:#7E96A8">Отмечай, что уже сделано — увидишь, чего не хватает</div></div>';
-      DOCS.forEach(function(d,i){
-        html+='<div class="doc'+(docChecked[i]?' done':'')+'" onclick="toggleDoc('+i+')"><div class="doc-chk">'+(docChecked[i]?'✓':'')+'</div>';
-        html+='<div><div class="doc-name">'+esc(d.name)+'</div><div class="doc-sub">'+esc(d.sub)+'</div></div></div>';
-      });
-      html+='<div style="font-size:11.5px;color:#7E96A8;text-align:center;margin-top:12px;line-height:1.5">Не знаешь, с чего начать? Спроси наставника — подскажет порядок и где не переплатить.</div>';
-      document.getElementById('docsbox').innerHTML=html;
-    }
-
-    /* ---------- ПРОФИЛЬ ---------- */
-    var uName = "моряк";
-    window.subscribe=function(){ popup('Оформить подписку можно через бота AMORE. (Сюда позже подвяжем кнопку оплаты Tribute.)'); };
-    window.openDocs=function(){ switchView('docs'); };
-    window.soon=function(t){ popup(t+' — скоро будет доступно.'); };
-    function renderProfile(){
-      var initial = uName ? uName.charAt(0).toUpperCase() : "?";
-      var html='<div class="prof-head"><div class="prof-av">'+esc(initial)+'</div>';
-      html+='<div class="prof-name">'+esc(uName)+'</div>';
-      html+='<div class="prof-tag">'+(isMember?'Участник сообщества AMORE':'Гостевой доступ')+'</div></div>';
-      html+='<div class="plan-box"><div style="display:flex;align-items:center;gap:8px"><span style="color:#F2C14E">★</span><span style="font-size:13px;font-weight:700">Участие в AMORE</span>';
-      if(isMember)html+='<span class="badge hire" style="margin-left:auto">активна</span>';
-      html+='</div><div style="margin:12px 0 4px"><span class="plan-price">50€</span> <span class="plan-per">/ месяц</span></div>';
-      if(isMember){
-        html+='<div style="font-size:11.5px;color:#7E96A8">Доступ открыт: вакансии, база, уроки и наставники.</div>';
-      } else {
-        html+='<div style="font-size:11.5px;color:#7E96A8;margin-bottom:12px">Открой вакансии, базу контактов, уроки и наставников.</div>';
-        html+='<button class="btn btn-gold" onclick="subscribe()">Открыть доступ — 50€/мес</button>';
-      }
-      html+='</div>';
-      html+='<div class="prow" onclick="openDocs()"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист: что нужно собрать</div></div><span style="color:#7E96A8">›</span></div>';
-      html+='<div class="prow" onclick="soon(\'Моё резюме\')"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме</div><div class="prow-s">CV под конкретную вакансию</div></div><span style="color:#7E96A8">›</span></div>';
-      html+='<div class="prow" onclick="soon(\'Мои отклики\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">История твоих заявок</div></div><span style="color:#7E96A8">›</span></div>';
-      document.getElementById('profbox').innerHTML=html;
-    }
-
     /* ---------- ОБЩЕЕ ---------- */
     window.closeModal=function(){document.getElementById('modal').className='overlay hidden';document.getElementById('sheet').innerHTML='';};
     document.getElementById('modal').addEventListener('click',function(e){if(e.target.id==='modal')closeModal();});
 
     (function(){
+      renderHome();
       if(!tg||!tg.initData){ setStatus('guest','Открой через бота'); loadVacancies(); return; }
       tg.ready(); tg.expand();
       var u=tg.initDataUnsafe&&tg.initDataUnsafe.user;
@@ -439,7 +466,7 @@
         .then(function(r){return r.json();})
         .then(function(d){ if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
-        .finally(function(){loadVacancies();});
+        .finally(function(){ renderHome(); loadVacancies(); });
     })();
   </script>
 </body>
