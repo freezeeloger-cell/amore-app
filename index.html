@@ -135,6 +135,9 @@
     .hero-row { display:flex; gap:8px; margin-top:8px; font-size:11px; color:#3BC4B8; font-weight:600; }
     .hero-row span { flex:1; background:rgba(59,196,184,.08); border:1px solid rgba(59,196,184,.18); border-radius:9px; padding:7px 9px; text-align:center; }
     .m-av img { object-position: center 18%; }
+    .rv-thumb { width:100%; aspect-ratio:16/9; border-radius:12px; background:#0e2c44 center/cover no-repeat; position:relative; display:grid; place-items:center; cursor:pointer; margin-top:4px; }
+    .rv-thumb .play { width:46px; height:46px; border-radius:50%; background:rgba(8,18,28,.65); display:grid; place-items:center; color:#fff; font-size:18px; }
+    audio { filter: invert(0.9) hue-rotate(180deg); border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -216,10 +219,7 @@
       { photo:"m-makarenko.jpg", init:"ВМ", grad:"linear-gradient(135deg,#5B8DEF,#3B5BC4)", name:"Владислав Макаренко", dir:"Замывка трюмов", bio:"10 лет в профессии, бригадир. Химчистка, мойка, покраска на всех типах судов." },
       { photo:"m-gumenny.jpg", init:"НГ", grad:"linear-gradient(135deg,#E07AC4,#9B4FC4)", name:"Никита Гуменный", dir:"Яхтинг", bio:"От кадета на торговом флоте до офицера-механика на больших яхтах." }
     ];
-    var REVIEWS = [
-      { init:"Б", name:"Богдан, Одесса", dir:"Краболовы", text:"Зашёл на норвежское судно с нуля и прошёл первый рейс. Без AMORE искал бы вслепую — тут дали контакты и довели до выхода." },
-      { init:"С", name:"(пример отзыва)", dir:"Торговый флот", text:"Замени этот текст на реальный отзыв ученика — отзывы лучше всего убеждают гостя оформить подписку." }
-    ];
+    var REVIEWS = [];
     var DOCS = [
       { name:"STCW сертификаты", sub:"Базовая безопасность — обязательно" },
       { name:"Мореходная книжка", sub:"Seaman's book" },
@@ -249,7 +249,7 @@
       if(v==='contacts' && CONTACTS.length===0) loadContacts();
       if(v==='plan'){ planDir=null; if(LESSONS.length===0) loadLessons(); else renderPlan(); }
       if(v==='mentors') renderMentors();
-      if(v==='reviews') renderReviews();
+      if(v==='reviews'){ if(REVIEWS.length===0) loadReviews(); else renderReviews(); }
       if(v==='profile') renderProfile();
       if(v==='docs') renderDocs();
       window.scrollTo(0,0);
@@ -339,14 +339,17 @@
       });
       box.innerHTML=html;
     }
-    window.openLesson=function(i){
-      var l=window.__lessons[i];
-      if(!l.videoId){paywall('Видео-уроки','Полный путь на судно с нуля по твоему направлению. Обучение доступно участникам AMORE.');return;}
-      var h='<div class="grip"></div><div class="det-title">'+esc(l.title)+'</div>';
-      h+='<div class="player"><iframe src="https://www.youtube.com/embed/'+encodeURIComponent(l.videoId)+'" allow="encrypted-media; fullscreen" allowfullscreen></iframe></div>';
+    window.playVid=function(videoId,title){
+      var h='<div class="grip"></div><div class="det-title">'+esc(title)+'</div>';
+      h+='<div class="player"><iframe src="https://www.youtube.com/embed/'+encodeURIComponent(videoId)+'" allow="encrypted-media; fullscreen" allowfullscreen></iframe></div>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
+    };
+    window.openLesson=function(i){
+      var l=window.__lessons[i];
+      if(!l.videoId){paywall('Видео-уроки','Полный путь на судно с нуля по твоему направлению. Обучение доступно участникам AMORE.');return;}
+      playVid(l.videoId, l.title);
     };
 
     /* ---------- НАСТАВНИКИ ---------- */
@@ -362,11 +365,34 @@
     }
 
     /* ---------- ОТЗЫВЫ ---------- */
+    function loadReviews(){
+      document.getElementById('rvlist').innerHTML='<div class="info">Загружаем отзывы…</div>';
+      fetch(BACKEND_URL+'/reviews').then(function(r){return r.json();})
+        .then(function(d){ if(d.ok){REVIEWS=d.reviews||[];renderReviews();} else document.getElementById('rvlist').innerHTML='<div class="info">Не удалось загрузить отзывы.</div>'; })
+        .catch(function(){document.getElementById('rvlist').innerHTML='<div class="info">Сервер недоступен.</div>';});
+    }
+    window.playReview=function(i){ var r=window.__reviews[i]; if(r.videoId) playVid(r.videoId, r.name); };
+    function rvAvatar(r){
+      var first=(r.name||'?').charAt(0);
+      if(r.photo) return '<div class="rv-av" data-init="'+esc(first)+'" style="overflow:hidden"><img src="'+esc(r.photo)+'" style="width:100%;height:100%;object-fit:cover;object-position:center 18%" onerror="avFallback(this)"></div>';
+      return '<div class="rv-av">'+esc(first)+'</div>';
+    }
     function renderReviews(){
+      if(!REVIEWS.length){document.getElementById('rvlist').innerHTML='<div class="info">Отзывы скоро появятся.</div>';return;}
+      window.__reviews=REVIEWS;
       var html='';
-      REVIEWS.forEach(function(r){
-        html+='<div class="review"><div class="rv-stars">★★★★★</div><div class="rv-text">'+esc(r.text)+'</div>';
-        html+='<div class="rv-who"><div class="rv-av">'+esc(r.init)+'</div><div><div class="rv-name">'+esc(r.name)+'</div><div class="rv-dir">'+esc(r.dir)+'</div></div></div></div>';
+      REVIEWS.forEach(function(r,i){
+        html+='<div class="review"><div class="rv-stars">★★★★★</div>';
+        if(r.type==='video'&&r.videoId){
+          html+='<div class="rv-thumb" style="background-image:url(https://img.youtube.com/vi/'+r.videoId+'/hqdefault.jpg)" onclick="playReview('+i+')"><div class="play">▶</div></div>';
+          if(r.text)html+='<div class="rv-text" style="margin-top:10px">'+esc(r.text)+'</div>';
+        } else if(r.type==='audio'&&r.link){
+          if(r.text)html+='<div class="rv-text">'+esc(r.text)+'</div>';
+          html+='<audio controls preload="none" src="'+esc(r.link)+'" style="width:100%;margin-top:10px"></audio>';
+        } else {
+          html+='<div class="rv-text">'+esc(r.text)+'</div>';
+        }
+        html+='<div class="rv-who">'+rvAvatar(r)+'<div><div class="rv-name">'+esc(r.name)+'</div><div class="rv-dir">'+esc(r.dir||'')+'</div></div></div></div>';
       });
       document.getElementById('rvlist').innerHTML=html;
     }
