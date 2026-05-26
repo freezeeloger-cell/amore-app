@@ -399,12 +399,13 @@
           if(r.text)html+='<div class="rv-text">'+esc(r.text)+'</div>';
           html+='<audio controls preload="none" src="'+esc(r.link)+'" style="width:100%;margin-top:10px"></audio>';
         } else {
-          // фото/скрин: картинка берётся из «Фото», а если там пусто — из «Ссылки» (если это файл картинки)
-          var img = r.photo ? r.photo : (isImgFile(r.link) ? r.link : '');
-          if(img){
-            html+='<div class="rv-shot" onclick="openImg(\''+esc(img)+'\')"><img src="'+esc(img)+'"><div class="rv-shot-hint">нажми, чтобы открыть крупно</div></div>';
-          }
-          if(r.text)html+='<div class="rv-text"'+(img?' style="margin-top:10px"':'')+'>'+esc(r.text)+'</div>';
+          // фото/скрин: одна или НЕСКОЛЬКО картинок (через запятую) из «Фото», либо из «Ссылки» если там файл-картинка
+          var imgSrc = r.photo ? r.photo : (isImgFile(r.link) ? r.link : '');
+          var imgs = imgSrc.split(/[,\n;]+/).map(function(x){return x.trim();}).filter(function(x){return x;});
+          imgs.forEach(function(im,k){
+            html+='<div class="rv-shot"'+(k>0?' style="margin-top:8px"':'')+' onclick="openImg(\''+esc(im)+'\')"><img src="'+esc(im)+'"><div class="rv-shot-hint">нажми, чтобы открыть крупно</div></div>';
+          });
+          if(r.text)html+='<div class="rv-text"'+(imgs.length?' style="margin-top:10px"':'')+'>'+esc(r.text)+'</div>';
           if(r.link && /^https?:/i.test(r.link)){
             html+='<a class="rv-link" href="'+esc(r.link)+'" target="_blank" rel="noopener">Читать отзыв на сайте →</a>';
           }
