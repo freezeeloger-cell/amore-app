@@ -151,6 +151,10 @@
     .cp-btn { flex:0 0 auto; margin-left:6px; padding:8px 11px; border-radius:10px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:#EAF2F8; font-size:14px; text-decoration:none; cursor:pointer; display:inline-grid; place-items:center; }
     .cp-btn:active { background:rgba(242,193,78,0.2); }
     .det-row { align-items:center; }
+    .btn-announce { margin-top:8px; background:rgba(91,141,239,0.14); border:1px solid rgba(91,141,239,0.4); color:#9DC0FF; }
+    .btn-announce:active { background:rgba(91,141,239,0.25); }
+    .doc-help { font-size:11px; color:#F2C14E; font-weight:600; margin-top:6px; cursor:pointer; }
+    .doc-chk { cursor:pointer; }
   </style>
 </head>
 <body>
@@ -216,7 +220,7 @@
     var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
     var TRIBUTE_URL = "https://t.me/tribute/app?startapp=sUKo";
     var tg = window.Telegram ? window.Telegram.WebApp : null;
-    var isMember = false, uName = "моряк";
+    var isMember = false, isAdmin = false, uName = "моряк";
 
     var FLAG = { "Норвегия": "🇳🇴", "Дания": "🇩🇰", "Британия": "🇬🇧" };
     var DIRS = ["Все", "Рыболовные суда", "Замывка трюмов", "Яхты", "Торговый флот"];
@@ -477,17 +481,31 @@
       }
       var dir=DOC_DIRS.filter(function(x){return x.key===docDir;})[0];
       var done=0; dir.docs.forEach(function(_,i){ if(docChecked[docDir+'-'+i]) done++; });
+      var allDone = done===dir.docs.length;
       var html='<div class="back" onclick="backDocDirs()">← Все направления</div>';
       html+='<div class="sec-title">'+esc(dir.label)+'</div>';
       html+='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#7E96A8">Готовность пакета</span><span style="font-weight:700;color:#F2C14E">'+done+' / '+dir.docs.length+'</span></div>';
-      html+='<div class="prog"><div class="prog-bar" style="width:'+(done/dir.docs.length*100)+'%"></div></div><div style="font-size:11px;color:#7E96A8">Отмечай, что уже готово</div></div>';
+      html+='<div class="prog"><div class="prog-bar" style="width:'+(done/dir.docs.length*100)+'%"></div></div><div style="font-size:11px;color:#7E96A8">Отметь галочкой то, что у тебя уже есть</div></div>';
       dir.docs.forEach(function(d,i){
         var on=docChecked[docDir+'-'+i];
-        html+='<div class="doc'+(on?' done':'')+'" onclick="toggleDoc('+i+')"><div class="doc-chk">'+(on?'✓':'')+'</div><div><div class="doc-name">'+esc(d.name)+'</div><div class="doc-sub">'+esc(d.sub)+'</div></div></div>';
+        html+='<div class="doc'+(on?' done':'')+'">';
+        html+='<div class="doc-chk" onclick="toggleDoc('+i+')">'+(on?'✓':'')+'</div>';
+        html+='<div style="flex:1"><div class="doc-name">'+esc(d.name)+'</div><div class="doc-sub">'+esc(d.sub)+'</div>';
+        if(!on)html+='<div class="doc-help" onclick="docHelp(\''+esc(d.name)+'\')">Нет этого документа? Поможем оформить →</div>';
+        html+='</div></div>';
       });
-      html+='<div style="font-size:11.5px;color:#7E96A8;text-align:center;margin-top:12px;line-height:1.5">Не знаешь, с чего начать? Спроси наставника в разделе «Наставники».</div>';
+      if(allDone){
+        html+='<div class="plan-box" style="margin-top:16px;text-align:center"><div style="font-size:32px">🎉</div>';
+        html+='<div style="font-size:15px;font-weight:700;margin:4px 0 6px">Ты готов выходить в море!</div>';
+        html+='<div style="font-size:12.5px;color:#7E96A8;margin-bottom:14px">Все документы на руках. В AMORE поможем найти судно и выйти на работодателя напрямую.</div>';
+        html+='<button class="btn btn-gold" onclick="subscribe()">Найти судно с AMORE</button></div>';
+      } else {
+        html+='<div style="font-size:11.5px;color:#7E96A8;text-align:center;margin-top:14px;line-height:1.5">Чего-то не хватает? В AMORE поможем собрать документы и довести до первого контракта.</div>';
+        html+='<button class="btn btn-gold" style="margin-top:10px" onclick="subscribe()">Помочь с документами</button>';
+      }
       box.innerHTML=html;
     }
+    window.docHelp=function(name){ paywall('Поможем с документом', 'Нужен «'+name+'»? В AMORE подскажем, где и как его оформить быстрее и без переплат — и доведём до выхода в море.'); };
 
     /* ---------- ПРОФИЛЬ ---------- */
     window.subscribe=function(){ if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_URL);} else {window.open(TRIBUTE_URL,'_blank');} };
@@ -590,7 +608,7 @@
       if(u&&u.first_name){document.getElementById('uname').textContent=u.first_name;uName=u.first_name;}
       fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
+        .then(function(d){ if(d.ok){isAdmin=!!d.admin;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
         .finally(function(){ renderHome(); loadVacancies(); });
     })();
