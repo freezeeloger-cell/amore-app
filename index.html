@@ -139,10 +139,10 @@
     var DIRS = ["Все", "Рыболовные суда", "Замывка трюмов", "Яхты", "Торговый флот"];
     var CNTS = ["Все", "Норвегия", "Дания", "Британия"];
     var PLAN_DIRS = [
-      { name: "Рыболовные суда", ico: "⚓", grad: "linear-gradient(135deg,#F2C14E,#E0A93B)" },
-      { name: "Замывка трюмов", ico: "🧽", grad: "linear-gradient(135deg,#5B8DEF,#3B5BC4)" },
-      { name: "Яхты", ico: "🛥️", grad: "linear-gradient(135deg,#E07AC4,#9B4FC4)" },
-      { name: "Торговый флот", ico: "🚢", grad: "linear-gradient(135deg,#3BC4B8,#2A8FA8)" }
+      { value: "Рыболовные суда", label: "Краболовы, рыбаки, рыбные фабрики — Норвегия, Британия, Дания", ico: "⚓", grad: "linear-gradient(135deg,#F2C14E,#E0A93B)" },
+      { value: "Замывка трюмов", label: "Замывка трюмов", ico: "🧽", grad: "linear-gradient(135deg,#5B8DEF,#3B5BC4)" },
+      { value: "Яхты", label: "Яхты", ico: "🛥️", grad: "linear-gradient(135deg,#E07AC4,#9B4FC4)" },
+      { value: "Торговый флот", label: "Торговый флот", ico: "🚢", grad: "linear-gradient(135deg,#3BC4B8,#2A8FA8)" }
     ];
 
     var CONTACTS = [], cSearch = "", cDir = "Все", cCnt = "Все", cVisible = 30, PAGE = 30;
@@ -205,17 +205,19 @@
       if(planDir===null){
         var html='<div class="sec-title"><span style="color:#FF6A4D">🧭</span> План действий</div>';
         PLAN_DIRS.forEach(function(p){
-          var n=LESSONS.filter(function(l){return l.direction===p.name;}).length;
-          html+='<div class="dircard" onclick="openDir(\''+p.name+'\')">';
+          var n=LESSONS.filter(function(l){return l.direction===p.value;}).length;
+          html+='<div class="dircard" onclick="openDir(\''+p.value+'\')">';
           html+='<div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div>';
-          html+='<div style="flex:1"><div class="dirname">'+p.name+'</div><div class="dircount">'+n+' уроков</div></div>';
+          html+='<div style="flex:1"><div class="dirname">'+esc(p.label)+'</div><div class="dircount">'+n+' уроков</div></div>';
           html+='<span style="color:#7E96A8">›</span></div>';
         });
         box.innerHTML=html;
         return;
       }
       var ls=LESSONS.filter(function(l){return l.direction===planDir;}).sort(function(a,b){return a.order-b.order;});
-      var html='<div class="back" onclick="backToDirs()">← Назад</div><div class="sec-title">'+esc(planDir)+'</div>';
+      var dirObj=PLAN_DIRS.filter(function(p){return p.value===planDir;})[0];
+      var dirLabel=dirObj?dirObj.label:planDir;
+      var html='<div class="back" onclick="backToDirs()">← Назад</div><div class="sec-title">'+esc(dirLabel)+'</div>';
       if(!ls.length){ box.innerHTML=html+'<div class="info">В этом направлении пока нет уроков.</div>'; return; }
       window.__lessons=ls;
       ls.forEach(function(l,i){
