@@ -145,6 +145,9 @@
     .imgview.on { display:flex; }
     .imgview img { max-width:100%; max-height:90vh; border-radius:10px; }
     .imgview .x { position:absolute; top:16px; right:18px; font-size:26px; color:#fff; cursor:pointer; }
+    .rv-foot { font-size:13px; font-weight:700; color:#EAF2F8; margin-top:12px; }
+    .rv-dir-i { color:#7E96A8; font-weight:500; }
+    .rv-link { display:inline-block; margin-top:10px; font-size:12.5px; color:#3BC4B8; font-weight:600; text-decoration:none; }
   </style>
 </head>
 <body>
@@ -382,11 +385,7 @@
     window.playReview=function(i){ var r=window.__reviews[i]; if(r.videoId) playVid(r.videoId, r.name); };
     window.openImg=function(src){ document.getElementById('imgview-src').src=src; document.getElementById('imgview').className='imgview on'; };
     window.closeImg=function(){ document.getElementById('imgview').className='imgview'; document.getElementById('imgview-src').src=''; };
-    function rvAvatar(r){
-      var first=(r.name||'?').charAt(0);
-      if(r.photo) return '<div class="rv-av" data-init="'+esc(first)+'" style="overflow:hidden"><img src="'+esc(r.photo)+'" style="width:100%;height:100%;object-fit:cover;object-position:center 18%" onerror="avFallback(this)"></div>';
-      return '<div class="rv-av">'+esc(first)+'</div>';
-    }
+    function isImgFile(s){ return /\.(jpe?g|png|webp|gif|heic)$/i.test(s||''); }
     function renderReviews(){
       if(!REVIEWS.length){document.getElementById('rvlist').innerHTML='<div class="info">Отзывы скоро появятся.</div>';return;}
       window.__reviews=REVIEWS;
@@ -399,13 +398,20 @@
         } else if(r.type==='audio'&&r.link){
           if(r.text)html+='<div class="rv-text">'+esc(r.text)+'</div>';
           html+='<audio controls preload="none" src="'+esc(r.link)+'" style="width:100%;margin-top:10px"></audio>';
-        } else if(r.type==='screenshot'&&r.link){
-          if(r.text)html+='<div class="rv-text" style="margin-bottom:10px">'+esc(r.text)+'</div>';
-          html+='<div class="rv-shot" onclick="openImg(\''+esc(r.link)+'\')"><img src="'+esc(r.link)+'"><div class="rv-shot-hint">нажми, чтобы открыть переписку крупно</div></div>';
         } else {
-          html+='<div class="rv-text">'+esc(r.text)+'</div>';
+          // фото/скрин: картинка берётся из «Фото», а если там пусто — из «Ссылки» (если это файл картинки)
+          var img = r.photo ? r.photo : (isImgFile(r.link) ? r.link : '');
+          if(img){
+            html+='<div class="rv-shot" onclick="openImg(\''+esc(img)+'\')"><img src="'+esc(img)+'"><div class="rv-shot-hint">нажми, чтобы открыть крупно</div></div>';
+          }
+          if(r.text)html+='<div class="rv-text"'+(img?' style="margin-top:10px"':'')+'>'+esc(r.text)+'</div>';
+          if(r.link && /^https?:/i.test(r.link)){
+            html+='<a class="rv-link" href="'+esc(r.link)+'" target="_blank" rel="noopener">Читать отзыв на сайте →</a>';
+          }
         }
-        html+='<div class="rv-who">'+rvAvatar(r)+'<div><div class="rv-name">'+esc(r.name)+'</div><div class="rv-dir">'+esc(r.dir||'')+'</div></div></div></div>';
+        html+='<div class="rv-foot">'+esc(r.name||'');
+        if(r.dir)html+=' <span class="rv-dir-i">· '+esc(r.dir)+'</span>';
+        html+='</div></div>';
       });
       document.getElementById('rvlist').innerHTML=html;
     }
