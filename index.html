@@ -193,6 +193,15 @@
                   radial-gradient(600px 400px at 75% 80%, rgba(242,193,78,0.08), transparent 60%);
       animation: drift 22s ease-in-out infinite alternate; }
     @keyframes drift { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-3%,2%) scale(1.05); } 100% { transform: translate(2%,-2%) scale(1); } }
+    .ccard { padding: 10px 12px; }
+    .cname { font-size: 13px; }
+    .cmeta { margin-top: 3px; }
+    .c-hire { border-color: rgba(59,196,184,.28); background: rgba(59,196,184,.05); }
+    .chip.hire-chip { border-color: rgba(59,196,184,.35); color:#3BC4B8; }
+    .chip.hire-chip.on { background: linear-gradient(135deg,#3BC4B8,#2A8FA8); color:#04101b; border-color:transparent; }
+    .totop { position: fixed; right: 16px; bottom: 78px; width: 44px; height: 44px; border-radius: 50%; display: none; place-items: center; z-index: 40;
+      background: rgba(242,193,78,.92); color:#0a1622; font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.35); }
+    .totop:active { transform: scale(.92); }
   </style>
 </head>
 <body>
@@ -214,9 +223,10 @@
 
     <div class="view hidden" id="view-contacts">
       <div class="sec-title"><span style="color:#FF6A4D">⚓</span> База работодателей <span class="ccount" id="ccount">…</span></div>
-      <div class="search"><span>🔍</span><input id="csearch" placeholder="Поиск: компания, тип, страна…" /></div>
+      <div class="search"><span>🔍</span><input id="csearch" placeholder="Компания, тип, страна…" /></div>
       <div class="chips" id="dirchips"></div>
       <div class="chips" id="cntchips"></div>
+      <div class="chips" id="typechips"></div>
       <div class="found" id="cfound"></div>
       <div id="clist"></div>
     </div>
@@ -251,6 +261,7 @@
     <div class="nav-item" id="nav-profile" onclick="switchView('profile')"><span class="nav-ico">👤</span>Профиль</div>
   </div>
 
+  <div class="totop" id="totop" onclick="scrollTop()">↑</div>
   <div class="overlay hidden" id="modal"><div class="sheet" id="sheet"></div></div>
   <div class="imgview" id="imgview" onclick="closeImg()"><span class="x">✕</span><img id="imgview-src" src=""></div>
 
@@ -298,7 +309,7 @@
     ];
 
     var VACANCIES = [], CONTACTS = [], LESSONS = [], planDir = null;
-    var cSearch = "", cDir = "Все", cCnt = "Все", cVisible = 30, PAGE = 30;
+    var cSearch = "", cDir = "Все", cCnt = "Все", cType = "Все", onlyHiring = false, cVisible = 30, PAGE = 30;
     var docChecked = {};
 
     function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
@@ -599,40 +610,68 @@
     }
 
     /* ---------- БАЗА ---------- */
+    function typesForDir(dir){
+      var seen={}, out=[];
+      CONTACTS.forEach(function(c){
+        if(dir!=='Все'&&c.direction!==dir)return;
+        var t=(c.type||'').trim();
+        if(t&&!seen[t]){seen[t]=1;out.push(t);}
+      });
+      return out.sort();
+    }
     function renderChips(){
       document.getElementById('dirchips').innerHTML=DIRS.map(function(d){return '<div class="chip'+(cDir===d?' on':'')+'" onclick="setDir(\''+d+'\')">'+d+'</div>';}).join('');
       document.getElementById('cntchips').innerHTML=CNTS.map(function(c){var fl=c!=='Все'?FLAG[c]+' ':'';return '<div class="chip'+(cCnt===c?' on':'')+'" onclick="setCnt(\''+c+'\')">'+fl+c+'</div>';}).join('');
+      // фильтр по типу судна — появляется при выборе направления, если типов >1
+      var tbox=document.getElementById('typechips');
+      var types=cDir==='Все'?[]:typesForDir(cDir);
+      if(types.length>1){
+        var chips='<div class="chip'+(cType==='Все'?' on':'')+'" onclick="setType(\'Все\')">Все типы</div>';
+        chips+=types.map(function(t){return '<div class="chip'+(cType===t?' on':'')+'" onclick="setType(\''+esc(t).replace(/'/g,"\\'")+'\')">'+esc(t)+'</div>';}).join('');
+        chips+='<div class="chip hire-chip'+(onlyHiring?' on':'')+'" onclick="toggleHiring()">🟢 Набирают</div>';
+        tbox.innerHTML=chips; tbox.style.display='flex';
+      } else {
+        // даже без типов даём переключатель «набирают»
+        tbox.innerHTML='<div class="chip hire-chip'+(onlyHiring?' on':'')+'" onclick="toggleHiring()">🟢 Набирают сейчас</div>';
+        tbox.style.display='flex';
+      }
     }
-    window.setDir=function(d){cDir=d;cVisible=PAGE;renderChips();renderContacts();};
+    window.setDir=function(d){cDir=d;cType='Все';cVisible=PAGE;renderChips();renderContacts();scrollTop();};
     window.setCnt=function(c){cCnt=c;cVisible=PAGE;renderChips();renderContacts();};
+    window.setType=function(t){cType=t;cVisible=PAGE;renderChips();renderContacts();};
+    window.toggleHiring=function(){onlyHiring=!onlyHiring;cVisible=PAGE;renderChips();renderContacts();};
     function filtered(){
       var t=cSearch.trim().toLowerCase();
-      return CONTACTS.filter(function(c){
+      var list=CONTACTS.filter(function(c){
         if(cDir!=='Все'&&c.direction!==cDir)return false;
         if(cCnt!=='Все'&&c.country!==cCnt)return false;
+        if(cType!=='Все'&&(c.type||'')!==cType)return false;
+        if(onlyHiring&&!c.hiring)return false;
         if(t){var hay=((c.company||'')+' '+(c.vessel||'')+' '+(c.country||'')+' '+(c.type||'')+' '+(c.direction||'')).toLowerCase();if(hay.indexOf(t)===-1)return false;}
         return true;
       });
+      // набирают — вверх
+      list.sort(function(a,b){return (b.hiring?1:0)-(a.hiring?1:0);});
+      return list;
     }
     function renderContacts(){
       var box=document.getElementById('clist'); var list=filtered();
-      document.getElementById('cfound').innerHTML='Найдено <b>'+list.length+'</b>';
+      document.getElementById('cfound').innerHTML='Найдено <b>'+list.length+'</b>'+(cVisible<list.length?' · показано '+cVisible:'');
       if(!list.length){box.innerHTML='<div class="info">Ничего не нашлось. Поменяй запрос или фильтр.</div>';return;}
       var shown=list.slice(0,cVisible); window.__shown=shown;
       var html='';
       shown.forEach(function(c,idx){
         var fl=c.country?FLAG[c.country]||'':'';
         var name=isMember?esc(c.company||c.vessel||'—'):'<span class="masked">🔒 Контакт скрыт</span>';
-        html+='<div class="ccard" onclick="openContact('+idx+')"><div style="flex:1;min-width:0"><div class="cname">'+name;
-        if(c.hiring)html+='<span class="badge hire">набирает</span>';
-        html+='</div><div class="cmeta">'+fl+' '+esc(c.country||'—');
+        html+='<div class="ccard'+(c.hiring?' c-hire':'')+'" onclick="openContact('+idx+')"><div style="flex:1;min-width:0"><div class="cname">'+fl+' '+name;
+        if(c.hiring)html+=' <span class="badge hire">набирает</span>';
+        html+='</div><div class="cmeta">'+esc(c.country||'—');
         if(c.type)html+=' · '+esc(c.type);
-        html+=' · '+esc(c.direction||'');
         if(isMember&&(c.hasPhone||c.hasEmail))html+=' <span class="avail">'+(c.hasPhone?'📞':'')+(c.hasEmail?'✉️':'')+'</span>';
         html+='</div></div>'+(isMember?'<span style="color:#7E96A8">›</span>':'<span style="color:#F2C14E">🔒</span>')+'</div>';
       });
       box.innerHTML=html;
-      if(list.length>cVisible)box.innerHTML+='<button class="more" onclick="showMore()">Показать ещё ('+cVisible+' из '+list.length+')</button>';
+      if(list.length>cVisible)box.innerHTML+='<button class="more" onclick="showMore()">Показать ещё '+Math.min(PAGE,list.length-cVisible)+' (из '+list.length+')</button>';
     }
     window.showMore=function(){cVisible+=PAGE;renderContacts();};
     window.openContact=function(idx){
@@ -657,6 +696,12 @@
         .catch(function(){document.getElementById('clist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
     document.getElementById('csearch').addEventListener('input',function(e){cSearch=e.target.value;cVisible=PAGE;renderContacts();});
+    window.scrollTop=function(){ window.scrollTo({top:0,behavior:'smooth'}); };
+    window.addEventListener('scroll',function(){
+      var t=document.getElementById('totop'); if(!t)return;
+      var onContacts=!document.getElementById('view-contacts').className.match(/hidden/);
+      t.style.display=(onContacts&&window.scrollY>500)?'grid':'none';
+    });
 
     /* ---------- ОБЩЕЕ ---------- */
     window.closeModal=function(){document.getElementById('modal').className='overlay hidden';document.getElementById('sheet').innerHTML='';};
