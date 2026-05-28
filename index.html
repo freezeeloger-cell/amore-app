@@ -201,6 +201,9 @@
     .ml-in:focus, .ml-ta:focus { border-color:#0E5C8A; }
     .ml-ta { resize:vertical; line-height:1.5; }
     .ml-note { font-size:11px; color:#6B7E8C; background:#FFF6E9; border:1px solid #F0E0C0; border-radius:10px; padding:10px; margin:12px 0; line-height:1.5; }
+    .ml-copyrow { display:flex; gap:8px; margin-bottom:4px; }
+    .ml-cp { flex:1; padding:11px 6px; border:1px solid #E1E7EC; border-radius:11px; background:#EEF2F5; color:#0E2233; font-family:'Manrope'; font-size:12.5px; font-weight:700; cursor:pointer; }
+    .ml-cp:active { background:#D9E6EF; transform:scale(.96); }
   </style>
 </head>
 <body>
@@ -722,6 +725,16 @@
       return 'mailto:'+encodeURIComponent(c.email)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
     }
     window.mailEdit=function(field,val){ curTpl()[field]=val; saveMail(mailState); document.getElementById('mailto-link').href=buildMailto(); };
+    function copyRaw(val,msg){
+      try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(val).then(function(){popup(msg);},function(){fallbackCopy(val);popup(msg);}); return; } }catch(e){}
+      fallbackCopy(val); popup(msg);
+    }
+    window.copyMail=function(what){
+      var c=window.__curContact; var company=c.company||c.vessel||''; var t=curTpl();
+      if(what==='email') copyRaw(c.email,'E-mail скопирован ✓');
+      else if(what==='subj') copyRaw((t.subj||'').replace(/\{company\}/g,company),'Тема скопирована ✓');
+      else copyRaw((t.body||'').replace(/\{company\}/g,company),'Текст письма скопирован ✓');
+    };
     function renderCompose(){
       var c=window.__curContact; var t=curTpl();
       var company=c.company||c.vessel||'';
@@ -730,8 +743,10 @@
       h+='<div class="seg-mail"><button class="'+(mailState.lang==='en'?'on':'')+'" onclick="setMailLang(\'en\')">English</button><button class="'+(mailState.lang==='no'?'on':'')+'" onclick="setMailLang(\'no\')">Norsk</button></div>';
       h+='<label class="ml-lbl">Тема</label><input class="ml-in" value="'+esc(t.subj)+'" oninput="mailEdit(\'subj\',this.value)">';
       h+='<label class="ml-lbl">Текст письма</label><textarea class="ml-ta" rows="9" oninput="mailEdit(\'body\',this.value)">'+esc(t.body)+'</textarea>';
-      h+='<div class="ml-note">⚠️ Файл резюме почта приложит не сама — собери его в разделе «Моё резюме», сохрани и прикрепи к письму вручную перед отправкой. «{company}» подставится автоматически.</div>';
+      h+='<div class="ml-note">⚠️ Файл резюме почта не приложит сама — собери его в «Моё резюме», сохрани и прикрепи к письму вручную. «{company}» подставляется автоматически.</div>';
       h+='<a class="btn btn-gold" id="mailto-link" href="'+buildMailto()+'" style="display:block;text-align:center;text-decoration:none">Открыть в почте →</a>';
+      h+='<div class="ml-note">Если почта не открылась (Telegram иногда так делает) — скопируй кнопками ниже и вставь в своё приложение почты:</div>';
+      h+='<div class="ml-copyrow"><button class="ml-cp" onclick="copyMail(\'email\')">📋 E-mail</button><button class="ml-cp" onclick="copyMail(\'subj\')">📋 Тема</button><button class="ml-cp" onclick="copyMail(\'body\')">📋 Текст</button></div>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
     }
