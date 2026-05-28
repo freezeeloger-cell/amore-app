@@ -264,6 +264,11 @@
       <div class="sec-title"><span style="color:#0E5C8A">📧</span> Письмо для рассылки</div>
       <div id="mailgenbox"></div>
     </div>
+    <div class="view hidden" id="view-docapply">
+      <div class="back" onclick="switchView('profile')">← Назад</div>
+      <div class="sec-title"><span style="color:#0E5C8A">🛠️</span> Сделать документы</div>
+      <div id="docapplybox"></div>
+    </div>
   </div>
 
   <div class="nav">
@@ -331,8 +336,8 @@
     window.avFallback=function(img){ var d=img.parentNode; d.textContent=d.getAttribute('data-init'); };
 
     var NAV=['home','plan','vacancies','contacts','profile'];
-    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen'];
-    var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile'};
+    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen','docapply'];
+    var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile',docapply:'profile'};
     function switchView(v){
       ALLV.forEach(function(n){var el=document.getElementById('view-'+n);if(el)el.className='view'+(v===n?'':' hidden');});
       var act = NAV.indexOf(v)>=0 ? v : (PARENT[v]||'home');
@@ -345,6 +350,7 @@
       if(v==='profile') renderProfile();
       if(v==='docs') renderDocs();
       if(v==='mailgen') renderMailGen();
+      if(v==='docapply') renderDocApply();
       window.scrollTo(0,0);
     }
 
@@ -721,6 +727,44 @@
       if(what==='subj') copyRaw(mg.generated.subj,'Тема скопирована ✓');
       else copyRaw(mg.generated.body,'Текст письма скопирован ✓');
     };
+
+    /* ---------- ЗАЯВКА НА ДОКУМЕНТЫ ---------- */
+    var DA_CERTS = ['STCW Basic Safety Training','Security Duties','Advanced Fire Fighting','Medical First Aid','Survival craft and rescue boats','Poland seaman\u2019s book'];
+    var da = { name:'', phone:'', citizenship:'', certs:[], sent:false };
+    window.daInput=function(k,v){ da[k]=v; };
+    window.daToggle=function(c){ var i=da.certs.indexOf(c); if(i<0)da.certs.push(c); else da.certs.splice(i,1); renderDocApply(); };
+    function renderDocApply(){
+      var box=document.getElementById('docapplybox');
+      if(da.sent){
+        box.innerHTML='<div class="card" style="text-align:center;padding:30px 18px"><div style="font-size:40px">✅</div>'
+          +'<div style="font-size:17px;font-weight:800;margin:10px 0 8px">Спасибо за заявку!</div>'
+          +'<div style="font-size:13px;color:#6B7E8C;line-height:1.55">Команда AMORE свяжется с тобой в ближайшее время и поможет оформить документы.</div>'
+          +'<button class="btn btn-gold" style="margin-top:18px" onclick="daReset()">Готово</button></div>';
+        return;
+      }
+      var html='<div style="font-size:12px;color:#6B7E8C;margin:0 2px 14px;line-height:1.5">Оставь заявку — поможем оформить нужные морские сертификаты. Заполни данные и выбери, что нужно.</div>';
+      html+='<div class="group-mg"><div class="mg-q">Имя и фамилия</div><input class="ml-in" id="da-name" placeholder="Имя Фамилия" value="'+esc(da.name)+'" oninput="daInput(\'name\',this.value)"></div>';
+      html+='<div class="group-mg"><div class="mg-q">Номер телефона</div><input class="ml-in" id="da-phone" type="tel" placeholder="+47 ..." value="'+esc(da.phone)+'" oninput="daInput(\'phone\',this.value)"></div>';
+      html+='<div class="group-mg"><div class="mg-q">Гражданство</div><input class="ml-in" id="da-cit" placeholder="Напр.: Украина" value="'+esc(da.citizenship)+'" oninput="daInput(\'citizenship\',this.value)"></div>';
+      html+='<div class="group-mg"><div class="mg-q">Какие сертификаты нужны?</div><div class="mg-opts" style="flex-direction:column;align-items:stretch">';
+      DA_CERTS.forEach(function(c){ html+='<div class="mg-opt'+(da.certs.indexOf(c)>=0?' on':'')+'" style="text-align:left" onclick="daToggle(\''+esc(c).replace(/'/g,"\\'")+'\')">'+(da.certs.indexOf(c)>=0?'✓ ':'')+esc(c)+'</div>'; });
+      html+='</div></div>';
+      html+='<button class="btn btn-gold" id="da-submit" onclick="daSubmit()">Подать заявку</button>';
+      box.innerHTML=html;
+    }
+    window.daReset=function(){ da={name:'',phone:'',citizenship:'',certs:[],sent:false}; switchView('profile'); };
+    window.daSubmit=function(){
+      da.name=(document.getElementById('da-name')||{}).value||da.name;
+      da.phone=(document.getElementById('da-phone')||{}).value||da.phone;
+      da.citizenship=(document.getElementById('da-cit')||{}).value||da.citizenship;
+      if(!da.name.trim()){ popup('Впиши имя и фамилию.'); return; }
+      if(!da.phone.trim()){ popup('Впиши номер телефона.'); return; }
+      var btn=document.getElementById('da-submit'); if(btn){ btn.textContent='Отправляю…'; btn.disabled=true; }
+      fetch(BACKEND_URL+'/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:'',name:da.name,phone:da.phone,citizenship:da.citizenship,certs:da.certs})})
+        .then(function(r){return r.json();})
+        .then(function(d){ if(d.ok){ da.sent=true; renderDocApply(); } else { popup('Не удалось отправить: '+(d.error||'ошибка')+'. Попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} } })
+        .catch(function(){ popup('Сервер недоступен, попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} });
+    };
     window.openResume=function(){
       if(!isMember){ paywall('Конструктор резюме','Собери профессиональное резюме моряка по фирменному шаблону на норвежском или английском — и рассылай работодателям. Доступно участникам AMORE.'); return; }
       window.location.href='resume.html';
@@ -737,6 +781,7 @@
       html+='</div>';
       html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме</div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#6B7E8C">›</span></div>';
+      html+='<div class="prow" onclick="switchView(\'docapply\')"><div class="prow-ico">🛠️</div><div style="flex:1"><div class="prow-t">Сделать документы</div><div class="prow-s">Оставь заявку — поможем оформить сертификаты</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">📧</div><div style="flex:1"><div class="prow-t">Письмо для рассылки</div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="soon(\'Мои отклики\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">История твоих заявок</div></div><span style="color:#6B7E8C">›</span></div>';
       document.getElementById('profbox').innerHTML=html;
