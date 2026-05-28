@@ -585,6 +585,10 @@
       document.getElementById('modal').className='overlay';
     };
     window.soon=function(t){popup(t+' — скоро будет доступно.');};
+    window.openResume=function(){
+      if(!isMember){ paywall('Конструктор резюме','Собери профессиональное резюме моряка по фирменному шаблону на норвежском или английском — и рассылай работодателям. Доступно участникам AMORE.'); return; }
+      window.location.href='resume.html';
+    };
     function renderProfile(){
       var initial=uName?uName.charAt(0).toUpperCase():'?';
       var html='<div class="prof-head"><div class="prof-av">'+esc(initial)+'</div><div class="prof-name">'+esc(uName)+'</div>';
@@ -596,6 +600,7 @@
       else{html+='<div style="font-size:11.5px;color:#6B7E8C;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть доступ — 50€/мес</button>';}
       html+='</div>';
       html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#6B7E8C">›</span></div>';
+      html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме</div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="soon(\'Мои отклики\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">История твоих заявок</div></div><span style="color:#6B7E8C">›</span></div>';
       document.getElementById('profbox').innerHTML=html;
     }
