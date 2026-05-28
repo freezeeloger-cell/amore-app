@@ -37,6 +37,9 @@
   .stars span.f { color: #E8A317; }
   .del { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 8px; border: 1px solid #E1E7EC; background: #fff; color: #C2410C; font-size: 16px; cursor: pointer; }
   .additem { width: 100%; padding: 9px; border: 1px dashed #9CC0D6; border-radius: 10px; background: #EEF5F9; color: #0E5C8A; font-family: 'Manrope'; font-size: 12.5px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .prd { display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-bottom:4px; }
+  .prd-lbl { font-size:11px; font-weight:700; color:#6B7E8C; }
+  .prd select { flex:1; min-width:64px; border:1px solid #E1E7EC; border-radius:9px; padding:8px 6px; font-family:'Manrope'; font-size:12.5px; color:#0E2233; background:#fff; outline:none; }
   .exp-card { border: 1px solid #EEF1F4; border-radius: 12px; padding: 11px; margin-bottom: 9px; background: #FAFBFC; }
 
   .preview-label { font-size: 12px; font-weight: 800; color: #6B7E8C; margin: 18px 2px 10px; text-transform: uppercase; letter-spacing: .05em; }
@@ -98,15 +101,15 @@
         </div>
       </div>
       <label>Имя и фамилия (латиницей)</label>
-      <input id="f-name" placeholder="Danyil Bohatko">
+      <input id="f-name" placeholder="Ivan Petrov">
     </div>
 
     <div class="group">
       <h2>📋 Личная информация</h2>
-      <label>Адрес</label><input id="f-address" placeholder="Margareta dahls g.21, Molde, 6413">
-      <label>Телефон</label><input id="f-phone" placeholder="+47 96678293">
+      <label>Адрес</label><input id="f-address" placeholder="Storgata 1, Oslo, 0155">
+      <label>Телефон</label><input id="f-phone" placeholder="+47 12345678">
       <label>E-mail</label><input id="f-email" placeholder="name@gmail.com">
-      <label>Дата рождения</label><input id="f-birth" placeholder="20.10.2001">
+      <label>Дата рождения</label><input id="f-birth" type="date">
     </div>
 
     <div class="group">
@@ -154,15 +157,25 @@
     lang: 'no',
     photo: '',
     name: '', address: '', phone: '', email: '', birth: '',
-    langs: [ {n:'Norsk', s:2}, {n:'Engelsk', s:5}, {n:'Russian', s:5} ],
-    exps: [ {p:'jun 2024 - jul 2024', v:'F/Tr Havfjord', r:'Fisker'}, {p:'okt 2023 - nov 2023', v:'Service boat Fosna Nord', r:'Matros'} ],
-    edus: [ {p:'sep 2024 - sep 2030', v:'Basic safety training STCW'}, {p:'mai 2025 - jul 2027', v:'Healthtest'} ]
+    langs: [ {n:'Norsk', s:1}, {n:'Engelsk', s:3}, {n:'Russian', s:5} ],
+    exps: [ {pm1:'', py1:'', pm2:'', py2:'', v:'', r:''} ],
+    edus: [ {pm1:'', py1:'', pm2:'', py2:'', v:''} ]
   };
+
+
+  var MONTHS = { no:['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'], en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'] };
+  function yearOpts(sel){ var now=new Date().getFullYear(); var h='<option value="">Год</option>'; for(var y=now+6;y>=1990;y--){h+='<option value="'+y+'"'+(String(sel)===String(y)?' selected':'')+'>'+y+'</option>';} return h; }
+  function monthOpts(sel){ var m=MONTHS[data.lang]; var h='<option value="">Мес.</option>'; for(var i=0;i<12;i++){h+='<option value="'+(i+1)+'"'+(String(sel)===String(i+1)?' selected':'')+'>'+m[i]+'</option>';} return h; }
+  function periodText(m1,y1,m2,y2){
+    var m=MONTHS[data.lang];
+    var a=(m1&&y1)?(m[m1-1]+' '+y1):''; var b=(m2&&y2)?(m[m2-1]+' '+y2):'';
+    if(a&&b)return a+' - '+b; return a||b||'';
+  }
 
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
   /* ---------- форма ---------- */
-  function setLang(l){ data.lang=l; document.getElementById('lng-no').className=l==='no'?'on':''; document.getElementById('lng-en').className=l==='en'?'on':''; render(); }
+  function setLang(l){ data.lang=l; document.getElementById('lng-no').className=l==='no'?'on':''; document.getElementById('lng-en').className=l==='en'?'on':''; renderExps(); renderEdus(); render(); }
 
   document.getElementById('ph-input').addEventListener('change', function(e){
     var f=e.target.files[0]; if(!f)return;
@@ -170,8 +183,13 @@
     r.onload=function(ev){ data.photo=ev.target.result; document.getElementById('ph-prev').src=data.photo; render(); };
     r.readAsDataURL(f);
   });
-  ['name','address','phone','email','birth'].forEach(function(k){
+  ['name','address','phone','email'].forEach(function(k){
     document.getElementById('f-'+k).addEventListener('input', function(e){ data[k]=e.target.value; render(); });
+  });
+  document.getElementById('f-birth').addEventListener('input', function(e){
+    var v=e.target.value; // yyyy-mm-dd
+    if(v){ var p=v.split('-'); data.birth=p[2]+'.'+p[1]+'.'+p[0]; } else { data.birth=''; }
+    render();
   });
 
   function renderLangs(){
@@ -185,24 +203,30 @@
   window.setLangName=function(i,v){ data.langs[i].n=v; render(); };
   window.setStar=function(i,s){ data.langs[i].s=s; renderLangs(); render(); };
 
+  function periodRow(i,E,setter){
+    return '<div class="prd"><span class="prd-lbl">с</span><select onchange="'+setter+'(\''+i+'\',\'pm1\',this.value)">'+monthOpts(E.pm1)+'</select><select onchange="'+setter+'(\''+i+'\',\'py1\',this.value)">'+yearOpts(E.py1)+'</select>'
+      +'<span class="prd-lbl">по</span><select onchange="'+setter+'(\''+i+'\',\'pm2\',this.value)">'+monthOpts(E.pm2)+'</select><select onchange="'+setter+'(\''+i+'\',\'py2\',this.value)">'+yearOpts(E.py2)+'</select></div>';
+  }
   function renderExps(){
     document.getElementById('exps').innerHTML = data.exps.map(function(E,i){
-      return '<div class="exp-card"><div class="rowline"><input value="'+esc(E.p)+'" oninput="setExp('+i+',\'p\',this.value)" placeholder="Период (jan 2024 - mar 2024)"><button class="del" onclick="delExp('+i+')">×</button></div>'
-        +'<input value="'+esc(E.v)+'" oninput="setExp('+i+',\'v\',this.value)" placeholder="Судно / компания" style="margin-bottom:8px">'
-        +'<input value="'+esc(E.r)+'" oninput="setExp('+i+',\'r\',this.value)" placeholder="Должность (Fisker, Matros...)"></div>';
+      return '<div class="exp-card"><div style="display:flex;justify-content:flex-end"><button class="del" onclick="delExp('+i+')">×</button></div>'
+        + periodRow(i,E,'setExp')
+        +'<input value="'+esc(E.v)+'" oninput="setExp('+i+',\'v\',this.value)" placeholder="Напр.: F/Tr Havfjord" style="margin:8px 0">'
+        +'<input value="'+esc(E.r)+'" oninput="setExp('+i+',\'r\',this.value)" placeholder="Напр.: Fisker / Matros"></div>';
     }).join('');
   }
-  window.addExp=function(){ data.exps.push({p:'',v:'',r:''}); renderExps(); render(); };
+  window.addExp=function(){ data.exps.push({pm1:'',py1:'',pm2:'',py2:'',v:'',r:''}); renderExps(); render(); };
   window.delExp=function(i){ data.exps.splice(i,1); renderExps(); render(); };
   window.setExp=function(i,k,v){ data.exps[i][k]=v; render(); };
 
   function renderEdus(){
     document.getElementById('edus').innerHTML = data.edus.map(function(E,i){
-      return '<div class="exp-card"><div class="rowline"><input value="'+esc(E.p)+'" oninput="setEdu('+i+',\'p\',this.value)" placeholder="Период / дата"><button class="del" onclick="delEdu('+i+')">×</button></div>'
-        +'<input value="'+esc(E.v)+'" oninput="setEdu('+i+',\'v\',this.value)" placeholder="Название (Basic safety training STCW...)"></div>';
+      return '<div class="exp-card"><div style="display:flex;justify-content:flex-end"><button class="del" onclick="delEdu('+i+')">×</button></div>'
+        + periodRow(i,E,'setEdu')
+        +'<input value="'+esc(E.v)+'" oninput="setEdu('+i+',\'v\',this.value)" placeholder="Напр.: Basic Safety Training STCW" style="margin-top:8px"></div>';
     }).join('');
   }
-  window.addEdu=function(){ data.edus.push({p:'',v:''}); renderEdus(); render(); };
+  window.addEdu=function(){ data.edus.push({pm1:'',py1:'',pm2:'',py2:'',v:''}); renderEdus(); render(); };
   window.delEdu=function(i){ data.edus.splice(i,1); renderEdus(); render(); };
   window.setEdu=function(i,k,v){ data.edus[i][k]=v; render(); };
 
@@ -218,8 +242,8 @@
     if(data.email) info+='<div class="cv-irow"><div class="cv-ico">✉️</div><div><div class="cv-ik">'+L.email+'</div><div class="cv-iv">'+esc(data.email)+'</div></div></div>';
     if(data.birth) info+='<div class="cv-irow"><div class="cv-ico">📅</div><div><div class="cv-ik">'+L.birth+'</div><div class="cv-iv">'+esc(data.birth)+'</div></div></div>';
     var langs=data.langs.filter(function(x){return x.n;}).map(function(x){ return '<div class="cv-lang"><span class="n">'+esc(x.n)+'</span><span class="s">'+stars(x.s)+'</span></div>'; }).join('');
-    var exps=data.exps.filter(function(x){return x.v||x.p;}).map(function(x){ return '<div class="cv-entry"><div class="cv-period">'+esc(x.p)+'</div><div><div class="cv-evessel">'+esc(x.v)+'</div><div class="cv-erole">'+esc(x.r)+'</div></div></div>'; }).join('');
-    var edus=data.edus.filter(function(x){return x.v||x.p;}).map(function(x){ return '<div class="cv-entry"><div class="cv-period">'+esc(x.p)+'</div><div><div class="cv-evessel">'+esc(x.v)+'</div></div></div>'; }).join('');
+    var exps=data.exps.filter(function(x){return x.v||x.py1;}).map(function(x){ return '<div class="cv-entry"><div class="cv-period">'+esc(periodText(x.pm1,x.py1,x.pm2,x.py2))+'</div><div><div class="cv-evessel">'+esc(x.v)+'</div><div class="cv-erole">'+esc(x.r)+'</div></div></div>'; }).join('');
+    var edus=data.edus.filter(function(x){return x.v||x.py1;}).map(function(x){ return '<div class="cv-entry"><div class="cv-period">'+esc(periodText(x.pm1,x.py1,x.pm2,x.py2))+'</div><div><div class="cv-evessel">'+esc(x.v)+'</div></div></div>'; }).join('');
 
     var html='<div class="cv-left">'+ph;
     html+='<div class="cv-lhead">'+L.personal+'</div>'+info;
@@ -277,7 +301,7 @@
   }
 
   /* ---------- старт ---------- */
-  ['name','address','phone','email','birth'].forEach(function(k){ document.getElementById('f-'+k).value=data[k]; });
+  ['name','address','phone','email'].forEach(function(k){ document.getElementById('f-'+k).value=data[k]; });
   renderLangs(); renderExps(); renderEdus(); render();
   setTimeout(fitScale, 300);
 </script>
