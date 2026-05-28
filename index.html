@@ -193,6 +193,14 @@
     .totop { position: fixed; right: 16px; bottom: 78px; width: 44px; height: 44px; border-radius: 50%; display: none; place-items: center; z-index: 40;
       background: #0E5C8A; color:#fff; font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(14,34,51,.2); }
     .totop:active { transform: scale(.92); }
+    .seg-mail { display:flex; background:#E8ECEF; border-radius:10px; padding:4px; margin:14px 0 6px; }
+    .seg-mail button { flex:1; border:none; background:transparent; padding:8px; border-radius:7px; font-family:'Manrope'; font-size:12.5px; font-weight:700; color:#6B7E8C; cursor:pointer; }
+    .seg-mail button.on { background:#fff; color:#0E5C8A; box-shadow:0 1px 3px rgba(14,34,51,.1); }
+    .ml-lbl { display:block; font-size:11px; font-weight:700; color:#6B7E8C; margin:10px 0 4px; }
+    .ml-in, .ml-ta { width:100%; border:1px solid #E1E7EC; border-radius:10px; padding:10px 12px; font-family:'Manrope'; font-size:13.5px; color:#0E2233; outline:none; background:#F4F6F8; }
+    .ml-in:focus, .ml-ta:focus { border-color:#0E5C8A; }
+    .ml-ta { resize:vertical; line-height:1.5; }
+    .ml-note { font-size:11px; color:#6B7E8C; background:#FFF6E9; border:1px solid #F0E0C0; border-radius:10px; padding:10px; margin:12px 0; line-height:1.5; }
   </style>
 </head>
 <body>
@@ -673,16 +681,60 @@
     window.openContact=function(idx){
       var c=window.__shown[idx];
       if(!isMember){paywall('База работодателей','Тысяча проверенных контактов с телефонами и почтой — звони работодателю напрямую. Открыто участникам AMORE.');return;}
+      window.__curContact=c;
       var fl=c.country?FLAG[c.country]||'':'';
       var h='<div class="grip"></div><div class="det-title">'+esc(c.company||c.vessel||'—')+'</div>';
       h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
       if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
       if(c.hasPhone)h+=contactRow('📞','Телефон',c.phone,'tel:','Позвонить');
       if(c.hasEmail)h+=contactRow('✉️','Email',c.email,'mailto:','Написать');
+      if(c.hasEmail)h+='<button class="btn btn-gold" onclick="openCompose()">✉️ Отправить письмо с резюме</button>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
     };
+    /* ---------- ПОЛУ-АВТОМАТ: письмо работодателю ---------- */
+    var MAIL_DEFAULTS = {
+      en: { subj:'Application for a position on board',
+            body:'Dear {company} team,\n\nMy name is ___. I am looking for a position on board your vessel. I hold the required certificates (STCW basic safety training, medical certificate) and I am ready to start.\n\nMy CV is attached. I would be glad to hear about any open vacancies.\n\nBest regards,\n___\n+___' },
+      no: { subj:'Søknad om stilling om bord',
+            body:'Hei {company},\n\nMitt navn er ___. Jeg søker en stilling om bord på deres fartøy. Jeg har nødvendige sertifikater (STCW grunnleggende sikkerhet, helseattest) og er klar til å begynne.\n\nCV er vedlagt. Jeg vil gjerne høre om ledige stillinger.\n\nMed vennlig hilsen,\n___\n+___' }
+    };
+    function loadMail(){
+      try{ var s=localStorage.getItem('amore_mail'); if(s)return JSON.parse(s); }catch(e){}
+      return { lang:'en', en:Object.assign({},MAIL_DEFAULTS.en), no:Object.assign({},MAIL_DEFAULTS.no) };
+    }
+    function saveMail(m){ try{ localStorage.setItem('amore_mail', JSON.stringify(m)); }catch(e){} }
+    var mailState=null;
+    window.openCompose=function(){
+      var c=window.__curContact; if(!c||!c.email)return;
+      mailState=loadMail();
+      renderCompose();
+    };
+    window.setMailLang=function(l){ mailState.lang=l; renderCompose(); };
+    function curTpl(){ return mailState[mailState.lang]; }
+    function buildMailto(){
+      var c=window.__curContact;
+      var company=c.company||c.vessel||'';
+      var t=curTpl();
+      var subj=(t.subj||'').replace(/\{company\}/g,company);
+      var body=(t.body||'').replace(/\{company\}/g,company);
+      return 'mailto:'+encodeURIComponent(c.email)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    }
+    window.mailEdit=function(field,val){ curTpl()[field]=val; saveMail(mailState); document.getElementById('mailto-link').href=buildMailto(); };
+    function renderCompose(){
+      var c=window.__curContact; var t=curTpl();
+      var company=c.company||c.vessel||'';
+      var h='<div class="grip"></div><div class="det-title">Письмо работодателю</div>';
+      h+='<div class="det-sub">Кому: '+esc(c.email)+' · '+esc(company)+'</div>';
+      h+='<div class="seg-mail"><button class="'+(mailState.lang==='en'?'on':'')+'" onclick="setMailLang(\'en\')">English</button><button class="'+(mailState.lang==='no'?'on':'')+'" onclick="setMailLang(\'no\')">Norsk</button></div>';
+      h+='<label class="ml-lbl">Тема</label><input class="ml-in" value="'+esc(t.subj)+'" oninput="mailEdit(\'subj\',this.value)">';
+      h+='<label class="ml-lbl">Текст письма</label><textarea class="ml-ta" rows="9" oninput="mailEdit(\'body\',this.value)">'+esc(t.body)+'</textarea>';
+      h+='<div class="ml-note">⚠️ Файл резюме почта приложит не сама — собери его в разделе «Моё резюме», сохрани и прикрепи к письму вручную перед отправкой. «{company}» подставится автоматически.</div>';
+      h+='<a class="btn btn-gold" id="mailto-link" href="'+buildMailto()+'" style="display:block;text-align:center;text-decoration:none">Открыть в почте →</a>';
+      h+='<div class="close" onclick="closeModal()">Закрыть</div>';
+      document.getElementById('sheet').innerHTML=h;
+    }
     function loadContacts(){
       document.getElementById('clist').innerHTML=skel('skel-row',5);
       fetch(BACKEND_URL+'/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
