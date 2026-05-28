@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>AMORE — Резюме</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Manrope', sans-serif; background: #F4F6F8; color: #0E2233; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 18px 16px 120px; }
+  .top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .back { font-size: 13px; font-weight: 700; color: #0E5C8A; text-decoration: none; }
+  h1 { font-size: 19px; font-weight: 800; margin: 4px 0 2px; }
+  .lead { font-size: 12.5px; color: #6B7E8C; font-weight: 500; line-height: 1.5; margin-bottom: 16px; }
+
+  .seg { display: flex; background: #E8ECEF; border-radius: 11px; padding: 4px; margin-bottom: 16px; }
+  .seg button { flex: 1; border: none; background: transparent; padding: 9px; border-radius: 8px; font-family: 'Manrope'; font-size: 13px; font-weight: 700; color: #6B7E8C; cursor: pointer; }
+  .seg button.on { background: #fff; color: #0E5C8A; box-shadow: 0 1px 3px rgba(14,34,51,.1); }
+
+  .group { background: #fff; border: 1px solid #E1E7EC; border-radius: 16px; padding: 15px; margin-bottom: 13px; }
+  .group h2 { font-size: 13px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
+  label { display: block; font-size: 11px; font-weight: 700; color: #6B7E8C; margin: 9px 0 4px; }
+  input, textarea { width: 100%; border: 1px solid #E1E7EC; border-radius: 10px; padding: 10px 12px; font-family: 'Manrope'; font-size: 13.5px; color: #0E2233; outline: none; background: #fff; }
+  input:focus, textarea:focus { border-color: #0E5C8A; }
+  .ph-wrap { display: flex; align-items: center; gap: 14px; }
+  .ph-prev { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #E1E7EC; flex: 0 0 auto; background: #ECEFF2; }
+  .ph-btn { font-size: 12.5px; font-weight: 700; color: #0E5C8A; cursor: pointer; }
+
+  .rowline { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .rowline input { flex: 1; }
+  .stars { display: flex; gap: 2px; }
+  .stars span { font-size: 18px; color: #C7D0D7; cursor: pointer; }
+  .stars span.f { color: #E8A317; }
+  .del { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 8px; border: 1px solid #E1E7EC; background: #fff; color: #C2410C; font-size: 16px; cursor: pointer; }
+  .additem { width: 100%; padding: 9px; border: 1px dashed #9CC0D6; border-radius: 10px; background: #EEF5F9; color: #0E5C8A; font-family: 'Manrope'; font-size: 12.5px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .exp-card { border: 1px solid #EEF1F4; border-radius: 12px; padding: 11px; margin-bottom: 9px; background: #FAFBFC; }
+
+  .preview-label { font-size: 12px; font-weight: 800; color: #6B7E8C; margin: 18px 2px 10px; text-transform: uppercase; letter-spacing: .05em; }
+  .stage { overflow: hidden; border-radius: 12px; border: 1px solid #E1E7EC; background: #fff; }
+  .scaler { transform-origin: top left; }
+
+  .bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; gap: 10px; padding: 12px 16px 18px; background: rgba(255,255,255,.96); backdrop-filter: blur(10px); border-top: 1px solid #E1E7EC; }
+  .bar button { flex: 1; padding: 13px; border: none; border-radius: 12px; font-family: 'Manrope'; font-size: 13.5px; font-weight: 800; cursor: pointer; }
+  .b-pdf { background: #0E5C8A; color: #fff; }
+  .b-png { background: #EEF2F5; color: #0E2233; border: 1px solid #E1E7EC; }
+
+  .hint { font-size: 11px; color: #6B7E8C; text-align: center; margin-top: 10px; line-height: 1.5; }
+
+  /* ===== РЕЗЮМЕ (А4) ===== */
+  #cv-paper { width: 794px; min-height: 1123px; background: #fff; display: flex; font-family: 'Manrope', sans-serif; color: #2A3D4C; }
+  .cv-left { width: 264px; background: #3C4856; color: #fff; padding: 34px 26px; }
+  .cv-photo { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #fff; object-fit: cover; display: block; margin: 0 auto 30px; background:#5a6573; }
+  .cv-lhead { font-size: 15px; font-weight: 800; letter-spacing: 1.5px; margin: 24px 0 14px; line-height: 1.3; }
+  .cv-irow { display: flex; gap: 11px; margin-bottom: 14px; align-items: flex-start; }
+  .cv-ico { width: 17px; flex: 0 0 auto; text-align: center; font-size: 13px; margin-top: 1px; }
+  .cv-ik { font-size: 12.5px; font-weight: 800; }
+  .cv-iv { font-size: 12px; color: #C9D2DB; line-height: 1.35; word-break: break-word; }
+  .cv-lang { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
+  .cv-lang .n { font-size: 12.5px; font-weight: 600; }
+  .cv-lang .s { letter-spacing: 1px; font-size: 12px; }
+  .cv-star-f { color: #fff; } .cv-star-e { color: #6b7682; }
+
+  .cv-right { flex: 1; padding: 36px 32px; }
+  .cv-name { font-size: 30px; font-weight: 800; letter-spacing: 2px; margin-bottom: 26px; color: #1d2832; }
+  .cv-sec { display: flex; align-items: center; gap: 11px; font-size: 16px; font-weight: 800; letter-spacing: 1.5px; margin: 22px 0 18px; color: #1d2832; }
+  .cv-sec .cv-secico { width: 30px; height: 30px; border-radius: 50%; border: 2px solid #2A3D4C; display: grid; place-items: center; font-size: 14px; }
+  .cv-tl { border-left: 2px solid #D2DAE0; margin-left: 7px; padding-left: 0; }
+  .cv-entry { display: flex; gap: 20px; position: relative; padding: 0 0 18px 22px; }
+  .cv-entry::before { content: ''; position: absolute; left: -7px; top: 3px; width: 10px; height: 10px; border-radius: 50%; background: #fff; border: 2px solid #5b6b78; }
+  .cv-period { width: 132px; flex: 0 0 auto; font-size: 12px; color: #6B7E8C; padding-top: 1px; }
+  .cv-evessel { font-size: 13.5px; font-weight: 800; color: #1d2832; }
+  .cv-erole { font-size: 12px; color: #6B7E8C; margin-top: 2px; }
+  .cv-edu .cv-erole { display: none; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top"><a class="back" href="index.html">← В приложение</a></div>
+    <h1>Конструктор резюме</h1>
+    <div class="lead">Заполни поля — резюме соберётся по фирменному шаблону AMORE. Скачай PDF или картинкой и прикладывай к письмам работодателям.</div>
+
+    <div class="seg">
+      <button id="lng-no" class="on" onclick="setLang('no')">Norsk</button>
+      <button id="lng-en" onclick="setLang('en')">English</button>
+    </div>
+
+    <div class="group">
+      <h2>📷 Фото и имя</h2>
+      <div class="ph-wrap">
+        <img id="ph-prev" class="ph-prev" alt="">
+        <div>
+          <div class="ph-btn" onclick="document.getElementById('ph-input').click()">Загрузить фото →</div>
+          <input type="file" id="ph-input" accept="image/*" style="display:none">
+        </div>
+      </div>
+      <label>Имя и фамилия (латиницей)</label>
+      <input id="f-name" placeholder="Danyil Bohatko">
+    </div>
+
+    <div class="group">
+      <h2>📋 Личная информация</h2>
+      <label>Адрес</label><input id="f-address" placeholder="Margareta dahls g.21, Molde, 6413">
+      <label>Телефон</label><input id="f-phone" placeholder="+47 96678293">
+      <label>E-mail</label><input id="f-email" placeholder="name@gmail.com">
+      <label>Дата рождения</label><input id="f-birth" placeholder="20.10.2001">
+    </div>
+
+    <div class="group">
+      <h2>🗣️ Языки</h2>
+      <div id="langs"></div>
+      <button class="additem" onclick="addLang()">+ Добавить язык</button>
+    </div>
+
+    <div class="group">
+      <h2>⚓ Опыт работы</h2>
+      <div id="exps"></div>
+      <button class="additem" onclick="addExp()">+ Добавить место работы</button>
+    </div>
+
+    <div class="group">
+      <h2>🎓 Образование и сертификаты</h2>
+      <div id="edus"></div>
+      <button class="additem" onclick="addEdu()">+ Добавить</button>
+    </div>
+
+    <div class="preview-label">Предпросмотр</div>
+    <div class="stage" id="stage">
+      <div class="scaler" id="scaler">
+        <div id="cv-paper"></div>
+      </div>
+    </div>
+    <div class="hint">На телефоне самый надёжный способ сохранить — скачать PNG, затем зажать картинку и «Сохранить в фото». PDF лучше всего качается на компьютере.</div>
+  </div>
+
+  <div class="bar">
+    <button class="b-png" onclick="download('png')">Скачать PNG</button>
+    <button class="b-pdf" onclick="download('pdf')">Скачать PDF</button>
+  </div>
+
+<script>
+  var tg = window.Telegram ? window.Telegram.WebApp : null;
+  if (tg) { tg.ready(); tg.expand(); }
+
+  var LABELS = {
+    no: { personal:'PERSONLIG INFORMASJON', name:'Navn', address:'Adresse', phone:'Telefonnummer', email:'E-post', birth:'Fødselsdato', lang:'SPRÅK', exp:'ARBEIDSERFARING', edu:'UTDANNING' },
+    en: { personal:'PERSONAL INFORMATION', name:'Name', address:'Address', phone:'Phone number', email:'E-mail', birth:'Date of birth', lang:'LANGUAGES', exp:'WORK EXPERIENCE', edu:'EDUCATION' }
+  };
+
+  var data = {
+    lang: 'no',
+    photo: '',
+    name: '', address: '', phone: '', email: '', birth: '',
+    langs: [ {n:'Norsk', s:2}, {n:'Engelsk', s:5}, {n:'Russian', s:5} ],
+    exps: [ {p:'jun 2024 - jul 2024', v:'F/Tr Havfjord', r:'Fisker'}, {p:'okt 2023 - nov 2023', v:'Service boat Fosna Nord', r:'Matros'} ],
+    edus: [ {p:'sep 2024 - sep 2030', v:'Basic safety training STCW'}, {p:'mai 2025 - jul 2027', v:'Healthtest'} ]
+  };
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  /* ---------- форма ---------- */
+  function setLang(l){ data.lang=l; document.getElementById('lng-no').className=l==='no'?'on':''; document.getElementById('lng-en').className=l==='en'?'on':''; render(); }
+
+  document.getElementById('ph-input').addEventListener('change', function(e){
+    var f=e.target.files[0]; if(!f)return;
+    var r=new FileReader();
+    r.onload=function(ev){ data.photo=ev.target.result; document.getElementById('ph-prev').src=data.photo; render(); };
+    r.readAsDataURL(f);
+  });
+  ['name','address','phone','email','birth'].forEach(function(k){
+    document.getElementById('f-'+k).addEventListener('input', function(e){ data[k]=e.target.value; render(); });
+  });
+
+  function renderLangs(){
+    document.getElementById('langs').innerHTML = data.langs.map(function(L,i){
+      var stars=''; for(var s=1;s<=5;s++) stars+='<span class="'+(s<=L.s?'f':'')+'" onclick="setStar('+i+','+s+')">★</span>';
+      return '<div class="rowline"><input value="'+esc(L.n)+'" oninput="setLangName('+i+',this.value)" placeholder="Язык"><div class="stars">'+stars+'</div><button class="del" onclick="delLang('+i+')">×</button></div>';
+    }).join('');
+  }
+  window.addLang=function(){ data.langs.push({n:'',s:3}); renderLangs(); render(); };
+  window.delLang=function(i){ data.langs.splice(i,1); renderLangs(); render(); };
+  window.setLangName=function(i,v){ data.langs[i].n=v; render(); };
+  window.setStar=function(i,s){ data.langs[i].s=s; renderLangs(); render(); };
+
+  function renderExps(){
+    document.getElementById('exps').innerHTML = data.exps.map(function(E,i){
+      return '<div class="exp-card"><div class="rowline"><input value="'+esc(E.p)+'" oninput="setExp('+i+',\'p\',this.value)" placeholder="Период (jan 2024 - mar 2024)"><button class="del" onclick="delExp('+i+')">×</button></div>'
+        +'<input value="'+esc(E.v)+'" oninput="setExp('+i+',\'v\',this.value)" placeholder="Судно / компания" style="margin-bottom:8px">'
+        +'<input value="'+esc(E.r)+'" oninput="setExp('+i+',\'r\',this.value)" placeholder="Должность (Fisker, Matros...)"></div>';
+    }).join('');
+  }
+  window.addExp=function(){ data.exps.push({p:'',v:'',r:''}); renderExps(); render(); };
+  window.delExp=function(i){ data.exps.splice(i,1); renderExps(); render(); };
+  window.setExp=function(i,k,v){ data.exps[i][k]=v; render(); };
+
+  function renderEdus(){
+    document.getElementById('edus').innerHTML = data.edus.map(function(E,i){
+      return '<div class="exp-card"><div class="rowline"><input value="'+esc(E.p)+'" oninput="setEdu('+i+',\'p\',this.value)" placeholder="Период / дата"><button class="del" onclick="delEdu('+i+')">×</button></div>'
+        +'<input value="'+esc(E.v)+'" oninput="setEdu('+i+',\'v\',this.value)" placeholder="Название (Basic safety training STCW...)"></div>';
+    }).join('');
+  }
+  window.addEdu=function(){ data.edus.push({p:'',v:''}); renderEdus(); render(); };
+  window.delEdu=function(i){ data.edus.splice(i,1); renderEdus(); render(); };
+  window.setEdu=function(i,k,v){ data.edus[i][k]=v; render(); };
+
+  /* ---------- сборка резюме ---------- */
+  function stars(n){ var h=''; for(var i=1;i<=5;i++) h+='<span class="'+(i<=n?'cv-star-f':'cv-star-e')+'">★</span>'; return h; }
+  function render(){
+    var L=LABELS[data.lang];
+    var ph = data.photo ? '<img class="cv-photo" src="'+data.photo+'">' : '<div class="cv-photo"></div>';
+    var info='';
+    if(data.name) info+='<div class="cv-irow"><div class="cv-ico">👤</div><div><div class="cv-ik">'+L.name+'</div><div class="cv-iv">'+esc(data.name)+'</div></div></div>';
+    if(data.address) info+='<div class="cv-irow"><div class="cv-ico">🏠</div><div><div class="cv-ik">'+L.address+'</div><div class="cv-iv">'+esc(data.address)+'</div></div></div>';
+    if(data.phone) info+='<div class="cv-irow"><div class="cv-ico">📞</div><div><div class="cv-ik">'+L.phone+'</div><div class="cv-iv">'+esc(data.phone)+'</div></div></div>';
+    if(data.email) info+='<div class="cv-irow"><div class="cv-ico">✉️</div><div><div class="cv-ik">'+L.email+'</div><div class="cv-iv">'+esc(data.email)+'</div></div></div>';
+    if(data.birth) info+='<div class="cv-irow"><div class="cv-ico">📅</div><div><div class="cv-ik">'+L.birth+'</div><div class="cv-iv">'+esc(data.birth)+'</div></div></div>';
+    var langs=data.langs.filter(function(x){return x.n;}).map(function(x){ return '<div class="cv-lang"><span class="n">'+esc(x.n)+'</span><span class="s">'+stars(x.s)+'</span></div>'; }).join('');
+    var exps=data.exps.filter(function(x){return x.v||x.p;}).map(function(x){ return '<div class="cv-entry"><div class="cv-period">'+esc(x.p)+'</div><div><div class="cv-evessel">'+esc(x.v)+'</div><div class="cv-erole">'+esc(x.r)+'</div></div></div>'; }).join('');
+    var edus=data.edus.filter(function(x){return x.v||x.p;}).map(function(x){ return '<div class="cv-entry"><div class="cv-period">'+esc(x.p)+'</div><div><div class="cv-evessel">'+esc(x.v)+'</div></div></div>'; }).join('');
+
+    var html='<div class="cv-left">'+ph;
+    html+='<div class="cv-lhead">'+L.personal+'</div>'+info;
+    html+='<div class="cv-lhead">'+L.lang+'</div>'+langs+'</div>';
+    html+='<div class="cv-right"><div class="cv-name">'+esc((data.name||'').toUpperCase())+'</div>';
+    html+='<div class="cv-sec"><span class="cv-secico">💼</span>'+L.exp+'</div><div class="cv-tl">'+exps+'</div>';
+    html+='<div class="cv-sec"><span class="cv-secico">🎓</span>'+L.edu+'</div><div class="cv-tl cv-edu">'+edus+'</div>';
+    html+='</div>';
+    document.getElementById('cv-paper').innerHTML=html;
+    fitScale();
+  }
+  function fitScale(){
+    var stage=document.getElementById('stage');
+    var paper=document.getElementById('cv-paper');
+    var scaler=document.getElementById('scaler');
+    var w=stage.clientWidth;
+    var sc=w/794;
+    scaler.style.transform='scale('+sc+')';
+    stage.style.height=(paper.offsetHeight*sc)+'px';
+  }
+  window.addEventListener('resize', fitScale);
+
+  /* ---------- скачивание ---------- */
+  function capture(cb){
+    var paper=document.getElementById('cv-paper');
+    var scaler=document.getElementById('scaler');
+    var prev=scaler.style.transform; scaler.style.transform='none';
+    html2canvas(paper, {scale:2, backgroundColor:'#fff', useCORS:true, windowWidth:794}).then(function(canvas){
+      scaler.style.transform=prev; fitScale(); cb(canvas);
+    }).catch(function(e){ scaler.style.transform=prev; fitScale(); alert('Не удалось собрать изображение: '+e); });
+  }
+  window.download=function(type){
+    if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
+    capture(function(canvas){
+      if(type==='png'){
+        var url=canvas.toDataURL('image/png');
+        var a=document.createElement('a'); a.href=url; a.download='CV_'+(data.name||'AMORE').replace(/\s+/g,'_')+'.png';
+        document.body.appendChild(a); a.click(); a.remove();
+        showSaveHint(url);
+      } else {
+        try {
+          var jsPDF=window.jspdf.jsPDF;
+          var pdf=new jsPDF('p','mm','a4');
+          var w=210, h=canvas.height*w/canvas.width;
+          pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',0,0,w,h);
+          pdf.save('CV_'+(data.name||'AMORE').replace(/\s+/g,'_')+'.pdf');
+        } catch(e){ alert('PDF лучше качать с компьютера. На телефоне используй PNG.'); }
+      }
+    });
+  };
+  function showSaveHint(url){
+    if(tg && tg.platform && tg.platform!=='unknown'){
+      var w=window.open(); if(w){ w.document.write('<img src="'+url+'" style="width:100%"><p style="font-family:sans-serif;text-align:center;color:#555">Зажми картинку и «Сохранить в фото»</p>'); }
+    }
+  }
+
+  /* ---------- старт ---------- */
+  ['name','address','phone','email','birth'].forEach(function(k){ document.getElementById('f-'+k).value=data[k]; });
+  renderLangs(); renderExps(); renderEdus(); render();
+  setTimeout(fitScale, 300);
+</script>
+</body>
+</html>
