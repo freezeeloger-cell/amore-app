@@ -204,6 +204,12 @@
     .ml-copyrow { display:flex; gap:8px; margin-bottom:4px; }
     .ml-cp { flex:1; padding:11px 6px; border:1px solid #E1E7EC; border-radius:11px; background:#EEF2F5; color:#0E2233; font-family:'Manrope'; font-size:12.5px; font-weight:700; cursor:pointer; }
     .ml-cp:active { background:#D9E6EF; transform:scale(.96); }
+    .group-mg { background:#fff; border:1px solid #E1E7EC; border-radius:14px; padding:14px; margin-bottom:11px; }
+    .mg-q { font-size:13px; font-weight:800; margin-bottom:10px; }
+    .mg-opts { display:flex; flex-wrap:wrap; gap:8px; }
+    .mg-opt { padding:9px 13px; border-radius:10px; border:1px solid #E1E7EC; background:#F4F6F8; color:#0E2233; font-size:12.5px; font-weight:600; cursor:pointer; }
+    .mg-opt.on { background:#0E5C8A; color:#fff; border-color:transparent; }
+    .mg-result { margin-top:16px; padding-top:6px; }
   </style>
 </head>
 <body>
@@ -252,6 +258,11 @@
       <div class="back" onclick="switchView('profile')">← Назад</div>
       <div class="sec-title"><span style="color:#0E5C8A">📋</span> Документы моряка</div>
       <div id="docsbox"></div>
+    </div>
+    <div class="view hidden" id="view-mailgen">
+      <div class="back" onclick="switchView('profile')">← Назад</div>
+      <div class="sec-title"><span style="color:#0E5C8A">📧</span> Письмо для рассылки</div>
+      <div id="mailgenbox"></div>
     </div>
   </div>
 
@@ -320,8 +331,8 @@
     window.avFallback=function(img){ var d=img.parentNode; d.textContent=d.getAttribute('data-init'); };
 
     var NAV=['home','plan','vacancies','contacts','profile'];
-    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs'];
-    var PARENT={mentors:'home',reviews:'home',docs:'profile'};
+    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen'];
+    var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile'};
     function switchView(v){
       ALLV.forEach(function(n){var el=document.getElementById('view-'+n);if(el)el.className='view'+(v===n?'':' hidden');});
       var act = NAV.indexOf(v)>=0 ? v : (PARENT[v]||'home');
@@ -333,6 +344,7 @@
       if(v==='reviews'){ if(REVIEWS.length===0) loadReviews(); else renderReviews(); }
       if(v==='profile') renderProfile();
       if(v==='docs') renderDocs();
+      if(v==='mailgen') renderMailGen();
       window.scrollTo(0,0);
     }
 
@@ -596,6 +608,119 @@
       document.getElementById('modal').className='overlay';
     };
     window.soon=function(t){popup(t+' — скоро будет доступно.');};
+
+    /* ---------- ГЕНЕРАТОР ПИСЬМА ДЛЯ РАССЫЛКИ ---------- */
+    var mg = { lang:'en', position:'', exp:'', certs:[], avail:'', name:'', phone:'', generated:null };
+    function loadMG(){ try{ var s=localStorage.getItem('amore_mg'); if(s){ mg=Object.assign(mg, JSON.parse(s)); } }catch(e){} }
+    function saveMG(){ try{ localStorage.setItem('amore_mg', JSON.stringify(mg)); }catch(e){} }
+    window.openMailGen=function(){
+      if(!isMember){ paywall('Письмо для рассылки','Апка соберёт за тебя профессиональное письмо работодателю — под твой опыт и нужную работу, на норвежском или английском. Доступно участникам AMORE.'); return; }
+      switchView('mailgen');
+    };
+    var MG_EXP = [
+      {v:'none', en:'beginner', no:'nybegynner', ru:'Без опыта (новичок)'},
+      {v:'lt1',  en:'less than a year', no:'under ett år', ru:'До 1 года'},
+      {v:'1-3',  en:'1–3 years', no:'1–3 år', ru:'1–3 года'},
+      {v:'3+',   en:'over 3 years', no:'over 3 år', ru:'Более 3 лет'}
+    ];
+    var MG_CERTS = [
+      {v:'stcw', en:'STCW Basic Safety Training', no:'STCW grunnleggende sikkerhetskurs', ru:'STCW Basic Safety Training'},
+      {v:'book', en:"Seaman's book", no:'sjømannsbok', ru:"Seaman's book (мореходная книжка)"},
+      {v:'med',  en:'valid medical certificate', no:'gyldig helseattest', ru:'Медкомиссия'},
+      {v:'eng1', en:'ENG1 medical certificate', no:'ENG1-helseattest', ru:'ENG1'}
+    ];
+    var MG_AVAIL = [
+      {v:'now', en:'immediately', no:'umiddelbart', ru:'Сразу'},
+      {v:'1m',  en:'within a month', no:'innen en måned', ru:'В течение месяца'},
+      {v:'agr', en:'by agreement', no:'etter avtale', ru:'По договорённости'}
+    ];
+    window.mgSet=function(k,v){ mg[k]=v; saveMG(); renderMailGen(); };
+    window.mgToggleCert=function(v){ var i=mg.certs.indexOf(v); if(i<0)mg.certs.push(v); else mg.certs.splice(i,1); saveMG(); renderMailGen(); };
+    window.mgInput=function(k,v){ mg[k]=v; saveMG(); };
+    function renderMailGen(){
+      var box=document.getElementById('mailgenbox');
+      var html='<div style="font-size:12px;color:#6B7E8C;margin:0 2px 14px;line-height:1.5">Ответь на пару вопросов — апка соберёт готовое письмо работодателю под твой опыт и нужную работу. Потом скопируешь и разошлёшь.</div>';
+      // язык
+      html+='<div class="group-mg"><div class="mg-q">Язык письма</div><div class="seg-mail"><button class="'+(mg.lang==='en'?'on':'')+'" onclick="mgSet(\'lang\',\'en\')">English</button><button class="'+(mg.lang==='no'?'on':'')+'" onclick="mgSet(\'lang\',\'no\')">Norsk</button></div></div>';
+      // позиция
+      html+='<div class="group-mg"><div class="mg-q">На какую работу подаёшься?</div><input class="ml-in" placeholder="Напр.: Fisker, Matros, Deckhand" value="'+esc(mg.position)+'" oninput="mgInput(\'position\',this.value)"></div>';
+      // опыт
+      html+='<div class="group-mg"><div class="mg-q">Опыт работы в море</div><div class="mg-opts">';
+      MG_EXP.forEach(function(o){ html+='<div class="mg-opt'+(mg.exp===o.v?' on':'')+'" onclick="mgSet(\'exp\',\''+o.v+'\')">'+o.ru+'</div>'; });
+      html+='</div></div>';
+      // сертификаты
+      html+='<div class="group-mg"><div class="mg-q">Что у тебя есть из документов?</div><div class="mg-opts">';
+      MG_CERTS.forEach(function(o){ html+='<div class="mg-opt'+(mg.certs.indexOf(o.v)>=0?' on':'')+'" onclick="mgToggleCert(\''+o.v+'\')">'+(mg.certs.indexOf(o.v)>=0?'✓ ':'')+o.ru+'</div>'; });
+      html+='</div></div>';
+      // готовность
+      html+='<div class="group-mg"><div class="mg-q">Когда готов приступить?</div><div class="mg-opts">';
+      MG_AVAIL.forEach(function(o){ html+='<div class="mg-opt'+(mg.avail===o.v?' on':'')+'" onclick="mgSet(\'avail\',\''+o.v+'\')">'+o.ru+'</div>'; });
+      html+='</div></div>';
+      // подпись
+      html+='<div class="group-mg"><div class="mg-q">Имя для подписи</div><input class="ml-in" placeholder="Имя Фамилия" value="'+esc(mg.name)+'" oninput="mgInput(\'name\',this.value)"></div>';
+      html+='<div class="group-mg"><div class="mg-q">Телефон</div><input class="ml-in" placeholder="+47 ..." value="'+esc(mg.phone)+'" oninput="mgInput(\'phone\',this.value)"></div>';
+
+      html+='<button class="btn btn-gold" onclick="mgGenerate()">✨ Собрать письмо</button>';
+
+      if(mg.generated){
+        html+='<div class="mg-result"><div class="mg-q" style="margin-bottom:8px">Готовое письмо <span style="color:#6B7E8C;font-weight:500">(можно поправить)</span></div>';
+        html+='<label class="ml-lbl">Тема</label><input class="ml-in" id="mg-subj" value="'+esc(mg.generated.subj)+'">';
+        html+='<label class="ml-lbl">Текст</label><textarea class="ml-ta" id="mg-body" rows="12">'+esc(mg.generated.body)+'</textarea>';
+        html+='<div class="ml-note">Файл резюме приложи вручную — собери его в «Моё резюме». При отправке конкретному работодателю можешь заменить обращение на название его компании.</div>';
+        html+='<div class="ml-copyrow"><button class="ml-cp" onclick="mgCopy(\'subj\')">📋 Тема</button><button class="ml-cp" onclick="mgCopy(\'body\')">📋 Текст</button></div></div>';
+      }
+      box.innerHTML=html;
+    }
+    function mgPick(arr,v,lang){ for(var i=0;i<arr.length;i++)if(arr[i].v===v)return arr[i][lang]; return ''; }
+    window.mgGenerate=function(){
+      if(!mg.position){ popup('Впиши, на какую работу подаёшься.'); return; }
+      if(!mg.exp){ popup('Выбери опыт работы.'); return; }
+      var L=mg.lang;
+      var pos=mg.position.trim();
+      var certs=mg.certs.map(function(v){return mgPick(MG_CERTS,v,L);});
+      var certStr=certs.length?certs.join(L==='en'?', ':', '):'';
+      var avail=mg.avail?mgPick(MG_AVAIL,mg.avail,L):'';
+      var name=mg.name||'___';
+      var phone=mg.phone||'';
+      var subj, body;
+      if(L==='en'){
+        subj='Application for '+pos+' position';
+        body='Hello,\n\n';
+        body+='My name is '+name+'. I would like to apply for a '+pos+' position on board your vessel.\n\n';
+        if(mg.exp==='none'){
+          body+='I am at the start of my maritime career, motivated and reliable, and ready to learn quickly on board.';
+        } else {
+          body+='I have '+mgPick(MG_EXP,mg.exp,'en')+' of experience at sea.';
+        }
+        if(certStr) body+=' I hold the following: '+certStr+'.';
+        body+='\n\n';
+        if(avail) body+='I am available to start '+avail+'. ';
+        body+='My CV is attached. I would be grateful for the opportunity to discuss any open vacancies.\n\n';
+        body+='Best regards,\n'+name+(phone?'\n'+phone:'');
+      } else {
+        subj='Søknad om stilling som '+pos;
+        body='Hei,\n\n';
+        body+='Mitt navn er '+name+'. Jeg ønsker å søke en stilling som '+pos+' om bord på deres fartøy.\n\n';
+        if(mg.exp==='none'){
+          body+='Jeg er i starten av min maritime karriere, motivert og pålitelig, og klar til å lære raskt om bord.';
+        } else {
+          body+='Jeg har '+mgPick(MG_EXP,mg.exp,'no')+' erfaring til sjøs.';
+        }
+        if(certStr) body+=' Jeg har følgende: '+certStr+'.';
+        body+='\n\n';
+        if(avail) body+='Jeg kan begynne '+avail+'. ';
+        body+='CV er vedlagt. Jeg vil sette stor pris på muligheten til å høre om ledige stillinger.\n\n';
+        body+='Med vennlig hilsen,\n'+name+(phone?'\n'+phone:'');
+      }
+      mg.generated={subj:subj, body:body}; saveMG(); renderMailGen();
+      setTimeout(function(){ var el=document.querySelector('.mg-result'); if(el)el.scrollIntoView({behavior:'smooth',block:'start'}); }, 60);
+    };
+    window.mgCopy=function(what){
+      var subj=document.getElementById('mg-subj'), body=document.getElementById('mg-body');
+      if(subj)mg.generated.subj=subj.value; if(body)mg.generated.body=body.value; saveMG();
+      if(what==='subj') copyRaw(mg.generated.subj,'Тема скопирована ✓');
+      else copyRaw(mg.generated.body,'Текст письма скопирован ✓');
+    };
     window.openResume=function(){
       if(!isMember){ paywall('Конструктор резюме','Собери профессиональное резюме моряка по фирменному шаблону на норвежском или английском — и рассылай работодателям. Доступно участникам AMORE.'); return; }
       window.location.href='resume.html';
@@ -612,6 +737,7 @@
       html+='</div>';
       html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме</div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#6B7E8C">›</span></div>';
+      html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">📧</div><div style="flex:1"><div class="prow-t">Письмо для рассылки</div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="soon(\'Мои отклики\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">История твоих заявок</div></div><span style="color:#6B7E8C">›</span></div>';
       document.getElementById('profbox').innerHTML=html;
     }
@@ -691,7 +817,6 @@
       if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
       if(c.hasPhone)h+=contactRow('📞','Телефон',c.phone,'tel:','Позвонить');
       if(c.hasEmail)h+=contactRow('✉️','Email',c.email,'mailto:','Написать');
-      if(c.hasEmail)h+='<button class="btn btn-gold" onclick="openCompose()">✉️ Отправить письмо с резюме</button>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
@@ -776,6 +901,7 @@
     });
 
     (function(){
+      loadMG();
       renderHome();
       if(!tg||!tg.initData){ setStatus('guest','Открой через бота'); loadVacancies(); return; }
       tg.ready(); tg.expand();
