@@ -139,9 +139,12 @@
     <div class="hint">На телефоне самый надёжный способ сохранить — скачать PNG, затем зажать картинку и «Сохранить в фото». PDF лучше всего качается на компьютере.</div>
   </div>
 
-  <div class="bar">
-    <button class="b-png" onclick="download('png')">Скачать PNG</button>
-    <button class="b-pdf" onclick="download('pdf')">Скачать PDF</button>
+  <div class="bar" style="flex-direction:column; gap:8px">
+    <button class="b-pdf" style="width:100%" onclick="saveForApply()">💾 Сохранить для откликов</button>
+    <div style="display:flex; gap:10px; width:100%">
+      <button class="b-png" style="flex:1" onclick="download('png')">Скачать PNG</button>
+      <button class="b-png" style="flex:1" onclick="download('pdf')">Скачать PDF</button>
+    </div>
   </div>
 
 <script>
@@ -292,6 +295,23 @@
           pdf.save('CV_'+(data.name||'AMORE').replace(/\s+/g,'_')+'.pdf');
         } catch(e){ alert('PDF лучше качать с компьютера. На телефоне используй PNG.'); }
       }
+    });
+  };
+  window.saveForApply=function(){
+    if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
+    capture(function(canvas){
+      try {
+        var jsPDF=window.jspdf.jsPDF;
+        var pdf=new jsPDF('p','mm','a4');
+        var w=210, h=canvas.height*w/canvas.width;
+        pdf.addImage(canvas.toDataURL('image/jpeg',0.9),'JPEG',0,0,w,h);
+        var uri=pdf.output('datauristring');
+        var b64=uri.indexOf(',')>=0?uri.split(',')[1]:uri;
+        var name='CV_'+(data.name||'AMORE').replace(/\s+/g,'_')+'.pdf';
+        localStorage.setItem('amore_cv_b64', b64);
+        localStorage.setItem('amore_cv_name', name);
+        alert('✅ Резюме сохранено!\n\nТеперь оно будет автоматически прикладываться к откликам в разделе «База работодателей».');
+      } catch(e){ alert('Не удалось сохранить резюме: '+e); }
     });
   };
   function showSaveHint(url){

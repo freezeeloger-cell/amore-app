@@ -201,6 +201,7 @@
     .ml-in:focus, .ml-ta:focus { border-color:#0E5C8A; }
     .ml-ta { resize:vertical; line-height:1.5; }
     .ml-note { font-size:11px; color:#6B7E8C; background:#FFF6E9; border:1px solid #F0E0C0; border-radius:10px; padding:10px; margin:12px 0; line-height:1.5; }
+    .attach-ok { display:flex; align-items:center; gap:8px; background:#F3FBF7; border:1px solid #BFE3D4; border-radius:11px; padding:11px 13px; margin:10px 0 4px; font-size:12.5px; font-weight:700; color:#0E7A5B; }
     .ml-copyrow { display:flex; gap:8px; margin-bottom:4px; }
     .ml-cp { flex:1; padding:11px 6px; border:1px solid #E1E7EC; border-radius:11px; background:#EEF2F5; color:#0E2233; font-family:'Manrope'; font-size:12.5px; font-weight:700; cursor:pointer; }
     .ml-cp:active { background:#D9E6EF; transform:scale(.96); }
@@ -269,6 +270,11 @@
       <div class="sec-title"><span style="color:#0E5C8A">🛠️</span> Сделать документы</div>
       <div id="docapplybox"></div>
     </div>
+    <div class="view hidden" id="view-myapps">
+      <div class="back" onclick="switchView('profile')">← Назад</div>
+      <div class="sec-title"><span style="color:#0E5C8A">📨</span> Мои отклики</div>
+      <div id="myappsbox"></div>
+    </div>
   </div>
 
   <div class="nav">
@@ -336,8 +342,8 @@
     window.avFallback=function(img){ var d=img.parentNode; d.textContent=d.getAttribute('data-init'); };
 
     var NAV=['home','plan','vacancies','contacts','profile'];
-    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen','docapply'];
-    var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile',docapply:'profile'};
+    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen','docapply','myapps'];
+    var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile',docapply:'profile',myapps:'profile'};
     function switchView(v){
       ALLV.forEach(function(n){var el=document.getElementById('view-'+n);if(el)el.className='view'+(v===n?'':' hidden');});
       var act = NAV.indexOf(v)>=0 ? v : (PARENT[v]||'home');
@@ -351,6 +357,7 @@
       if(v==='docs') renderDocs();
       if(v==='mailgen') renderMailGen();
       if(v==='docapply') renderDocApply();
+      if(v==='myapps') renderMyApps();
       window.scrollTo(0,0);
     }
 
@@ -783,7 +790,7 @@
       html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме</div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="switchView(\'docapply\')"><div class="prow-ico">🛠️</div><div style="flex:1"><div class="prow-t">Сделать документы</div><div class="prow-s">Оставь заявку — поможем оформить сертификаты</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">📧</div><div style="flex:1"><div class="prow-t">Письмо для рассылки</div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div><span style="color:#6B7E8C">›</span></div>';
-      html+='<div class="prow" onclick="soon(\'Мои отклики\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">История твоих заявок</div></div><span style="color:#6B7E8C">›</span></div>';
+      html+='<div class="prow" onclick="switchView(\'myapps\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">Статусы отправленных писем</div></div><span style="color:#6B7E8C">›</span></div>';
       document.getElementById('profbox').innerHTML=html;
     }
 
@@ -862,63 +869,111 @@
       if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
       if(c.hasPhone)h+=contactRow('📞','Телефон',c.phone,'tel:','Позвонить');
       if(c.hasEmail)h+=contactRow('✉️','Email',c.email,'mailto:','Написать');
+      if(c.hasEmail)h+='<button class="btn btn-gold" style="margin-top:8px" onclick="openApply()">✉️ Откликнуться письмом</button>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
     };
-    /* ---------- ПОЛУ-АВТОМАТ: письмо работодателю ---------- */
-    var MAIL_DEFAULTS = {
+    /* ---------- ОТКЛИК ПИСЬМОМ (реальная отправка через Brevo) ---------- */
+    var APPLY_DEFAULTS = {
       en: { subj:'Application for a position on board',
-            body:'Dear {company} team,\n\nMy name is ___. I am looking for a position on board your vessel. I hold the required certificates (STCW basic safety training, medical certificate) and I am ready to start.\n\nMy CV is attached. I would be glad to hear about any open vacancies.\n\nBest regards,\n___\n+___' },
+            body:'Hello,\n\nMy name is ___. I would like to apply for a position on board your vessel. I have experience at sea and hold the required certificates (STCW Basic Safety Training, medical certificate).\n\nMy CV is attached. I am available to start and would be glad to hear about any open vacancies.\n\nBest regards,\n___' },
       no: { subj:'Søknad om stilling om bord',
-            body:'Hei {company},\n\nMitt navn er ___. Jeg søker en stilling om bord på deres fartøy. Jeg har nødvendige sertifikater (STCW grunnleggende sikkerhet, helseattest) og er klar til å begynne.\n\nCV er vedlagt. Jeg vil gjerne høre om ledige stillinger.\n\nMed vennlig hilsen,\n___\n+___' }
+            body:'Hei,\n\nMitt navn er ___. Jeg ønsker å søke en stilling om bord på deres fartøy. Jeg har erfaring til sjøs og har nødvendige sertifikater (STCW grunnleggende sikkerhetskurs, helseattest).\n\nCV er vedlagt. Jeg kan begynne og vil gjerne høre om ledige stillinger.\n\nMed vennlig hilsen,\n___' }
     };
-    function loadMail(){
-      try{ var s=localStorage.getItem('amore_mail'); if(s)return JSON.parse(s); }catch(e){}
-      return { lang:'en', en:Object.assign({},MAIL_DEFAULTS.en), no:Object.assign({},MAIL_DEFAULTS.no) };
+    function loadApply(){
+      try{ var s=localStorage.getItem('amore_apply'); if(s)return JSON.parse(s); }catch(e){}
+      var base={ lang:'en', en:Object.assign({},APPLY_DEFAULTS.en), no:Object.assign({},APPLY_DEFAULTS.no) };
+      try{ var mgs=localStorage.getItem('amore_mg'); if(mgs){ var mg=JSON.parse(mgs); if(mg&&mg.generated){ var L=mg.lang||'en'; base.lang=L; base[L]={subj:mg.generated.subj||base[L].subj, body:mg.generated.body||base[L].body}; } } }catch(e){}
+      return base;
     }
-    function saveMail(m){ try{ localStorage.setItem('amore_mail', JSON.stringify(m)); }catch(e){} }
-    var mailState=null;
-    window.openCompose=function(){
+    function saveApply(a){ try{ localStorage.setItem('amore_apply', JSON.stringify(a)); }catch(e){} }
+    var applyState=null;
+    window.openApply=function(){
       var c=window.__curContact; if(!c||!c.email)return;
-      mailState=loadMail();
-      renderCompose();
+      applyState=loadApply();
+      renderApply();
     };
-    window.setMailLang=function(l){ mailState.lang=l; renderCompose(); };
-    function curTpl(){ return mailState[mailState.lang]; }
-    function buildMailto(){
-      var c=window.__curContact;
+    window.setApplyLang=function(l){ applyState.lang=l; renderApply(); };
+    function curApply(){ return applyState[applyState.lang]; }
+    window.applyEdit=function(field,val){ curApply()[field]=val; saveApply(applyState); };
+    window.saveReplyEmail=function(v){ try{ localStorage.setItem('amore_reply_email', (v||'').trim()); }catch(e){} };
+    function renderApply(){
+      var c=window.__curContact; var t=curApply();
       var company=c.company||c.vessel||'';
-      var t=curTpl();
-      var subj=(t.subj||'').replace(/\{company\}/g,company);
-      var body=(t.body||'').replace(/\{company\}/g,company);
-      return 'mailto:'+encodeURIComponent(c.email)+'?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+      var replyEmail=''; try{ replyEmail=localStorage.getItem('amore_reply_email')||''; }catch(e){}
+      var cvName=''; try{ cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
+      var h='<div class="grip"></div><div class="det-title">Откликнуться письмом</div>';
+      h+='<div class="det-sub">Кому: '+esc(c.email)+' · '+esc(company)+'</div>';
+      h+='<div class="seg-mail"><button class="'+(applyState.lang==='en'?'on':'')+'" onclick="setApplyLang(\'en\')">English</button><button class="'+(applyState.lang==='no'?'on':'')+'" onclick="setApplyLang(\'no\')">Norsk</button></div>';
+      h+='<label class="ml-lbl">Твоя почта (на неё придёт ответ работодателя)</label><input class="ml-in" id="apply-reply" type="email" placeholder="you@gmail.com" value="'+esc(replyEmail)+'" oninput="saveReplyEmail(this.value)">';
+      h+='<label class="ml-lbl">Тема</label><input class="ml-in" id="apply-subj" value="'+esc(t.subj)+'" oninput="applyEdit(\'subj\',this.value)">';
+      h+='<label class="ml-lbl">Текст письма</label><textarea class="ml-ta" id="apply-body" rows="9" oninput="applyEdit(\'body\',this.value)">'+esc(t.body)+'</textarea>';
+      if(cvName) h+='<div class="attach-ok">📎 Резюме приложится: '+esc(cvName)+'</div>';
+      else h+='<div class="ml-note">⚠️ Резюме не найдено. Зайди в Профиль → «Моё резюме», собери и нажми «Сохранить для откликов» — тогда оно приложится само. Можно отправить и без него.</div>';
+      h+='<button class="btn btn-gold" id="apply-send" onclick="sendApply()">Отправить работодателю →</button>';
+      h+='<div class="close" onclick="closeModal()">Закрыть</div>';
+      document.getElementById('sheet').innerHTML=h;
     }
-    window.mailEdit=function(field,val){ curTpl()[field]=val; saveMail(mailState); document.getElementById('mailto-link').href=buildMailto(); };
+    window.sendApply=function(){
+      var c=window.__curContact;
+      var reply=(document.getElementById('apply-reply').value||'').trim();
+      var subj=(document.getElementById('apply-subj').value||'').trim();
+      var body=(document.getElementById('apply-body').value||'').trim();
+      if(!reply || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(reply)){ popup('Впиши свою почту правильно — на неё придёт ответ работодателя.'); return; }
+      if(!subj || !body){ popup('Заполни тему и текст письма.'); return; }
+      saveReplyEmail(reply);
+      var cvB64='', cvName='';
+      try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
+      var btn=document.getElementById('apply-send'); btn.textContent='Отправляю…'; btn.disabled=true;
+      var payload={ initData: tg?tg.initData:'', to:c.email, replyTo:reply, subject:subj, text:body };
+      if(cvB64&&cvName){ payload.cvBase64=cvB64; payload.cvName=cvName; }
+      fetch(BACKEND_URL+'/sendApplication',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d.ok){
+            var h='<div class="grip"></div><div style="text-align:center;padding:24px 10px"><div style="font-size:42px">✅</div><div style="font-size:17px;font-weight:800;margin:10px 0 6px">Письмо отправлено!</div>';
+            h+='<div style="font-size:13px;color:#6B7E8C;line-height:1.55">Резюме ушло работодателю '+esc(c.company||c.email)+'. Ответ придёт на '+esc(reply)+'.</div>';
+            if(d.remaining!=null) h+='<div style="font-size:12px;color:#6B7E8C;margin-top:10px">Осталось откликов сегодня: '+d.remaining+'</div>';
+            h+='<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal()">Готово</button></div>';
+            document.getElementById('sheet').innerHTML=h;
+          } else if(d.limit){
+            popup('На сегодня лимит '+d.max+' писем исчерпан. Продолжишь завтра 🙂');
+            btn.textContent='Отправить работодателю →'; btn.disabled=false;
+          } else {
+            popup('Не удалось отправить: '+(d.error||'ошибка')+'. Попробуй ещё раз.');
+            btn.textContent='Отправить работодателю →'; btn.disabled=false;
+          }
+        })
+        .catch(function(){ popup('Сервер недоступен, попробуй ещё раз.'); btn.textContent='Отправить работодателю →'; btn.disabled=false; });
+    };
     function copyRaw(val,msg){
       try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(val).then(function(){popup(msg);},function(){fallbackCopy(val);popup(msg);}); return; } }catch(e){}
       fallbackCopy(val); popup(msg);
     }
-    window.copyMail=function(what){
-      var c=window.__curContact; var company=c.company||c.vessel||''; var t=curTpl();
-      if(what==='email') copyRaw(c.email,'E-mail скопирован ✓');
-      else if(what==='subj') copyRaw((t.subj||'').replace(/\{company\}/g,company),'Тема скопирована ✓');
-      else copyRaw((t.body||'').replace(/\{company\}/g,company),'Текст письма скопирован ✓');
-    };
-    function renderCompose(){
-      var c=window.__curContact; var t=curTpl();
-      var company=c.company||c.vessel||'';
-      var h='<div class="grip"></div><div class="det-title">Письмо работодателю</div>';
-      h+='<div class="det-sub">Кому: '+esc(c.email)+' · '+esc(company)+'</div>';
-      h+='<div class="seg-mail"><button class="'+(mailState.lang==='en'?'on':'')+'" onclick="setMailLang(\'en\')">English</button><button class="'+(mailState.lang==='no'?'on':'')+'" onclick="setMailLang(\'no\')">Norsk</button></div>';
-      h+='<label class="ml-lbl">Тема</label><input class="ml-in" value="'+esc(t.subj)+'" oninput="mailEdit(\'subj\',this.value)">';
-      h+='<label class="ml-lbl">Текст письма</label><textarea class="ml-ta" rows="9" oninput="mailEdit(\'body\',this.value)">'+esc(t.body)+'</textarea>';
-      h+='<div class="ml-note">⚠️ Файл резюме почта не приложит сама — собери его в «Моё резюме», сохрани и прикрепи к письму вручную. «{company}» подставляется автоматически.</div>';
-      h+='<a class="btn btn-gold" id="mailto-link" href="'+buildMailto()+'" style="display:block;text-align:center;text-decoration:none">Открыть в почте →</a>';
-      h+='<div class="ml-note">Если почта не открылась (Telegram иногда так делает) — скопируй кнопками ниже и вставь в своё приложение почты:</div>';
-      h+='<div class="ml-copyrow"><button class="ml-cp" onclick="copyMail(\'email\')">📋 E-mail</button><button class="ml-cp" onclick="copyMail(\'subj\')">📋 Тема</button><button class="ml-cp" onclick="copyMail(\'body\')">📋 Текст</button></div>';
-      h+='<div class="close" onclick="closeModal()">Закрыть</div>';
-      document.getElementById('sheet').innerHTML=h;
+    /* ---------- МОИ ОТКЛИКИ (статусы из Brevo) ---------- */
+    function renderMyApps(){
+      var box=document.getElementById('myappsbox');
+      if(!isMember){ box.innerHTML='<div class="info">Отклики доступны участникам AMORE.</div>'; return; }
+      box.innerHTML=skel('skel-row',4);
+      fetch(BACKEND_URL+'/myApplications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(!d.ok){ box.innerHTML='<div class="info">Не удалось загрузить отклики.</div>'; return; }
+          var apps=d.apps||d.applications||[];
+          if(!apps.length){ box.innerHTML='<div class="info" style="text-align:center;padding:30px 16px"><div style="font-size:34px">📭</div><div style="margin-top:8px">Пока нет отправленных откликов.<br>Зайди в Базу и откликнись письмом!</div></div>'; return; }
+          var badge={'Открыто':'#0E7A5B','Доставлено':'#0E5C8A','Отправлено':'#6B7E8C','Не доставлено':'#C2410C'};
+          var h='<div style="font-size:12px;color:#6B7E8C;margin:0 2px 12px">Статус обновляется автоматически. «Открыто» — работодатель прочитал письмо.</div>';
+          apps.forEach(function(a){
+            var col=badge[a.status]||'#6B7E8C';
+            var dt=a.date?String(a.date).slice(0,10):'';
+            h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:13px">';
+            h+='<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(a.to||'')+'</div><div style="font-size:11px;color:#6B7E8C;margin-top:2px">'+esc(dt)+'</div></div>';
+            h+='<span style="flex:0 0 auto;font-size:11px;font-weight:800;color:'+col+';background:'+col+'1a;padding:5px 10px;border-radius:999px">'+esc(a.status)+'</span></div>';
+          });
+          box.innerHTML=h;
+        })
+        .catch(function(){ box.innerHTML='<div class="info">Сервер недоступен.</div>'; });
     }
     function loadContacts(){
       document.getElementById('clist').innerHTML=skel('skel-row',5);
