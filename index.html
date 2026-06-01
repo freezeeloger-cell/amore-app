@@ -395,10 +395,20 @@
     function contactRow(ico,label,value,href,act){
       var h='<div class="det-row"><span class="det-ico">'+ico+'</span><div style="flex:1;min-width:0"><div class="det-k">'+label+'</div><div class="det-v">'+esc(value)+'</div></div>';
       h+='<span class="cp-btn" onclick="copyText(\''+esc(value)+'\')">📋</span>';
-      if(href)h+='<a class="cp-btn" href="'+href+esc(value)+'">'+act+'</a>';
+      if(href==='tel:')h+='<span class="cp-btn" onclick="callPhone(\''+esc(value)+'\')">'+act+'</span>';
+      else if(href)h+='<a class="cp-btn" href="'+href+esc(value)+'">'+act+'</a>';
       h+='</div>';
       return h;
     }
+    window.callPhone=function(num){
+      var clean=String(num).replace(/[^\d+]/g,'');
+      var tel='tel:'+clean;
+      try{
+        if(tg&&tg.openLink){ tg.openLink(tel); return; }
+      }catch(e){}
+      try{ window.open(tel,'_blank'); return; }catch(e){}
+      try{ location.href=tel; }catch(e){}
+    };
     window.vlock=function(){paywall('Контакты по вакансии','Прямые контакты работодателя открыты участникам AMORE — звони и пиши напрямую.');};
     window.vacContacts=function(i){
       var v=VACANCIES[i];
