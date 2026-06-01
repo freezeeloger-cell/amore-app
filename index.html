@@ -203,6 +203,7 @@
     .ml-note { font-size:11px; color:#6B7E8C; background:#FFF6E9; border:1px solid #F0E0C0; border-radius:10px; padding:10px; margin:12px 0; line-height:1.5; }
     .attach-ok { display:flex; align-items:center; gap:8px; background:#F3FBF7; border:1px solid #BFE3D4; border-radius:11px; padding:11px 13px; margin:10px 0 4px; font-size:12.5px; font-weight:700; color:#0E7A5B; }
     .ml-copyrow { display:flex; gap:8px; margin-bottom:4px; }
+    .vac-date { font-size:11px; color:#6B7E8C; margin:6px 0 2px; font-weight:600; }
     .ml-cp { flex:1; padding:11px 6px; border:1px solid #E1E7EC; border-radius:11px; background:#EEF2F5; color:#0E2233; font-family:'Manrope'; font-size:12.5px; font-weight:700; cursor:pointer; }
     .ml-cp:active { background:#D9E6EF; transform:scale(.96); }
     .group-mg { background:#fff; border:1px solid #E1E7EC; border-radius:14px; padding:14px; margin-bottom:11px; }
@@ -425,6 +426,7 @@
       h+='</div>';
       var mp=[];if(v.company)mp.push(esc(v.company));if(v.direction)mp.push(esc(v.direction));
       if(mp.length)h+='<div class="meta">📍 '+mp.join(' · ')+'</div>';
+      if(v.date)h+='<div class="vac-date">📅 Опубликовано: '+esc(v.date)+'</div>';
       h+='<div class="row">';
       if(v.pay)h+='<span class="pay">'+payHtml(v.pay)+'</span>';
       if(v.when)h+='<span class="when">🕒 '+esc(v.when)+'</span>';
@@ -456,7 +458,7 @@
     function renderVacInto(id, limit){
       var box=document.getElementById(id); if(!box)return;
       if(!VACANCIES.length){box.innerHTML='<div class="info">Пока нет активных вакансий.</div>';return;}
-      var list = limit ? VACANCIES.slice().sort(function(a,b){return (b.urgent?1:0)-(a.urgent?1:0);}).slice(0,limit) : VACANCIES;
+      var list = limit ? VACANCIES.slice(0,limit) : VACANCIES;
       box.innerHTML=list.map(vacCard).join('');
       animateCounts(box);
     }
