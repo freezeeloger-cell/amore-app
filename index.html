@@ -405,7 +405,7 @@
       var sub=[]; if(v.company)sub.push(esc(v.company)); if(v.direction)sub.push(esc(v.direction));
       if(sub.length)h+='<div class="det-sub">'+sub.join(' · ')+'</div>';
       if(v.phone)h+=contactRow('📞','Телефон',v.phone,'tel:','Позвонить');
-      if(v.email)h+=contactRow('✉️','Email',v.email,'mailto:','Написать');
+      if(v.email)h+=contactRow('✉️','Email',v.email,'','');
       if(v.email){
         h+='<button class="btn btn-gold" style="margin-top:8px" onclick="applyFromVac('+i+')">✉️ Откликнуться письмом</button>';
       }
@@ -876,7 +876,7 @@
       h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
       if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
       if(c.hasPhone)h+=contactRow('📞','Телефон',c.phone,'tel:','Позвонить');
-      if(c.hasEmail)h+=contactRow('✉️','Email',c.email,'mailto:','Написать');
+      if(c.hasEmail)h+=contactRow('✉️','Email',c.email,'','');
       if(c.hasEmail)h+='<button class="btn btn-gold" style="margin-top:8px" onclick="openApply()">✉️ Откликнуться письмом</button>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
