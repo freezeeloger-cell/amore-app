@@ -406,10 +406,18 @@
       if(sub.length)h+='<div class="det-sub">'+sub.join(' · ')+'</div>';
       if(v.phone)h+=contactRow('📞','Телефон',v.phone,'tel:','Позвонить');
       if(v.email)h+=contactRow('✉️','Email',v.email,'mailto:','Написать');
+      if(v.email){
+        h+='<button class="btn btn-gold" style="margin-top:8px" onclick="applyFromVac('+i+')">✉️ Откликнуться письмом</button>';
+      }
       if(!v.phone&&!v.email)h+='<div style="font-size:13px;color:#6B7E8C;text-align:center;padding:6px 4px;line-height:1.5">Контакты по этой вакансии скоро добавим. А пока вся база работодателей — в разделе «База».</div>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
+    };
+    window.applyFromVac=function(i){
+      var v=VACANCIES[i];
+      window.__curContact={ email:v.email, company:v.company||v.role||'', vessel:'', hasEmail:true };
+      openApply();
     };
     function vacCard(v){
       var h='<div class="card"><div class="card-top"><div class="role">'+esc(v.role)+'</div>';
