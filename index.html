@@ -401,7 +401,11 @@
       return h;
     }
     window.callPhone=function(num){
-      var clean=String(num).replace(/[^\d+]/g,'');
+      var s=String(num).replace(/^[='\s]+/,'');          // убрать мусор от Google Sheets (=, ')
+      var hadPlus=s.indexOf('+')>=0;
+      var clean=s.replace(/[^\d+]/g,'').replace(/\++/g,'+'); // оставить цифры и один плюс
+      clean=clean.replace(/(?!^)\+/g,'');                 // плюс только в начале
+      if(!hadPlus && clean.length>=8 && clean[0]!=='0'){ clean='+'+clean; } // нет плюса, но похоже на межд. — добавить
       var tel='tel:'+clean;
       try{
         if(tg&&tg.openLink){ tg.openLink(tel); return; }
