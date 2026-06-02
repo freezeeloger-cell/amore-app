@@ -453,7 +453,7 @@
       h+='</div>';
       h+= isMember
         ? '<button class="btn btn-gold" onclick="vacContacts('+v._i+')">Посмотреть контакты</button>'
-        : ((v.email||v.phone) ? '<button class="btn btn-gold" onclick="vacContacts('+v._i+')">✉️ Откликнуться (бесплатно)</button>' : '<button class="btn btn-lock" onclick="vlock()">🔒 Посмотреть контакты</button>');
+        : (v.email ? '<button class="btn btn-gold" onclick="applyFromVac('+v._i+')">✉️ Откликнуться (бесплатно)</button>' : '<button class="btn btn-lock" onclick="vlock()">🔒 Посмотреть контакты</button>');
       return h+'</div>';
     }
     // оборачиваем число в зарплате, чтобы его «накрутить»
@@ -878,13 +878,15 @@
       var html='';
       shown.forEach(function(c,idx){
         var fl=c.country?FLAG[c.country]||'':'';
-        var name=isMember?esc(c.company||c.vessel||'—'):'<span class="masked">🔒 Контакт скрыт</span>';
+        var open=isMember||!c.locked;
+        var name=open?esc(c.company||c.vessel||'—'):'<span class="masked">🔒 Контакт скрыт</span>';
         html+='<div class="ccard'+(c.hiring?' c-hire':'')+'" onclick="openContact('+idx+')"><div style="flex:1;min-width:0"><div class="cname">'+fl+' '+name;
         if(c.hiring)html+=' <span class="badge hire">набирает</span>';
+        if(!isMember&&open)html+=' <span class="badge hire" style="background:#0E5C8A1a;color:#0E5C8A">бесплатно</span>';
         html+='</div><div class="cmeta">'+esc(c.country||'—');
         if(c.type)html+=' · '+esc(c.type);
-        if(isMember&&(c.hasPhone||c.hasEmail))html+=' <span class="avail">'+(c.hasPhone?'📞':'')+(c.hasEmail?'✉️':'')+'</span>';
-        html+='</div></div>'+(isMember?'<span style="color:#6B7E8C">›</span>':'<span style="color:#0E5C8A">🔒</span>')+'</div>';
+        if(open&&(c.hasPhone||c.hasEmail))html+=' <span class="avail">'+(c.hasPhone?'📞':'')+(c.hasEmail?'✉️':'')+'</span>';
+        html+='</div></div>'+(open?'<span style="color:#6B7E8C">›</span>':'<span style="color:#0E5C8A">🔒</span>')+'</div>';
       });
       box.innerHTML=html;
       if(list.length>cVisible)box.innerHTML+='<button class="more" onclick="showMore()">Показать ещё '+Math.min(PAGE,list.length-cVisible)+' (из '+list.length+')</button>';
@@ -894,17 +896,18 @@
       var c=window.__shown[idx];
       window.__curContact=c;
       var fl=c.country?FLAG[c.country]||'':'';
-      if(!isMember){
-        // гость: название и контакты скрыты. Бесплатные отклики — через раздел «Вакансии».
+      if(!isMember && c.locked){
+        // гость, закрытый контакт (6-й+): только подписка
         var h='<div class="grip"></div><div class="det-title">🔒 '+esc(c.country||'Работодатель')+'</div>';
         h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
-        h+='<div class="ml-note">Это один из 5600 работодателей базы. Название и прямые контакты открыты участникам AMORE.<br><br>Хочешь попробовать бесплатно? В разделе «Вакансии» можно отправить до 5 откликов с резюме прямо сейчас.</div>';
+        h+='<div class="ml-note">Это один из 5600 работодателей базы. Первые 5 открыты бесплатно — листай вверх. Вся база и контакты открываются с подпиской AMORE.</div>';
         h+='<button class="btn btn-gold" style="margin-top:8px" onclick="subscribe()">Открыть всю базу — подписка</button>';
         h+='<div class="close" onclick="closeModal()">Закрыть</div>';
         document.getElementById('sheet').innerHTML=h;
         document.getElementById('modal').className='overlay';
         return;
       }
+      // открытый контакт (участник или один из 5 бесплатных) — полный доступ
       var h='<div class="grip"></div><div class="det-title">'+esc(c.company||c.vessel||'—')+'</div>';
       h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
       if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
