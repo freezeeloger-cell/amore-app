@@ -933,8 +933,11 @@
     }
     function saveApply(a){ try{ localStorage.setItem('amore_apply', JSON.stringify(a)); }catch(e){} }
     var applyState=null;
+    function guestRemaining(){ try{ var v=localStorage.getItem('amore_guest_remaining'); return v==null?null:parseInt(v,10); }catch(e){ return null; } }
+    function guestExhaustedPaywall(){ paywall('Бесплатные отклики закончились','Ты использовал все 3 бесплатных отклика — круто, что попробовал! Оформи подписку AMORE: отклики без ограничений (15 в день), вся база из 5600 работодателей и прямые контакты.'); }
     window.openApply=function(){
       var c=window.__curContact; if(!c||!c.email)return;
+      if(!isMember){ var rem=guestRemaining(); if(rem!=null && rem<=0){ closeModal(); guestExhaustedPaywall(); return; } }
       applyState=loadApply();
       renderApply();
     };
@@ -976,17 +979,19 @@
         .then(function(r){return r.json();})
         .then(function(d){
           if(d.ok){
+            if(d.guest && d.remaining!=null){ try{ localStorage.setItem('amore_guest_remaining', String(d.remaining)); }catch(e){} }
             var h='<div class="grip"></div><div style="text-align:center;padding:24px 10px"><div style="font-size:42px">✅</div><div style="font-size:17px;font-weight:800;margin:10px 0 6px">Письмо отправлено!</div>';
             h+='<div style="font-size:13px;color:#6B7E8C;line-height:1.55">Резюме ушло работодателю '+esc(c.company||c.email)+'. Ответ придёт на '+esc(reply)+'.</div>';
-            if(d.remaining!=null) h+='<div style="font-size:12px;color:#6B7E8C;margin-top:10px">Осталось откликов сегодня: '+d.remaining+'</div>';
+            if(d.remaining!=null) h+='<div style="font-size:12px;color:#6B7E8C;margin-top:10px">Осталось откликов'+(d.guest?' (бесплатно)':' сегодня')+': '+d.remaining+'</div>';
             h+='<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal()">Готово</button></div>';
             document.getElementById('sheet').innerHTML=h;
           } else if(d.limit){
             popup('На сегодня лимит '+d.max+' писем исчерпан. Продолжишь завтра 🙂');
             btn.textContent='Отправить работодателю →'; btn.disabled=false;
           } else if(d.guestLimit){
+            try{ localStorage.setItem('amore_guest_remaining','0'); }catch(e){}
             closeModal();
-            paywall('Бесплатные отклики закончились','Ты использовал '+d.max+' бесплатных откликов — круто, что попробовал! Оформи подписку AMORE, чтобы откликаться без ограничений (15 в день), открыть всю базу из 5600 работодателей и прямые контакты.');
+            guestExhaustedPaywall();
           } else {
             popup('Не удалось отправить: '+(d.error||'ошибка')+'. Попробуй ещё раз.');
             btn.textContent='Отправить работодателю →'; btn.disabled=false;
@@ -1056,7 +1061,7 @@
       if(u&&u.first_name){document.getElementById('uname').textContent=u.first_name;uName=u.first_name;}
       fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(d.ok){isAdmin=!!d.admin;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
+        .then(function(d){ if(d.ok){isAdmin=!!d.admin;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
         .finally(function(){ renderHome(); loadVacancies(); });
     })();
