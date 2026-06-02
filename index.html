@@ -937,9 +937,10 @@
     function guestExhaustedPaywall(){ paywall('Бесплатные отклики закончились','Ты использовал все 3 бесплатных отклика — круто, что попробовал! Оформи подписку AMORE: отклики без ограничений (15 в день), вся база из 5600 работодателей и прямые контакты.'); }
     window.openApply=function(){
       var c=window.__curContact; if(!c||!c.email)return;
-      if(!isMember){ var rem=guestRemaining(); if(rem!=null && rem<=0){ closeModal(); guestExhaustedPaywall(); return; } }
+      if(!isMember){ var rem=guestRemaining(); if(rem!=null && rem<=0){ guestExhaustedPaywall(); return; } }
       applyState=loadApply();
       renderApply();
+      document.getElementById('modal').className='overlay';
     };
     window.setApplyLang=function(l){ applyState.lang=l; renderApply(); };
     function curApply(){ return applyState[applyState.lang]; }
