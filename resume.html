@@ -43,7 +43,9 @@
   .exp-card { border: 1px solid #EEF1F4; border-radius: 12px; padding: 11px; margin-bottom: 9px; background: #FAFBFC; }
 
   .preview-label { font-size: 12px; font-weight: 800; color: #6B7E8C; margin: 18px 2px 10px; text-transform: uppercase; letter-spacing: .05em; }
-  .stage { overflow: hidden; border-radius: 12px; border: 1px solid #E1E7EC; background: #fff; }
+  .stage { overflow: hidden; border-radius: 12px; border: 1px solid #E1E7EC; background: #fff; position: relative; }
+  #wmark { position:absolute; inset:0; pointer-events:none; z-index:5; background-image:repeating-linear-gradient(-30deg, rgba(14,92,138,.13) 0 2px, transparent 2px 26px); }
+  #wmark::after { content:'AMORE · оформи подписку  AMORE · оформи подписку  AMORE · оформи подписку  AMORE · оформи подписку  AMORE · оформи подписку  AMORE · оформи подписку  AMORE · оформи подписку  AMORE · оформи подписку'; position:absolute; inset:-20%; color:rgba(14,92,138,.22); font-weight:800; font-size:20px; line-height:2.4; transform:rotate(-30deg); word-spacing:14px; overflow:hidden; }
   .scaler { transform-origin: top left; }
 
   .bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; gap: 10px; padding: 12px 16px 18px; background: rgba(255,255,255,.96); backdrop-filter: blur(10px); border-top: 1px solid #E1E7EC; }
@@ -135,13 +137,14 @@
       <div class="scaler" id="scaler">
         <div id="cv-paper"></div>
       </div>
+      <div id="wmark" style="display:none"></div>
     </div>
     <div class="hint">На телефоне самый надёжный способ сохранить — скачать PNG, затем зажать картинку и «Сохранить в фото». PDF лучше всего качается на компьютере.</div>
   </div>
 
   <div class="bar" style="flex-direction:column; gap:8px">
     <button class="b-pdf" style="width:100%" onclick="saveForApply()">💾 Сохранить для откликов</button>
-    <div style="display:flex; gap:10px; width:100%">
+    <div id="dlrow" style="display:flex; gap:10px; width:100%">
       <button class="b-png" style="flex:1" onclick="download('png')">Скачать PNG</button>
       <button class="b-png" style="flex:1" onclick="download('pdf')">Скачать PDF</button>
     </div>
@@ -150,6 +153,9 @@
 <script>
   var tg = window.Telegram ? window.Telegram.WebApp : null;
   if (tg) { tg.ready(); tg.expand(); }
+
+  // гость или участник? (передаётся из апки через ?m=1/0)
+  var IS_MEMBER = (function(){ try{ return new URLSearchParams(location.search).get('m')==='1'; }catch(e){ return false; } })();
 
   var LABELS = {
     no: { personal:'PERSONLIG INFORMASJON', name:'Navn', address:'Adresse', phone:'Telefonnummer', email:'E-post', birth:'Fødselsdato', lang:'SPRÅK', exp:'ARBEIDSERFARING', edu:'UTDANNING' },
@@ -279,6 +285,7 @@
     }).catch(function(e){ scaler.style.transform=prev; fitScale(); alert('Не удалось собрать изображение: '+e); });
   }
   window.download=function(type){
+    if(!IS_MEMBER){ alert('📥 Скачивание резюме доступно участникам AMORE.\n\nНо ты можешь нажать «Сохранить для откликов» — и отправить резюме работодателям прямо из апки!'); return; }
     if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
     capture(function(canvas){
       if(type==='png'){
@@ -323,6 +330,13 @@
   /* ---------- старт ---------- */
   ['name','address','phone','email'].forEach(function(k){ document.getElementById('f-'+k).value=data[k]; });
   renderLangs(); renderExps(); renderEdus(); render();
+
+  // гостевой режим: водяной знак на превью + замок на скачивание
+  if(!IS_MEMBER){
+    var wm=document.getElementById('wmark'); if(wm) wm.style.display='block';
+    var row=document.getElementById('dlrow');
+    if(row) row.innerHTML='<button class="b-png" style="flex:1;opacity:.7" onclick="download(\'png\')">🔒 Скачать (по подписке)</button>';
+  }
   setTimeout(fitScale, 300);
 </script>
 </body>

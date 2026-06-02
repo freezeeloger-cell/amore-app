@@ -419,12 +419,18 @@
       var h='<div class="grip"></div><div class="det-title">'+esc(v.role)+'</div>';
       var sub=[]; if(v.company)sub.push(esc(v.company)); if(v.direction)sub.push(esc(v.direction));
       if(sub.length)h+='<div class="det-sub">'+sub.join(' · ')+'</div>';
-      if(v.phone)h+=contactRow('📞','Телефон',v.phone,'tel:','Позвонить');
-      if(v.email)h+=contactRow('✉️','Email',v.email,'','');
+      if(isMember){
+        if(v.phone)h+=contactRow('📞','Телефон',v.phone,'tel:','Позвонить');
+        if(v.email)h+=contactRow('✉️','Email',v.email,'','');
+      } else {
+        h+='<div class="ml-note">Откликнись бесплатно прямо сейчас — резюме уйдёт работодателю. Прямые контакты (телефон/почта) открыты участникам AMORE.</div>';
+      }
       if(v.email){
         h+='<button class="btn btn-gold" style="margin-top:8px" onclick="applyFromVac('+i+')">✉️ Откликнуться письмом</button>';
+      } else if(!isMember){
+        h+='<button class="btn btn-gold" style="margin-top:8px" onclick="subscribe()">Открыть контакты — подписка</button>';
       }
-      if(!v.phone&&!v.email)h+='<div style="font-size:13px;color:#6B7E8C;text-align:center;padding:6px 4px;line-height:1.5">Контакты по этой вакансии скоро добавим. А пока вся база работодателей — в разделе «База».</div>';
+      if(!v.phone&&!v.email&&isMember)h+='<div style="font-size:13px;color:#6B7E8C;text-align:center;padding:6px 4px;line-height:1.5">Контакты по этой вакансии скоро добавим. А пока вся база работодателей — в разделе «База».</div>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
@@ -445,7 +451,9 @@
       if(v.pay)h+='<span class="pay">'+payHtml(v.pay)+'</span>';
       if(v.when)h+='<span class="when">🕒 '+esc(v.when)+'</span>';
       h+='</div>';
-      h+= isMember ? '<button class="btn btn-gold" onclick="vacContacts('+v._i+')">Посмотреть контакты</button>' : '<button class="btn btn-lock" onclick="vlock()">🔒 Посмотреть контакты</button>';
+      h+= isMember
+        ? '<button class="btn btn-gold" onclick="vacContacts('+v._i+')">Посмотреть контакты</button>'
+        : ((v.email||v.phone) ? '<button class="btn btn-gold" onclick="vacContacts('+v._i+')">✉️ Откликнуться (бесплатно)</button>' : '<button class="btn btn-lock" onclick="vlock()">🔒 Посмотреть контакты</button>');
       return h+'</div>';
     }
     // оборачиваем число в зарплате, чтобы его «накрутить»
@@ -797,8 +805,7 @@
         .catch(function(){ popup('Сервер недоступен, попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} });
     };
     window.openResume=function(){
-      if(!isMember){ paywall('Конструктор резюме','Собери профессиональное резюме моряка по фирменному шаблону на норвежском или английском — и рассылай работодателям. Доступно участникам AMORE.'); return; }
-      window.location.href='resume.html';
+      window.location.href='resume.html?m='+(isMember?'1':'0');
     };
     function renderProfile(){
       var initial=uName?uName.charAt(0).toUpperCase():'?';
@@ -885,9 +892,19 @@
     window.showMore=function(){cVisible+=PAGE;renderContacts();};
     window.openContact=function(idx){
       var c=window.__shown[idx];
-      if(!isMember){paywall('База работодателей','Тысяча проверенных контактов с телефонами и почтой — звони работодателю напрямую. Открыто участникам AMORE.');return;}
       window.__curContact=c;
       var fl=c.country?FLAG[c.country]||'':'';
+      if(!isMember){
+        // гость: название и контакты скрыты. Бесплатные отклики — через раздел «Вакансии».
+        var h='<div class="grip"></div><div class="det-title">🔒 '+esc(c.country||'Работодатель')+'</div>';
+        h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
+        h+='<div class="ml-note">Это один из 5600 работодателей базы. Название и прямые контакты открыты участникам AMORE.<br><br>Хочешь попробовать бесплатно? В разделе «Вакансии» можно отправить до 5 откликов с резюме прямо сейчас.</div>';
+        h+='<button class="btn btn-gold" style="margin-top:8px" onclick="subscribe()">Открыть всю базу — подписка</button>';
+        h+='<div class="close" onclick="closeModal()">Закрыть</div>';
+        document.getElementById('sheet').innerHTML=h;
+        document.getElementById('modal').className='overlay';
+        return;
+      }
       var h='<div class="grip"></div><div class="det-title">'+esc(c.company||c.vessel||'—')+'</div>';
       h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
       if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
@@ -964,6 +981,9 @@
           } else if(d.limit){
             popup('На сегодня лимит '+d.max+' писем исчерпан. Продолжишь завтра 🙂');
             btn.textContent='Отправить работодателю →'; btn.disabled=false;
+          } else if(d.guestLimit){
+            closeModal();
+            paywall('Бесплатные отклики закончились','Ты использовал '+d.max+' бесплатных откликов — круто, что попробовал! Оформи подписку AMORE, чтобы откликаться без ограничений (15 в день), открыть всю базу из 5600 работодателей и прямые контакты.');
           } else {
             popup('Не удалось отправить: '+(d.error||'ошибка')+'. Попробуй ещё раз.');
             btn.textContent='Отправить работодателю →'; btn.disabled=false;
