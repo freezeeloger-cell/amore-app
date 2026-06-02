@@ -204,6 +204,17 @@
     .attach-ok { display:flex; align-items:center; gap:8px; background:#F3FBF7; border:1px solid #BFE3D4; border-radius:11px; padding:11px 13px; margin:10px 0 4px; font-size:12.5px; font-weight:700; color:#0E7A5B; }
     .ml-copyrow { display:flex; gap:8px; margin-bottom:4px; }
     .vac-date { font-size:11px; color:#6B7E8C; margin:6px 0 2px; font-weight:600; }
+    .sal-wrap { display:flex; flex-direction:column; gap:9px; }
+    .sal-card { background:#fff; border:1px solid #E1E7EC; border-radius:14px; padding:13px 15px; position:relative; overflow:hidden; }
+    .sal-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:linear-gradient(#0E5C8A,#0E7A5B); }
+    .sal-top { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+    .sal-ic { font-size:18px; }
+    .sal-name { font-size:13.5px; font-weight:800; }
+    .sal-hot { margin-left:auto; font-size:9px; font-weight:800; text-transform:uppercase; color:#C2410C; background:#FCE8DE; padding:3px 8px; border-radius:999px; letter-spacing:.5px; }
+    .sal-pay { font-size:21px; font-weight:800; color:#0E7A5B; letter-spacing:-.5px; }
+    .sal-per { font-size:12px; font-weight:600; color:#6B7E8C; }
+    .sal-c { font-size:11.5px; color:#6B7E8C; margin-top:3px; font-weight:600; }
+    .sal-note { font-size:11px; color:#6B7E8C; line-height:1.5; margin:10px 2px 0; }
     .ml-cp { flex:1; padding:11px 6px; border:1px solid #E1E7EC; border-radius:11px; background:#EEF2F5; color:#0E2233; font-family:'Manrope'; font-size:12.5px; font-weight:700; cursor:pointer; }
     .ml-cp:active { background:#D9E6EF; transform:scale(.96); }
     .group-mg { background:#fff; border:1px solid #E1E7EC; border-radius:14px; padding:14px; margin-bottom:11px; }
@@ -363,6 +374,28 @@
     }
 
     /* ---------- ГЛАВНАЯ ---------- */
+    function salaryBlock(){
+      var rows=[
+        {ic:'🦀', n:'Краболов', pay:'6 000–20 000 €', per:'в месяц', c:'контракт 2–4 мес', hot:true},
+        {ic:'🎣', n:'Траулер', pay:'6 000–20 000 €', per:'в месяц', c:'вахта 5/5 недель', hot:true},
+        {ic:'⛵', n:'Яхтинг', pay:'3 500–20 000 €', per:'в месяц', c:'контракт 1–12 мес', hot:false},
+        {ic:'🚢', n:'Торговый флот', pay:'1 000–10 000 €', per:'в месяц', c:'контракт 4–6 мес', hot:false},
+        {ic:'🧽', n:'Замывка трюмов', pay:'2 000–3 000 €', per:'за контракт', c:'2–3 недели', hot:false}
+      ];
+      var h='<div class="sec-title"><span style="color:#0E7A5B">💰</span> Сколько зарабатывают в море</div>';
+      h+='<div class="sal-wrap">';
+      rows.forEach(function(r){
+        h+='<div class="sal-card">';
+        h+='<div class="sal-top"><span class="sal-ic">'+r.ic+'</span><span class="sal-name">'+r.n+'</span>'+(r.hot?'<span class="sal-hot">топ</span>':'')+'</div>';
+        h+='<div class="sal-pay">'+r.pay+'<span class="sal-per"> / '+r.per+'</span></div>';
+        h+='<div class="sal-c">📄 '+r.c+'</div>';
+        h+='</div>';
+      });
+      h+='</div>';
+      h+='<div class="sal-note">Цифры — из реального опыта работы в море. Зависят от судна, должности, опыта и сезона.</div>';
+      if(!isMember) h+='<button class="btn btn-gold" style="margin-top:10px" onclick="subscribe()">Хочу так же — открыть AMORE</button>';
+      return h;
+    }
     function renderHome(){
       var html='';
       html+='<div class="hero"><div class="hero-name">⚓ AMORE</div>';
@@ -377,6 +410,7 @@
       }
       html+='<div class="sec-title"><span style="color:#0E5C8A">⚡</span> Срочные вакансии <span class="see" onclick="switchView(\'vacancies\')">все ›</span></div>';
       html+='<div id="home-vac"><div class="info">Загружаем…</div></div>';
+      html+=salaryBlock();
       html+='<div class="sec-title">Разделы</div>';
       html+='<div class="prow" onclick="switchView(\'mentors\')"><div class="prow-ico">👥</div><div style="flex:1"><div class="prow-t">Наставники</div><div class="prow-s">Команда практиков по флотам</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="switchView(\'reviews\')"><div class="prow-ico">💬</div><div style="flex:1"><div class="prow-t">Отзывы</div><div class="prow-s">Истории учеников</div></div><span style="color:#6B7E8C">›</span></div>';

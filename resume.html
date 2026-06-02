@@ -44,8 +44,8 @@
 
   .preview-label { font-size: 12px; font-weight: 800; color: #6B7E8C; margin: 18px 2px 10px; text-transform: uppercase; letter-spacing: .05em; }
   .stage { overflow: hidden; border-radius: 12px; border: 1px solid #E1E7EC; background: #fff; position: relative; }
-  #wmark { position:absolute; inset:0; pointer-events:none; z-index:5; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  #wmark::after { content:'AMORE'; color:rgba(14,92,138,.22); font-weight:800; font-size:150px; letter-spacing:10px; transform:rotate(-25deg); white-space:nowrap; }
+  #wmark { position:absolute; inset:0; pointer-events:none; z-index:5; overflow:hidden; }
+  #wmark .wm-fill { position:absolute; top:-60%; left:-60%; width:220%; height:220%; transform:rotate(-30deg); font-weight:800; font-size:58px; line-height:2.4; letter-spacing:8px; word-spacing:22px; color:rgba(120,140,160,.40); overflow:hidden; white-space:normal; }
   .scaler { transform-origin: top left; position: relative; }
 
   .bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; gap: 10px; padding: 12px 16px 18px; background: rgba(255,255,255,.96); backdrop-filter: blur(10px); border-top: 1px solid #E1E7EC; }
@@ -333,7 +333,8 @@
 
   // гостевой режим: водяной знак на превью + замок на скачивание
   if(!IS_MEMBER){
-    var wm=document.getElementById('wmark'); if(wm) wm.style.display='block';
+    var wm=document.getElementById('wmark');
+    if(wm){ wm.innerHTML='<div class="wm-fill">'+Array(600).join('AMORE ')+'</div>'; wm.style.display='block'; }
     var row=document.getElementById('dlrow');
     if(row) row.innerHTML='<button class="b-png" style="flex:1;opacity:.7" onclick="download(\'png\')">🔒 Скачать (по подписке)</button>';
   }
