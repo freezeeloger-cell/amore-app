@@ -99,6 +99,18 @@
     .prof-name { font-size: 18px; font-weight: 800; }
     .prof-tag { font-size: 11.5px; color: #6B7E8C; margin-top: 3px; font-weight: 500; }
     .plan-box { margin: 16px 0; padding: 17px; border-radius: 18px; background: #EEF5F9; border: 1px solid #CFE3EF; }
+    .gp-title { font-size: 15px; font-weight: 800; color: #16242c; }
+    .gp-sub { font-size: 12px; color: #6B7E8C; margin: 4px 0 12px; }
+    .gp-step { display: flex; align-items: center; gap: 11px; background: #fff; border: 1px solid #D8E6EE; border-radius: 13px; padding: 11px 12px; margin-bottom: 8px; cursor: pointer; }
+    .gp-step:active { transform: scale(0.99); }
+    .gp-last { border-color: #F3D4C4; background: #FFF6F1; }
+    .gp-n { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 50%; background: #0E5C8A; color: #fff; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+    .gp-last .gp-n { background: #C2410C; }
+    .gp-c { flex: 1; min-width: 0; }
+    .gp-h { font-size: 12.5px; font-weight: 800; color: #16242c; }
+    .gp-d { font-size: 11px; color: #6B7E8C; margin-top: 1px; }
+    .gp-free { font-size: 9px; font-weight: 800; color: #0E7A5B; background: #E1F3EC; padding: 2px 6px; border-radius: 20px; vertical-align: middle; }
+    .gp-arr { color: #9DB2BF; font-size: 18px; }
     .plan-price { font-size: 28px; font-weight: 800; color: #0E5C8A; }
     .plan-per { font-size: 12px; color: #6B7E8C; font-weight: 600; }
     .prow { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 13px; background: #fff; border: 1px solid #E1E7EC; margin-bottom: 9px; cursor: pointer; }
@@ -404,9 +416,15 @@
       html+='<div class="hero-row"><span>⚓ База работодателей</span><span>⚡ Свежие вакансии</span></div>';
       html+='<div class="hero-row"><span>📚 Обучение с нуля</span><span>👥 Наставники-практики</span></div></div>';
       if(!isMember){
-        html+='<div class="plan-box"><div style="font-size:14.5px;font-weight:700;margin-bottom:6px">Открой полный доступ к AMORE</div>';
-        html+='<div style="font-size:12px;color:#6B7E8C;margin-bottom:12px">Вакансии, база работодателей, обучение и наставники.</div>';
-        html+='<button class="btn btn-gold" onclick="subscribe()">Оформить — 50€/мес</button></div>';
+        html+='<div class="plan-box">';
+        html+='<div class="gp-title">🧭 Твой план: от нуля до работы в море</div>';
+        html+='<div class="gp-sub">Первые шаги — бесплатно. Попробуй прямо сейчас 👇</div>';
+        html+='<div class="gp-step" onclick="openResume()"><div class="gp-n">1</div><div class="gp-c"><div class="gp-h">Собери резюме моряка <span class="gp-free">бесплатно</span></div><div class="gp-d">На норвежском или английском, за минуту</div></div><span class="gp-arr">›</span></div>';
+        html+='<div class="gp-step" onclick="switchView(\'contacts\')"><div class="gp-n">2</div><div class="gp-c"><div class="gp-h">Открой контакты работодателей <span class="gp-free">5 бесплатно</span></div><div class="gp-d">Реальная база Норвегии, Дании, Британии</div></div><span class="gp-arr">›</span></div>';
+        html+='<div class="gp-step" onclick="switchView(\'vacancies\')"><div class="gp-n">3</div><div class="gp-c"><div class="gp-h">Отправь отклик с резюме <span class="gp-free">3 бесплатно</span></div><div class="gp-d">Письмо работодателю прямо из приложения</div></div><span class="gp-arr">›</span></div>';
+        html+='<div class="gp-step gp-last" onclick="subscribe()"><div class="gp-n">4</div><div class="gp-c"><div class="gp-h">Открой всё без лимитов 🔓</div><div class="gp-d">Вся база, безлимит откликов, обучение и наставники</div></div><span class="gp-arr">›</span></div>';
+        html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Оформить AMORE — 50€/мес</button>';
+        html+='</div>';
       }
       html+='<div class="sec-title"><span style="color:#0E5C8A">⚡</span> Срочные вакансии <span class="see" onclick="switchView(\'vacancies\')">все ›</span></div>';
       html+='<div id="home-vac"><div class="info">Загружаем…</div></div>';
