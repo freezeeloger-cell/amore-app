@@ -109,6 +109,8 @@
     <div class="group">
       <h2>📋 Личная информация</h2>
       <label>Адрес</label><input id="f-address" placeholder="Storgata 1, Oslo, 0155">
+      <label>Город проживания</label><input id="f-city" placeholder="Oslo">
+      <label>Гражданство</label><input id="f-citizenship" placeholder="Ukraine">
       <label>Телефон</label><input id="f-phone" placeholder="+47 12345678">
       <label>E-mail</label><input id="f-email" placeholder="name@gmail.com">
       <label>Дата рождения</label><input id="f-birth" type="date">
@@ -158,14 +160,14 @@
   var IS_MEMBER = (function(){ try{ return new URLSearchParams(location.search).get('m')==='1'; }catch(e){ return false; } })();
 
   var LABELS = {
-    no: { personal:'PERSONLIG INFORMASJON', name:'Navn', address:'Adresse', phone:'Telefonnummer', email:'E-post', birth:'Fødselsdato', lang:'SPRÅK', exp:'ARBEIDSERFARING', edu:'UTDANNING' },
-    en: { personal:'PERSONAL INFORMATION', name:'Name', address:'Address', phone:'Phone number', email:'E-mail', birth:'Date of birth', lang:'LANGUAGES', exp:'WORK EXPERIENCE', edu:'EDUCATION' }
+    no: { personal:'PERSONLIG INFORMASJON', name:'Navn', address:'Adresse', city:'Bosted', citizenship:'Statsborgerskap', phone:'Telefonnummer', email:'E-post', birth:'Fødselsdato', lang:'SPRÅK', exp:'ARBEIDSERFARING', edu:'UTDANNING' },
+    en: { personal:'PERSONAL INFORMATION', name:'Name', address:'Address', city:'City', citizenship:'Citizenship', phone:'Phone number', email:'E-mail', birth:'Date of birth', lang:'LANGUAGES', exp:'WORK EXPERIENCE', edu:'EDUCATION' }
   };
 
   var data = {
     lang: 'no',
     photo: '',
-    name: '', address: '', phone: '', email: '', birth: '',
+    name: '', address: '', city: '', citizenship: '', phone: '', email: '', birth: '',
     langs: [ {n:'Norsk', s:1}, {n:'Engelsk', s:3}, {n:'Russian', s:5} ],
     exps: [ {pm1:'', py1:'', pm2:'', py2:'', v:'', r:''} ],
     edus: [ {pm1:'', py1:'', pm2:'', py2:'', v:''} ]
@@ -192,7 +194,7 @@
     r.onload=function(ev){ data.photo=ev.target.result; document.getElementById('ph-prev').src=data.photo; render(); };
     r.readAsDataURL(f);
   });
-  ['name','address','phone','email'].forEach(function(k){
+  ['name','address','city','citizenship','phone','email'].forEach(function(k){
     document.getElementById('f-'+k).addEventListener('input', function(e){ data[k]=e.target.value; render(); });
   });
   document.getElementById('f-birth').addEventListener('input', function(e){
@@ -247,6 +249,8 @@
     var info='';
     if(data.name) info+='<div class="cv-irow"><div class="cv-ico">👤</div><div><div class="cv-ik">'+L.name+'</div><div class="cv-iv">'+esc(data.name)+'</div></div></div>';
     if(data.address) info+='<div class="cv-irow"><div class="cv-ico">🏠</div><div><div class="cv-ik">'+L.address+'</div><div class="cv-iv">'+esc(data.address)+'</div></div></div>';
+    if(data.city) info+='<div class="cv-irow"><div class="cv-ico">📍</div><div><div class="cv-ik">'+L.city+'</div><div class="cv-iv">'+esc(data.city)+'</div></div></div>';
+    if(data.citizenship) info+='<div class="cv-irow"><div class="cv-ico">🌍</div><div><div class="cv-ik">'+L.citizenship+'</div><div class="cv-iv">'+esc(data.citizenship)+'</div></div></div>';
     if(data.phone) info+='<div class="cv-irow"><div class="cv-ico">📞</div><div><div class="cv-ik">'+L.phone+'</div><div class="cv-iv">'+esc(data.phone)+'</div></div></div>';
     if(data.email) info+='<div class="cv-irow"><div class="cv-ico">✉️</div><div><div class="cv-ik">'+L.email+'</div><div class="cv-iv">'+esc(data.email)+'</div></div></div>';
     if(data.birth) info+='<div class="cv-irow"><div class="cv-ico">📅</div><div><div class="cv-ik">'+L.birth+'</div><div class="cv-iv">'+esc(data.birth)+'</div></div></div>';
@@ -328,7 +332,7 @@
   }
 
   /* ---------- старт ---------- */
-  ['name','address','phone','email'].forEach(function(k){ document.getElementById('f-'+k).value=data[k]; });
+  ['name','address','city','citizenship','phone','email'].forEach(function(k){ document.getElementById('f-'+k).value=data[k]; });
   renderLangs(); renderExps(); renderEdus(); render();
 
   // гостевой режим: водяной знак на превью + замок на скачивание
