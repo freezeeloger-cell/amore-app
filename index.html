@@ -99,6 +99,14 @@
     .prof-name { font-size: 18px; font-weight: 800; }
     .prof-tag { font-size: 11.5px; color: #6B7E8C; margin-top: 3px; font-weight: 500; }
     .plan-box { margin: 16px 0; padding: 17px; border-radius: 18px; background: #EEF5F9; border: 1px solid #CFE3EF; }
+    .pw-unlock { background:#fff; border:1px solid #E1E7EC; border-radius:14px; padding:6px 14px; margin:0 0 12px; }
+    .pw-row { display:flex; gap:11px; align-items:flex-start; font-size:12.5px; color:#16242c; line-height:1.4; padding:10px 0; }
+    .pw-row + .pw-row { border-top:1px solid #EEF2F5; }
+    .pw-row b { font-weight:800; }
+    .pw-ic { font-size:18px; flex:0 0 22px; }
+    .pw-anchor { background:#E1F3EC; border-radius:12px; padding:11px 14px; font-size:12.5px; color:#0E5C44; line-height:1.45; text-align:center; }
+    .pw-anchor b { color:#0E7A5B; }
+    .pw-proof { text-align:center; font-size:12.5px; font-style:italic; color:#6B7E8C; margin:12px 8px 0; line-height:1.45; }
     .gp-title { font-size: 15px; font-weight: 800; color: #16242c; }
     .gp-sub { font-size: 12px; color: #6B7E8C; margin: 4px 0 12px; }
     .gp-step { display: flex; align-items: center; gap: 11px; background: #fff; border: 1px solid #D8E6EE; border-radius: 13px; padding: 11px 12px; margin-bottom: 8px; cursor: pointer; }
@@ -986,7 +994,25 @@
     function saveApply(a){ try{ localStorage.setItem('amore_apply', JSON.stringify(a)); }catch(e){} }
     var applyState=null;
     function guestRemaining(){ try{ var v=localStorage.getItem('amore_guest_remaining'); return v==null?null:parseInt(v,10); }catch(e){ return null; } }
-    function guestExhaustedPaywall(){ paywall('Бесплатные отклики закончились','Ты использовал все 3 бесплатных отклика — круто, что попробовал! Оформи подписку AMORE: отклики без ограничений (15 в день), вся база из 5600 работодателей и прямые контакты.'); }
+    function guestExhaustedPaywall(){
+      var h='<div class="grip"></div>';
+      h+='<div style="text-align:center;font-size:34px">🔥</div>';
+      h+='<div class="det-title" style="text-align:center;margin-top:2px">Ты отправил 3 отклика!</div>';
+      h+='<div style="text-align:center;font-size:13px;color:#6B7E8C;line-height:1.5;margin:6px 10px 16px">Круто, что попробовал — это были бесплатные. Вот что открывается с полным доступом 👇</div>';
+      h+='<div class="pw-unlock">';
+      h+='<div class="pw-row"><span class="pw-ic">🦀</span><div>Вся база <b>5 600 работодателей</b> с прямыми контактами (а не 5)</div></div>';
+      h+='<div class="pw-row"><span class="pw-ic">✉️</span><div><b>До 15 откликов в день</b> вместо 3</div></div>';
+      h+='<div class="pw-row"><span class="pw-ic">📄</span><div>Скачивание резюме <b>без водяного знака</b></div></div>';
+      h+='<div class="pw-row"><span class="pw-ic">🎓</span><div>Обучение и <b>наставники-практики</b> по твоему направлению</div></div>';
+      h+='</div>';
+      h+='<div class="pw-anchor">50€/мес — против зарплат <b>6 000–20 000€</b> в море. Окупается в первый день рейса.</div>';
+      h+='<div class="pw-proof">«Через AMORE люди уже устраиваются на суда. Стань следующим.»</div>';
+      h+='<button class="btn btn-gold" style="margin-top:14px" onclick="subscribe()">Открыть полный доступ — 50€/мес</button>';
+      h+='<div style="text-align:center;font-size:11px;color:#9DB2BF;margin-top:9px">Отмена в любой момент</div>';
+      h+='<div class="close" onclick="closeModal()">Позже</div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+    }
     window.openApply=function(){
       var c=window.__curContact; if(!c||!c.email)return;
       if(!isMember){ var rem=guestRemaining(); if(rem!=null && rem<=0){ guestExhaustedPaywall(); return; } }
