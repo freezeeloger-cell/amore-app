@@ -25,6 +25,7 @@
     .ccount { margin-left: auto; font-size: 11px; font-weight: 700; color: #0E5C8A; background: #E2EEF5; padding: 3px 9px; border-radius: 999px; }
 
     .card { background: #fff; border: 1px solid #E1E7EC; border-radius: 16px; padding: 14px; margin-bottom: 11px; }
+    .card, .ccard, .dircard, .lesson, .mentor, .review, .prow, .doc, .sal-card, .group-mg, .search { box-shadow: 0 1px 2px rgba(14,34,51,.05); }
     .card-top { display: flex; align-items: flex-start; gap: 8px; }
     .role { font-size: 14.5px; font-weight: 700; line-height: 1.25; flex: 1; }
     .badge { font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; flex: 0 0 auto; background: #FDE7E0; color: #C2410C; }
@@ -99,14 +100,6 @@
     .prof-name { font-size: 18px; font-weight: 800; }
     .prof-tag { font-size: 11.5px; color: #6B7E8C; margin-top: 3px; font-weight: 500; }
     .plan-box { margin: 16px 0; padding: 17px; border-radius: 18px; background: #EEF5F9; border: 1px solid #CFE3EF; }
-    .pw-unlock { background:#fff; border:1px solid #E1E7EC; border-radius:14px; padding:6px 14px; margin:0 0 12px; }
-    .pw-row { display:flex; gap:11px; align-items:flex-start; font-size:12.5px; color:#16242c; line-height:1.4; padding:10px 0; }
-    .pw-row + .pw-row { border-top:1px solid #EEF2F5; }
-    .pw-row b { font-weight:800; }
-    .pw-ic { font-size:18px; flex:0 0 22px; }
-    .pw-anchor { background:#E1F3EC; border-radius:12px; padding:11px 14px; font-size:12.5px; color:#0E5C44; line-height:1.45; text-align:center; }
-    .pw-anchor b { color:#0E7A5B; }
-    .pw-proof { text-align:center; font-size:12.5px; font-style:italic; color:#6B7E8C; margin:12px 8px 0; line-height:1.45; }
     .gp-title { font-size: 15px; font-weight: 800; color: #16242c; }
     .gp-sub { font-size: 12px; color: #6B7E8C; margin: 4px 0 12px; }
     .gp-step { display: flex; align-items: center; gap: 11px; background: #fff; border: 1px solid #D8E6EE; border-radius: 13px; padding: 11px 12px; margin-bottom: 8px; cursor: pointer; }
@@ -142,11 +135,13 @@
     .nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; background: rgba(255,255,255,0.96); backdrop-filter: blur(12px); border-top: 1px solid #E1E7EC; padding: 9px 4px 13px; }
     .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: #9AAAB6; font-size: 9.5px; font-weight: 700; }
     .nav-item.on { color: #0E5C8A; }
+    .nav-item .nav-ico { padding: 3px 13px; border-radius: 999px; }
+    .nav-item.on .nav-ico { background: #E2EEF5; }
     .nav-ico { font-size: 19px; line-height: 1; }
 
     .overlay { position: fixed; inset: 0; background: rgba(14,34,51,.45); backdrop-filter: blur(3px); z-index: 50; display: flex; align-items: flex-end; }
     .overlay.hidden { display: none; }
-    .sheet { width: 100%; max-width: 480px; margin: 0 auto; background: #fff; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px 18px 28px; }
+    .sheet { width: 100%; max-width: 480px; margin: 0 auto; background: #fff; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px 18px 28px; max-height: 88vh; overflow-y: auto; }
     .grip { width: 40px; height: 4px; border-radius: 99px; background: #D2DAE0; margin: 0 auto 16px; }
     .det-row { display: flex; align-items: center; gap: 11px; padding: 12px; border-radius: 12px; background: #F4F6F8; border: 1px solid #E1E7EC; margin-bottom: 9px; }
     .det-ico { font-size: 18px; }
@@ -158,7 +153,7 @@
     .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     .close { text-align: center; font-size: 12.5px; color: #6B7E8C; margin-top: 12px; cursor: pointer; font-weight: 600; }
 
-    .hero { padding: 18px; border-radius: 20px; background: #fff; border: 1px solid #E1E7EC; margin-bottom: 14px; }
+    .hero { padding: 18px; border-radius: 20px; background: linear-gradient(180deg, #FFFFFF 0%, #F3F8FB 100%); border: 1px solid #E1E7EC; margin-bottom: 14px; box-shadow: 0 1px 2px rgba(14,34,51,.05); }
     .hero-name { font-weight:800; font-size:24px; color:#0E5C8A; letter-spacing:-.5px; }
     .hero-tag { font-size:13px; font-weight:700; color:#0E2233; margin-top:2px; }
     .hero-desc { font-size:12.5px; color:#6B7E8C; line-height:1.55; margin-top:10px; font-weight:500; }
@@ -326,6 +321,7 @@
     var TRIBUTE_URL = "https://t.me/tribute/app?startapp=sUKo";
     var tg = window.Telegram ? window.Telegram.WebApp : null;
     var isMember = false, isAdmin = false, uName = "моряк";
+    var memberKnown = false; // пока не проверили доступ — не показываем гостевые блоки (чтобы не мигали участнику)
 
     var FLAG = { "Норвегия": "🇳🇴", "Дания": "🇩🇰", "Британия": "🇬🇧" };
     var DIRS = ["Все", "Рыболовные суда", "Замывка трюмов", "Яхты", "Торговый флот"];
@@ -367,6 +363,7 @@
     var VACANCIES = [], CONTACTS = [], LESSONS = [], planDir = null;
     var cSearch = "", cDir = "Все", cCnt = "Все", cType = "Все", onlyHiring = false, cVisible = 30, PAGE = 30;
     var docChecked = {};
+    try{ docChecked = JSON.parse(localStorage.getItem('amore_docs')||'{}'); }catch(e){ docChecked={}; }
 
     function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
     function popup(m){ if(tg&&tg.showAlert)tg.showAlert(m); else alert(m); }
@@ -413,7 +410,7 @@
       });
       h+='</div>';
       h+='<div class="sal-note">Цифры — из реального опыта работы в море. Зависят от судна, должности, опыта и сезона.</div>';
-      if(!isMember) h+='<button class="btn btn-gold" style="margin-top:10px" onclick="subscribe()">Хочу так же — открыть AMORE</button>';
+      if(memberKnown && !isMember) h+='<button class="btn btn-gold" style="margin-top:10px" onclick="subscribe()">Хочу так же — открыть AMORE</button>';
       return h;
     }
     function renderHome(){
@@ -423,7 +420,10 @@
       html+='<div class="hero-desc">Помогаем новичкам выйти в море с нуля, а опытным морякам — сменить направление и тип флота. Норвегия, Дания, Британия: краболовы и рыбаки, торговый флот, яхты, замывка трюмов.</div>';
       html+='<div class="hero-row"><span>⚓ База работодателей</span><span>⚡ Свежие вакансии</span></div>';
       html+='<div class="hero-row"><span>📚 Обучение с нуля</span><span>👥 Наставники-практики</span></div></div>';
-      if(!isMember){
+      if(!memberKnown){
+        html+='<div class="skel skel-card"></div>';
+      }
+      if(!isMember && memberKnown){
         html+='<div class="plan-box">';
         html+='<div class="gp-title">🧭 Твой план: от нуля до работы в море</div>';
         html+='<div class="gp-sub">Первые шаги — бесплатно. Попробуй прямо сейчас 👇</div>';
@@ -540,7 +540,8 @@
     function renderVacInto(id, limit){
       var box=document.getElementById(id); if(!box)return;
       if(!VACANCIES.length){box.innerHTML='<div class="info">Пока нет активных вакансий.</div>';return;}
-      var list = limit ? VACANCIES.slice(0,limit) : VACANCIES;
+      var list = VACANCIES;
+      if(limit){ list = VACANCIES.slice().sort(function(a,b){return (b.urgent?1:0)-(a.urgent?1:0);}).slice(0,limit); }
       box.innerHTML=list.map(vacCard).join('');
       animateCounts(box);
     }
@@ -660,7 +661,7 @@
     var docDir = null;
     window.openDocDir=function(key){docDir=key;renderDocs();window.scrollTo(0,0);};
     window.backDocDirs=function(){docDir=null;renderDocs();};
-    window.toggleDoc=function(i){var d=DOC_DIRS.filter(function(x){return x.key===docDir;})[0];var id=docDir+'-'+i;docChecked[id]=!docChecked[id];renderDocs();};
+    window.toggleDoc=function(i){var d=DOC_DIRS.filter(function(x){return x.key===docDir;})[0];var id=docDir+'-'+i;docChecked[id]=!docChecked[id];try{localStorage.setItem('amore_docs',JSON.stringify(docChecked));}catch(e){}renderDocs();};
     function renderDocs(){
       var box=document.getElementById('docsbox');
       if(docDir===null){
@@ -874,7 +875,7 @@
       html+='<div class="plan-box"><div style="display:flex;align-items:center;gap:8px"><span style="color:#0E5C8A">★</span><span style="font-size:13px;font-weight:700">Участие в AMORE</span>';
       if(isMember)html+='<span class="badge hire" style="margin-left:auto">активна</span>';
       html+='</div><div style="margin:12px 0 4px"><span class="plan-price">50€</span> <span class="plan-per">/ месяц</span></div>';
-      if(isMember){html+='<div style="font-size:11.5px;color:#6B7E8C">Доступ открыт: вакансии, база, обучение и наставники.</div>';}
+      if(isMember){html+='<div style="font-size:11.5px;color:#6B7E8C">Доступ открыт: вакансии, база, обучение и наставники.</div><button class="btn btn-announce" onclick="subscribe()">⚙️ Управлять подпиской</button>';}
       else{html+='<div style="font-size:11.5px;color:#6B7E8C;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть доступ — 50€/мес</button>';}
       html+='</div>';
       html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#6B7E8C">›</span></div>';
@@ -994,25 +995,7 @@
     function saveApply(a){ try{ localStorage.setItem('amore_apply', JSON.stringify(a)); }catch(e){} }
     var applyState=null;
     function guestRemaining(){ try{ var v=localStorage.getItem('amore_guest_remaining'); return v==null?null:parseInt(v,10); }catch(e){ return null; } }
-    function guestExhaustedPaywall(){
-      var h='<div class="grip"></div>';
-      h+='<div style="text-align:center;font-size:34px">🔥</div>';
-      h+='<div class="det-title" style="text-align:center;margin-top:2px">Ты отправил 3 отклика!</div>';
-      h+='<div style="text-align:center;font-size:13px;color:#6B7E8C;line-height:1.5;margin:6px 10px 16px">Круто, что попробовал — это были бесплатные. Вот что открывается с полным доступом 👇</div>';
-      h+='<div class="pw-unlock">';
-      h+='<div class="pw-row"><span class="pw-ic">🦀</span><div>Вся база <b>5 600 работодателей</b> с прямыми контактами (а не 5)</div></div>';
-      h+='<div class="pw-row"><span class="pw-ic">✉️</span><div><b>До 15 откликов в день</b> вместо 3</div></div>';
-      h+='<div class="pw-row"><span class="pw-ic">📄</span><div>Скачивание резюме <b>без водяного знака</b></div></div>';
-      h+='<div class="pw-row"><span class="pw-ic">🎓</span><div>Обучение и <b>наставники-практики</b> по твоему направлению</div></div>';
-      h+='</div>';
-      h+='<div class="pw-anchor">50€/мес — против зарплат <b>6 000–20 000€</b> в море. Окупается в первый день рейса.</div>';
-      h+='<div class="pw-proof">«Через AMORE люди уже устраиваются на суда. Стань следующим.»</div>';
-      h+='<button class="btn btn-gold" style="margin-top:14px" onclick="subscribe()">Открыть полный доступ — 50€/мес</button>';
-      h+='<div style="text-align:center;font-size:11px;color:#9DB2BF;margin-top:9px">Отмена в любой момент</div>';
-      h+='<div class="close" onclick="closeModal()">Позже</div>';
-      document.getElementById('sheet').innerHTML=h;
-      document.getElementById('modal').className='overlay';
-    }
+    function guestExhaustedPaywall(){ paywall('Бесплатные отклики закончились','Ты использовал все 3 бесплатных отклика — круто, что попробовал! Оформи подписку AMORE: отклики без ограничений (15 в день), вся база из 5600 работодателей и прямые контакты.'); }
     window.openApply=function(){
       var c=window.__curContact; if(!c||!c.email)return;
       if(!isMember){ var rem=guestRemaining(); if(rem!=null && rem<=0){ guestExhaustedPaywall(); return; } }
@@ -1085,14 +1068,16 @@
     /* ---------- МОИ ОТКЛИКИ (статусы из Brevo) ---------- */
     function renderMyApps(){
       var box=document.getElementById('myappsbox');
-      if(!isMember){ box.innerHTML='<div class="info">Отклики доступны участникам AMORE.</div>'; return; }
       box.innerHTML=skel('skel-row',4);
       fetch(BACKEND_URL+'/myApplications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
         .then(function(r){return r.json();})
         .then(function(d){
           if(!d.ok){ box.innerHTML='<div class="info">Не удалось загрузить отклики.</div>'; return; }
           var apps=d.apps||d.applications||[];
-          if(!apps.length){ box.innerHTML='<div class="info" style="text-align:center;padding:30px 16px"><div style="font-size:34px">📭</div><div style="margin-top:8px">Пока нет отправленных откликов.<br>Зайди в Базу и откликнись письмом!</div></div>'; return; }
+          if(!apps.length){
+            box.innerHTML='<div class="info" style="text-align:center;padding:30px 16px"><div style="font-size:34px">📭</div><div style="margin-top:8px">Пока нет отправленных откликов.<br>Зайди в Базу или Вакансии и откликнись письмом'+(isMember?'':' — у тебя есть 3 бесплатных')+'!</div></div>';
+            return;
+          }
           var badge={'Открыто':'#0E7A5B','Доставлено':'#0E5C8A','Отправлено':'#6B7E8C','Не доставлено':'#C2410C'};
           var h='<div style="font-size:12px;color:#6B7E8C;margin:0 2px 12px">Статус обновляется автоматически. «Открыто» — работодатель прочитал письмо.</div>';
           apps.forEach(function(a){
@@ -1102,6 +1087,9 @@
             h+='<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(a.to||'')+'</div><div style="font-size:11px;color:#6B7E8C;margin-top:2px">'+esc(dt)+'</div></div>';
             h+='<span style="flex:0 0 auto;font-size:11px;font-weight:800;color:'+col+';background:'+col+'1a;padding:5px 10px;border-radius:999px">'+esc(a.status)+'</span></div>';
           });
+          if(!isMember){
+            h+='<div class="plan-box" style="margin-top:14px"><div style="font-size:13px;font-weight:800">Это твои бесплатные отклики 🎯</div><div style="font-size:12px;color:#6B7E8C;margin:6px 0 12px;line-height:1.5">С подпиской AMORE — до 15 откликов в день, вся база из 5 600 работодателей и резюме без водяного знака.</div><button class="btn btn-gold" onclick="subscribe()">Открыть полный доступ — 50€/мес</button></div>';
+          }
           box.innerHTML=h;
         })
         .catch(function(){ box.innerHTML='<div class="info">Сервер недоступен.</div>'; });
@@ -1134,15 +1122,16 @@
     (function(){
       loadMG();
       renderHome();
-      if(!tg||!tg.initData){ setStatus('guest','Открой через бота'); loadVacancies(); return; }
+      if(!tg||!tg.initData){ memberKnown=true; setStatus('guest','Открой через бота'); renderHome(); loadVacancies(); return; }
       tg.ready(); tg.expand();
+      try{ tg.setHeaderColor('#F4F6F8'); tg.setBackgroundColor('#F4F6F8'); }catch(e){}
       var u=tg.initDataUnsafe&&tg.initDataUnsafe.user;
       if(u&&u.first_name){document.getElementById('uname').textContent=u.first_name;uName=u.first_name;}
       fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
         .then(function(r){return r.json();})
         .then(function(d){ if(d.ok){isAdmin=!!d.admin;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
-        .finally(function(){ renderHome(); loadVacancies(); });
+        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); });
     })();
   </script>
 </body>
