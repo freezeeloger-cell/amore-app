@@ -756,8 +756,9 @@
       { emoji:'🚀', h:'Готово!', d:'Если что-то непонятно — жми значок «?» рядом с разделами. Погнали в море!', nav:'home' }
     ];
     var tourI=0;
-    function tourShouldRun(){ try{ return !localStorage.getItem('amore_toured'); }catch(e){ return false; } }
-    function tourDone(){ try{ localStorage.setItem('amore_toured','1'); }catch(e){}
+    var TOUR_VERSION='2'; // подними номер, чтобы показать тур ВСЕМ заново (под рассылку)
+    function tourShouldRun(){ try{ return localStorage.getItem('amore_tour_v')!==TOUR_VERSION; }catch(e){ return false; } }
+    function tourDone(){ try{ localStorage.setItem('amore_tour_v',TOUR_VERSION); }catch(e){}
       document.getElementById('tour-back').className='tour-back';
       document.getElementById('tour-spot').className='tour-spot';
     }
