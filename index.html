@@ -238,6 +238,26 @@
     .mg-opt { padding:9px 13px; border-radius:10px; border:1px solid #E1E7EC; background:#F4F6F8; color:#0E2233; font-size:12.5px; font-weight:600; cursor:pointer; }
     .mg-opt.on { background:#0E5C8A; color:#fff; border-color:transparent; }
     .mg-result { margin-top:16px; padding-top:6px; }
+    /* --- значок «?» подсказки --- */
+    .hbadge { display:inline-grid; place-items:center; width:17px; height:17px; border-radius:50%; background:#E2EEF5; color:#0E5C8A; font-size:11px; font-weight:800; cursor:pointer; margin-left:6px; vertical-align:middle; flex:0 0 auto; user-select:none; }
+    .hbadge:active { transform:scale(.9); }
+    .sec-title .hbadge { margin-left:2px; }
+    /* --- тур первого входа --- */
+    .tour-back { position:fixed; inset:0; background:rgba(14,34,51,.62); z-index:120; display:none; }
+    .tour-back.on { display:block; }
+    .tour-card { position:fixed; z-index:121; left:50%; bottom:96px; transform:translateX(-50%); width:calc(100% - 40px); max-width:360px;
+      background:#fff; border-radius:18px; padding:18px 18px 16px; box-shadow:0 14px 40px rgba(0,0,0,.3); }
+    .tour-emoji { font-size:30px; }
+    .tour-h { font-size:16px; font-weight:800; color:#16242c; margin-top:6px; }
+    .tour-d { font-size:13px; color:#5d6f7c; line-height:1.5; margin-top:6px; }
+    .tour-row { display:flex; align-items:center; gap:10px; margin-top:16px; }
+    .tour-dots { display:flex; gap:6px; flex:1; }
+    .tour-dot { width:7px; height:7px; border-radius:50%; background:#D2DAE0; }
+    .tour-dot.on { background:#0E5C8A; width:18px; border-radius:99px; }
+    .tour-skip { font-size:12px; color:#9AAAB6; font-weight:700; cursor:pointer; }
+    .tour-next { background:#0E5C8A; color:#fff; border:none; border-radius:11px; padding:10px 18px; font-family:'Manrope'; font-size:13px; font-weight:800; cursor:pointer; }
+    .tour-spot { position:fixed; z-index:121; border:2px solid #fff; border-radius:14px; box-shadow:0 0 0 4px rgba(14,92,138,.5); pointer-events:none; transition:all .25s ease; display:none; }
+    .tour-spot.on { display:block; }
   </style>
 </head>
 <body>
@@ -251,14 +271,14 @@
     <div class="view" id="view-home"><div id="homebox"></div></div>
 
     <div class="view hidden" id="view-vacancies">
-      <div class="sec-title"><span style="color:#0E5C8A">⚡</span> Вакансии</div>
+      <div class="sec-title"><span style="color:#0E5C8A">⚡</span> Вакансии <span class="hbadge" onclick="showHint(event,'vac')">?</span></div>
       <div id="vlist"><div class="info">Загружаем вакансии…</div></div>
     </div>
 
     <div class="view hidden" id="view-plan"><div id="plist"><div class="info">Загружаем обучение…</div></div></div>
 
     <div class="view hidden" id="view-contacts">
-      <div class="sec-title"><span style="color:#0E5C8A">⚓</span> База работодателей <span class="ccount" id="ccount">…</span></div>
+      <div class="sec-title"><span style="color:#0E5C8A">⚓</span> База работодателей <span class="hbadge" onclick="showHint(event,'base')">?</span> <span class="ccount" id="ccount">…</span></div>
       <div class="search"><span>🔍</span><input id="csearch" placeholder="Компания, тип, страна…" /></div>
       <div class="chips" id="dirchips"></div>
       <div class="chips" id="cntchips"></div>
@@ -313,6 +333,10 @@
   </div>
 
   <div class="totop" id="totop" onclick="scrollTop()">↑</div>
+  <div class="tour-spot" id="tour-spot"></div>
+  <div class="tour-back" id="tour-back">
+    <div class="tour-card" id="tour-card"></div>
+  </div>
   <div class="overlay hidden" id="modal"><div class="sheet" id="sheet"></div></div>
   <div class="imgview" id="imgview" onclick="closeImg()"><span class="x">✕</span><img id="imgview-src" src=""></div>
 
@@ -434,7 +458,7 @@
         html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Оформить AMORE — 50€/мес</button>';
         html+='</div>';
       }
-      html+='<div class="sec-title"><span style="color:#0E5C8A">⚡</span> Срочные вакансии <span class="see" onclick="switchView(\'vacancies\')">все ›</span></div>';
+      html+='<div class="sec-title"><span style="color:#0E5C8A">⚡</span> Срочные вакансии <span class="hbadge" onclick="showHint(event,\'vac\')">?</span> <span class="see" onclick="switchView(\'vacancies\')">все ›</span></div>';
       html+='<div id="home-vac"><div class="info">Загружаем…</div></div>';
       html+=salaryBlock();
       html+='<div class="sec-title">Разделы</div>';
@@ -566,7 +590,7 @@
     function renderPlan(){
       var box=document.getElementById('plist');
       if(planDir===null){
-        var html='<div class="sec-title"><span style="color:#0E5C8A">📚</span> Обучение</div>';
+        var html='<div class="sec-title"><span style="color:#0E5C8A">📚</span> Обучение <span class="hbadge" onclick="showHint(event,\'plan\')">?</span></div>';
         PLAN_DIRS.forEach(function(p){
           var n=LESSONS.filter(function(l){return l.direction===p.value;}).length;
           html+='<div class="dircard" onclick="openDir(\''+p.value+'\')"><div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div>';
@@ -702,6 +726,67 @@
 
     /* ---------- ПРОФИЛЬ ---------- */
     window.subscribe=function(){ if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_URL);} else {window.open(TRIBUTE_URL,'_blank');} };
+
+    /* ---------- ПОДСКАЗКИ «?» ---------- */
+    var HINTS = {
+      vac: 'Свежие вакансии на судах. Нажми на карточку — откликнись письмом с резюме прямо из апки. Первые 3 отклика бесплатно.',
+      base: 'База работодателей Норвегии, Дании и Британии. Первые 5 контактов открыты бесплатно, остальные — по подписке. Фильтруй по стране и направлению.',
+      plan: 'Видео-обучение по каждому направлению: как выйти в море с нуля. Открывается участникам AMORE.',
+      resume: 'Собери резюме моряка по шаблону за минуту — на норвежском или английском. Сохрани его, и оно будет само прикладываться к откликам.',
+      mail: 'Апка соберёт за тебя письмо работодателю под твой опыт и нужную работу. Останется скопировать и разослать.',
+      docs: 'Чек-лист документов под каждое направление. Отмечай что уже есть — увидишь, чего не хватает для выхода в море.',
+      myapps: 'Здесь видно, дошло ли твоё письмо и открыл ли его работодатель. «Открыто» — значит прочитали.'
+    };
+    function hb(key){ return '<span class="hbadge" onclick="showHint(event,\''+key+'\')">?</span>'; }
+    window.showHint=function(ev,key){
+      if(ev){ ev.stopPropagation(); }
+      var t=HINTS[key]; if(!t)return;
+      var h='<div class="grip"></div><div style="font-size:13.5px;line-height:1.6;color:#2A3D4C;font-weight:500;padding:2px 2px 4px">'+t+'</div>';
+      h+='<div class="close" onclick="closeModal()">Понятно</div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+    };
+
+    /* ---------- ТУР ПЕРВОГО ВХОДА ---------- */
+    var TOUR=[
+      { emoji:'👋', h:'Добро пожаловать в AMORE', d:'За минуту покажу, что где. Это займёт 15 секунд.', nav:null },
+      { emoji:'📄', h:'Собери резюме', d:'Начни отсюда: в Профиле собери резюме моряка за минуту — бесплатно. Оно будет прикладываться к откликам.', nav:'profile' },
+      { emoji:'⚡', h:'Откликайся на вакансии', d:'Свежие вакансии. Нажал на карточку — отправил письмо с резюме работодателю. 3 отклика бесплатно.', nav:'vacancies' },
+      { emoji:'⚓', h:'База работодателей', d:'5 600 компаний Норвегии, Дании, Британии. Первые 5 контактов открыты бесплатно.', nav:'contacts' },
+      { emoji:'🚀', h:'Готово!', d:'Если что-то непонятно — жми значок «?» рядом с разделами. Погнали в море!', nav:'home' }
+    ];
+    var tourI=0;
+    function tourShouldRun(){ try{ return !localStorage.getItem('amore_toured'); }catch(e){ return false; } }
+    function tourDone(){ try{ localStorage.setItem('amore_toured','1'); }catch(e){}
+      document.getElementById('tour-back').className='tour-back';
+      document.getElementById('tour-spot').className='tour-spot';
+    }
+    window.tourNext=function(){ tourI++; if(tourI>=TOUR.length){ tourDone(); return; } renderTour(); };
+    window.tourSkip=function(){ tourDone(); };
+    function spotOn(nav){
+      var spot=document.getElementById('tour-spot');
+      if(!nav||nav==='home'){ spot.className='tour-spot'; return; }
+      var el=document.getElementById('nav-'+nav);
+      if(!el){ spot.className='tour-spot'; return; }
+      var r=el.getBoundingClientRect();
+      spot.style.left=(r.left+2)+'px'; spot.style.top=(r.top+2)+'px';
+      spot.style.width=(r.width-4)+'px'; spot.style.height=(r.height-4)+'px';
+      spot.className='tour-spot on';
+    }
+    function renderTour(){
+      var s=TOUR[tourI];
+      if(s.nav && s.nav!=='home'){ switchView(s.nav); }
+      var dots=''; for(var i=0;i<TOUR.length;i++)dots+='<span class="tour-dot'+(i===tourI?' on':'')+'"></span>';
+      var last=tourI===TOUR.length-1;
+      var h='<div class="tour-emoji">'+s.emoji+'</div><div class="tour-h">'+s.h+'</div><div class="tour-d">'+s.d+'</div>';
+      h+='<div class="tour-row"><div class="tour-dots">'+dots+'</div>';
+      if(!last)h+='<span class="tour-skip" onclick="tourSkip()">Пропустить</span>';
+      h+='<button class="tour-next" onclick="tourNext()">'+(last?'Начать':'Далее')+'</button></div>';
+      document.getElementById('tour-card').innerHTML=h;
+      document.getElementById('tour-back').className='tour-back on';
+      setTimeout(function(){ spotOn(s.nav); },60);
+    }
+    function maybeStartTour(){ if(tourShouldRun()){ tourI=0; setTimeout(renderTour, 700); } }
     window.paywall=function(title, text){
       var h='<div class="grip"></div>';
       h+='<div style="text-align:center;font-size:36px;margin-bottom:6px">🔒</div>';
@@ -878,11 +963,11 @@
       if(isMember){html+='<div style="font-size:11.5px;color:#6B7E8C">Доступ открыт: вакансии, база, обучение и наставники.</div><button class="btn btn-announce" onclick="subscribe()">⚙️ Управлять подпиской</button>';}
       else{html+='<div style="font-size:11.5px;color:#6B7E8C;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть доступ — 50€/мес</button>';}
       html+='</div>';
-      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#6B7E8C">›</span></div>';
-      html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме</div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#6B7E8C">›</span></div>';
+      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка <span class="hbadge" onclick="showHint(event,\'docs\')">?</span></div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#6B7E8C">›</span></div>';
+      html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме <span class="hbadge" onclick="showHint(event,\'resume\')">?</span></div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#6B7E8C">›</span></div>';
       html+='<div class="prow" onclick="switchView(\'docapply\')"><div class="prow-ico">🛠️</div><div style="flex:1"><div class="prow-t">Сделать документы</div><div class="prow-s">Оставь заявку — поможем оформить сертификаты</div></div><span style="color:#6B7E8C">›</span></div>';
-      html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">📧</div><div style="flex:1"><div class="prow-t">Письмо для рассылки</div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div><span style="color:#6B7E8C">›</span></div>';
-      html+='<div class="prow" onclick="switchView(\'myapps\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики</div><div class="prow-s">Статусы отправленных писем</div></div><span style="color:#6B7E8C">›</span></div>';
+      html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">📧</div><div style="flex:1"><div class="prow-t">Письмо для рассылки <span class="hbadge" onclick="showHint(event,\'mail\')">?</span></div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div><span style="color:#6B7E8C">›</span></div>';
+      html+='<div class="prow" onclick="switchView(\'myapps\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики <span class="hbadge" onclick="showHint(event,\'myapps\')">?</span></div><div class="prow-s">Статусы отправленных писем</div></div><span style="color:#6B7E8C">›</span></div>';
       document.getElementById('profbox').innerHTML=html;
     }
 
@@ -1131,7 +1216,7 @@
         .then(function(r){return r.json();})
         .then(function(d){ if(d.ok){isAdmin=!!d.admin;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
-        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); });
+        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); maybeStartTour(); });
     })();
   </script>
 </body>
