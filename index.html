@@ -258,6 +258,78 @@
     .tour-next { background:#0E5C8A; color:#fff; border:none; border-radius:11px; padding:10px 18px; font-family:'Manrope'; font-size:13px; font-weight:800; cursor:pointer; }
     .tour-spot { position:fixed; z-index:121; border:2px solid #fff; border-radius:14px; box-shadow:0 0 0 4px rgba(14,92,138,.5); pointer-events:none; transition:all .25s ease; display:none; }
     .tour-spot.on { display:block; }
+
+    /* ===== ВОРОНКА ===== */
+    .fn-overlay{position:fixed;inset:0;z-index:200;background:#F4F6F8;display:none;flex-direction:column;overflow:hidden}
+    .fn-overlay.on{display:flex}
+    .fn-x{position:absolute;top:12px;right:14px;z-index:5;width:32px;height:32px;border-radius:50%;background:rgba(14,34,51,.06);display:grid;place-items:center;color:#6B7E8C;font-size:15px;cursor:pointer}
+    .fn-screen{position:absolute;inset:0;display:none;flex-direction:column;opacity:0;transition:opacity .38s ease, transform .38s ease;transform:translateY(10px)}
+    .fn-screen.fn-on{display:flex;opacity:1;transform:none}
+    .fn-sea{background:linear-gradient(165deg,#0A2130,#123B54 70%);padding:20px 20px 22px;color:#fff}
+    .fn-mentor{display:flex;align-items:center;gap:11px}
+    .fn-av{width:44px;height:44px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;font-size:22px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14)}
+    .fn-name{font-size:14.5px;font-weight:800}
+    .fn-sub{font-size:11px;color:#9DB6C6;margin-top:1px;font-weight:600;display:flex;align-items:center;gap:5px}
+    .fn-live{width:6px;height:6px;border-radius:50%;background:#7CD9C2;animation:fnpulse 2s infinite}
+    @keyframes fnpulse{0%{box-shadow:0 0 0 0 rgba(124,217,194,.5)}70%{box-shadow:0 0 0 7px rgba(124,217,194,0)}100%{box-shadow:0 0 0 0 rgba(124,217,194,0)}}
+    .fn-body{flex:1;overflow-y:auto;padding:20px}
+    .fn-foot{padding:14px 20px 22px}
+    .fn-q{font-size:19px;font-weight:800;color:#0E2233;letter-spacing:-.3px;line-height:1.25;margin:2px 2px 16px}
+    .fn-opts{display:flex;flex-direction:column;gap:10px}
+    .fn-opt{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid #E1E7EC;border-radius:14px;padding:15px 16px;cursor:pointer;font-size:14.5px;font-weight:700;color:#0E2233;transition:transform .12s,border-color .2s,background .2s}
+    .fn-opt:active{transform:scale(.98)}
+    .fn-opt.fn-sel{border-color:#0E5C8A;background:#EEF5F9}
+    .fn-oi{font-size:20px;flex:0 0 auto}
+    .fn-ok{margin-left:auto;width:20px;height:20px;border-radius:50%;border:2px solid #CBD6DE;flex:0 0 auto;display:grid;place-items:center;color:#fff;font-size:11px;transition:.2s}
+    .fn-opt.fn-sel .fn-ok{background:#0E5C8A;border-color:#0E5C8A}
+    .fn-gauge{display:flex;align-items:center;gap:8px;margin-top:6px}
+    .fn-track{flex:1;height:6px;background:rgba(255,255,255,.16);border-radius:99px;overflow:hidden}
+    .fn-fill{height:100%;background:linear-gradient(90deg,#7CD9C2,#59c0e0);border-radius:99px;width:0;transition:width .45s ease}
+    .fn-gtxt{font-size:11px;font-weight:800;color:#9DB6C6;white-space:nowrap}
+    .fn-btn{display:block;width:100%;text-align:center;border:none;border-radius:14px;font-family:'Manrope';font-size:15px;font-weight:800;padding:16px;cursor:pointer;transition:transform .12s}
+    .fn-btn:active{transform:scale(.98)}
+    .fn-primary{background:#0E5C8A;color:#fff;box-shadow:0 8px 22px rgba(14,92,138,.28)}
+    .fn-skip{text-align:center;font-size:13px;color:#9AAAB6;font-weight:700;margin-top:12px;cursor:pointer}
+    .fn-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 26px}
+    .fn-badge{width:84px;height:84px;border-radius:26px;display:grid;place-items:center;font-size:40px;background:linear-gradient(135deg,#0E5C8A,#0A2130);color:#fff;box-shadow:0 14px 34px rgba(14,34,51,.3);margin-bottom:20px;animation:fnfloat 3.5s ease-in-out infinite}
+    @keyframes fnfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+    .fn-h{font-size:24px;font-weight:800;color:#0E2233;letter-spacing:-.4px;line-height:1.2}
+    .fn-d{font-size:14px;color:#6B7E8C;line-height:1.55;margin-top:12px;max-width:320px}
+    .fn-tag{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:#0E7A5B;background:#E1F3EC;padding:6px 12px;border-radius:99px;margin-top:18px}
+    .fn-analyze{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px}
+    .fn-radar{width:96px;height:96px;border-radius:50%;border:2px solid #E1E7EC;position:relative;display:grid;place-items:center;margin-bottom:22px;overflow:hidden}
+    .fn-radar::after{content:'';position:absolute;inset:0;background:conic-gradient(from 0deg,transparent 0deg,rgba(14,92,138,.28) 60deg,transparent 61deg);animation:fnspin 1.1s linear infinite}
+    .fn-radar span{font-size:34px;z-index:2}
+    @keyframes fnspin{to{transform:rotate(360deg)}}
+    .fn-typing{display:inline-flex;gap:5px;align-items:center;margin-top:8px}
+    .fn-typing i{width:8px;height:8px;border-radius:50%;background:#0E5C8A;opacity:.4;animation:fnblink 1.2s infinite}
+    .fn-typing i:nth-child(2){animation-delay:.2s}.fn-typing i:nth-child(3){animation-delay:.4s}
+    @keyframes fnblink{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
+    .fn-verdict{background:linear-gradient(165deg,#0A2130,#123B54);border-radius:20px;padding:20px;color:#fff;margin-bottom:14px;animation:fnpop .4s ease both}
+    @keyframes fnpop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+    .fn-veyebrow{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7CD9C2}
+    .fn-vtitle{font-size:19px;font-weight:800;margin-top:8px;line-height:1.25}
+    .fn-vtext{font-size:13.5px;line-height:1.55;color:#D5E2EA;margin-top:10px}
+    .fn-path{background:#fff;border:1px solid #E1E7EC;border-radius:16px;padding:6px 16px;margin-bottom:14px}
+    .fn-prow{display:flex;gap:12px;align-items:flex-start;padding:12px 0;animation:fnpop .4s ease both}
+    .fn-prow+.fn-prow{border-top:1px solid #EEF2F5}
+    .fn-pn{width:25px;height:25px;flex:0 0 auto;border-radius:50%;background:#0E5C8A;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+    .fn-ph{font-size:13.5px;font-weight:800;color:#0E2233}
+    .fn-pd{font-size:12px;color:#6B7E8C;margin-top:2px;line-height:1.4}
+    .fn-oh{font-size:22px;font-weight:800;color:#0E2233;letter-spacing:-.3px;text-align:center;line-height:1.25}
+    .fn-osub{font-size:13px;color:#6B7E8C;text-align:center;margin-top:8px;line-height:1.5}
+    .fn-plan{background:#fff;border:1px solid #E1E7EC;border-radius:18px;padding:18px;margin-top:16px;box-shadow:0 6px 20px rgba(14,34,51,.06)}
+    .fn-ptop{display:flex;align-items:center;gap:10px;border-bottom:1px solid #EEF2F5;padding-bottom:14px;margin-bottom:6px}
+    .fn-pname{font-size:16px;font-weight:800;color:#0E2233}
+    .fn-price{margin-left:auto;text-align:right}
+    .fn-price b{font-size:22px;font-weight:800;color:#0E5C8A}
+    .fn-price span{font-size:11px;color:#6B7E8C;font-weight:600;display:block}
+    .fn-feat{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#0E2233;padding:9px 0;line-height:1.4}
+    .fn-fi{color:#0E7A5B;flex:0 0 auto;font-weight:800}
+    .fn-season{display:flex;gap:10px;align-items:center;background:#FFF6E9;border:1px solid #F0E0C0;border-radius:13px;padding:12px 14px;margin-top:14px;font-size:12.5px;color:#6b5a2e;line-height:1.45}
+    .fn-season b{color:#8a6d20}
+    .fn-osmall{text-align:center;font-size:12.5px;color:#6B7E8C;margin-top:14px}
+    .fn-osmall span{color:#0E5C8A;font-weight:800;cursor:pointer;text-decoration:underline}
   </style>
 </head>
 <body>
@@ -337,6 +409,83 @@
   <div class="tour-back" id="tour-back">
     <div class="tour-card" id="tour-card"></div>
   </div>
+
+  <div class="fn-overlay" id="funnel">
+    <div class="fn-x" onclick="fnSkip()">✕</div>
+    <!-- интро -->
+    <div class="fn-screen fn-on" id="fn-intro">
+      <div class="fn-hero">
+        <div class="fn-badge">⚓</div>
+        <div class="fn-h">Помогу тебе<br>выйти в море</div>
+        <div class="fn-d">Отвечу на 3 коротких вопроса — и покажу, какой путь на судно реально твой. Это 20 секунд.</div>
+        <div class="fn-tag">● Без воды, по опыту практика</div>
+      </div>
+      <div class="fn-foot"><button class="fn-btn fn-primary" onclick="fnGo('q1')">Поехали →</button><div class="fn-skip" onclick="fnSkip()">Пропустить</div></div>
+    </div>
+    <!-- q1 -->
+    <div class="fn-screen" id="fn-q1">
+      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">⚓</div><div><div class="fn-name">Помощник AMORE</div><div class="fn-sub"><span class="fn-live"></span> на связи</div></div></div>
+        <div class="fn-gauge"><div class="fn-track"><div class="fn-fill" id="fn-g1"></div></div><div class="fn-gtxt">Шаг 1 из 3</div></div></div>
+      <div class="fn-body"><div class="fn-q">Какое у тебя гражданство?</div><div class="fn-opts">
+        <div class="fn-opt" onclick="fnPick('citizenship','eu',this)"><span class="fn-oi">🇪🇺</span> Страна ЕС <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('citizenship','ua',this)"><span class="fn-oi">🇺🇦</span> Украина <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('citizenship','md',this)"><span class="fn-oi">🌍</span> Молдова / Грузия / др. <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('citizenship','other',this)"><span class="fn-oi">🛂</span> Россия / Беларусь <span class="fn-ok">✓</span></div>
+      </div></div>
+    </div>
+    <!-- q2 -->
+    <div class="fn-screen" id="fn-q2">
+      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">⚓</div><div><div class="fn-name">Помощник AMORE</div><div class="fn-sub"><span class="fn-live"></span> на связи</div></div></div>
+        <div class="fn-gauge"><div class="fn-track"><div class="fn-fill" id="fn-g2"></div></div><div class="fn-gtxt">Шаг 2 из 3</div></div></div>
+      <div class="fn-body"><div class="fn-q">Есть морские документы?</div><div class="fn-opts">
+        <div class="fn-opt" onclick="fnPick('documents','yes',this)"><span class="fn-oi">✅</span> BST + медкомиссия есть <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('documents','one',this)"><span class="fn-oi">📄</span> Только один из них <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('documents','no',this)"><span class="fn-oi">❌</span> Пока нет <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('documents','dk',this)"><span class="fn-oi">🤷</span> Не знаю, что нужно <span class="fn-ok">✓</span></div>
+      </div></div>
+    </div>
+    <!-- q3 -->
+    <div class="fn-screen" id="fn-q3">
+      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">⚓</div><div><div class="fn-name">Помощник AMORE</div><div class="fn-sub"><span class="fn-live"></span> на связи</div></div></div>
+        <div class="fn-gauge"><div class="fn-track"><div class="fn-fill" id="fn-g3"></div></div><div class="fn-gtxt">Шаг 3 из 3</div></div></div>
+      <div class="fn-body"><div class="fn-q">Куда хочешь попасть?</div><div class="fn-opts">
+        <div class="fn-opt" onclick="fnPick('direction','crab',this)"><span class="fn-oi">🦀</span> Краболов / рыбак <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('direction','wash',this)"><span class="fn-oi">🧽</span> Замывка трюмов <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('direction','yacht',this)"><span class="fn-oi">⛵</span> Яхтинг <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('direction','merch',this)"><span class="fn-oi">🚢</span> Торговый флот <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('direction','any',this)"><span class="fn-oi">🤔</span> Ещё не решил <span class="fn-ok">✓</span></div>
+      </div></div>
+    </div>
+    <!-- analyze -->
+    <div class="fn-screen" id="fn-analyze"><div class="fn-analyze"><div class="fn-radar"><span>⚓</span></div><div class="fn-h" style="font-size:20px">Смотрю твои ответы…</div><div class="fn-typing"><i></i><i></i><i></i></div></div></div>
+    <!-- result -->
+    <div class="fn-screen" id="fn-result">
+      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">⚓</div><div><div class="fn-name">Помощник AMORE</div><div class="fn-sub">Готово · твой разбор</div></div></div></div>
+      <div class="fn-body" id="fn-resultBox"></div>
+      <div class="fn-foot"><button class="fn-btn fn-primary" onclick="fnGo('offer')">Показать мой путь →</button></div>
+    </div>
+    <!-- offer -->
+    <div class="fn-screen" id="fn-offer">
+      <div class="fn-body">
+        <div style="text-align:center;font-size:34px;margin:6px 0 2px">🧭</div>
+        <div class="fn-oh">Твой короткий путь в море</div>
+        <div class="fn-osub" id="fn-offerSub">Всё, что нужно для первого контракта — в одном месте.</div>
+        <div class="fn-plan">
+          <div class="fn-ptop"><span style="font-size:26px">⚓</span><div><div class="fn-pname">AMORE</div><div style="font-size:11px;color:#6B7E8C;font-weight:600">сообщество для работы в море</div></div><div class="fn-price"><b>50€</b><span>в месяц</span></div></div>
+          <div class="fn-feat"><span class="fn-fi">✓</span> База 5 600 работодателей Норвегии, Дании, Британии</div>
+          <div class="fn-feat"><span class="fn-fi">✓</span> Отклики работодателям прямо из приложения</div>
+          <div class="fn-feat"><span class="fn-fi">✓</span> Помощь с документами и резюме</div>
+          <div class="fn-feat"><span class="fn-fi">✓</span> Наставник-практик по твоему направлению</div>
+        </div>
+        <div class="fn-season">🗓️ <div><b>Крабовый сезон стартует в январе.</b> Документы и поиск судна — это месяцы. Кто готовится сейчас — тот в январе в море.</div></div>
+      </div>
+      <div class="fn-foot">
+        <button class="fn-btn fn-primary" onclick="fnStartFree()">Собрать резюме бесплатно →</button>
+        <div class="fn-osmall">Уже готов? <span onclick="fnSubscribe()">Открыть полный доступ — 50€/мес</span></div>
+      </div>
+    </div>
+  </div>
+
   <div class="overlay hidden" id="modal"><div class="sheet" id="sheet"></div></div>
   <div class="imgview" id="imgview" onclick="closeImg()"><span class="x">✕</span><img id="imgview-src" src=""></div>
 
@@ -788,6 +937,73 @@
       setTimeout(function(){ spotOn(s.nav); },60);
     }
     function maybeStartTour(){ if(tourShouldRun()){ tourI=0; setTimeout(renderTour, 700); } }
+
+    /* ===== ВОРОНКА-ОПРОСНИК ===== */
+    var FUNNEL_VERSION='1'; // подними номер, чтобы показать воронку заново
+    var fnState={}, fnLeadSent=false;
+    function fnShouldRun(){ try{ return localStorage.getItem('amore_funnel_v')!==FUNNEL_VERSION; }catch(e){ return false; } }
+    function fnMarkDone(){ try{ localStorage.setItem('amore_funnel_v',FUNNEL_VERSION); }catch(e){} }
+    function showFunnel(){ fnState={}; fnLeadSent=false; ['fn-g1','fn-g2','fn-g3'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.width='0';}); fnGo('intro'); document.getElementById('funnel').className='fn-overlay on'; }
+    function maybeStartFunnel(){ if(!isMember && fnShouldRun()){ setTimeout(showFunnel, 650); } }
+    window.fnGo=function(id){
+      document.querySelectorAll('#funnel .fn-screen').forEach(function(s){s.className='fn-screen';});
+      var el=document.getElementById('fn-'+id); if(el)el.className='fn-screen fn-on';
+      var b=el&&el.querySelector('.fn-body'); if(b)b.scrollTop=0;
+      if(id==='q1')setTimeout(function(){fnFill('fn-g1',33);},80);
+      if(id==='q2')setTimeout(function(){fnFill('fn-g2',66);},80);
+      if(id==='q3')setTimeout(function(){fnFill('fn-g3',100);},80);
+    };
+    function fnFill(id,pct){var e=document.getElementById(id);if(e)e.style.width=pct+'%';}
+    window.fnPick=function(key,val,el){
+      fnState[key]=val;
+      var box=el.parentNode; box.querySelectorAll('.fn-opt').forEach(function(o){o.className='fn-opt';}); el.className='fn-opt fn-sel';
+      setTimeout(function(){
+        if(key==='citizenship')fnGo('q2');
+        else if(key==='documents')fnGo('q3');
+        else { fnGo('analyze'); fnSendLead(); setTimeout(fnResult,1900); }
+      },340);
+    };
+    function fnSendLead(){
+      if(fnLeadSent||!tg||!tg.initData)return; fnLeadSent=true;
+      try{
+        fetch(BACKEND_URL+'/lead',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({initData:tg.initData,citizenship:fnState.citizenship,documents:fnState.documents,direction:fnState.direction})}).catch(function(){});
+      }catch(e){}
+    }
+    function fnResult(){
+      var cit={eu:'Гражданство ЕС — ты в сильной позиции. Норвежцы смотрят на таких в первую очередь.',
+        ua:'Украинцам сейчас реально попасть в море — многие берут в приоритете. Разберём твою ситуацию точечно.',
+        md:'С твоим гражданством вариантов хватает — важно зайти к правильным работодателям, а не вслепую.',
+        other:'С таким гражданством путь сложнее, но не закрыт. Честно разберём, что реально в твоём случае.'}[fnState.citizenship]||'';
+      var doc={yes:'Документы уже есть — считай, половина пути пройдена.',
+        one:'Один документ есть — второй добьём быстро, это неделя.',
+        no:'Документов пока нет — не страшно. BST и медкомиссия делаются буквально за неделю.',
+        dk:'С документами разберёмся: нужны всего два — BST и медкомиссия. Покажем где и как.'}[fnState.documents]||'';
+      var dir={crab:{n:'краболов / рыбак',p:'6 000–20 000 € в месяц',i:'🦀'},
+        wash:{n:'замывка трюмов',p:'2 000–3 000 € за контракт',i:'🧽'},
+        yacht:{n:'яхтинг',p:'3 500–20 000 € в месяц',i:'⛵'},
+        merch:{n:'торговый флот',p:'1 000–10 000 € в месяц',i:'🚢'},
+        any:{n:'море (определимся вместе)',p:'от 3 500 € в месяц',i:'🧭'}}[fnState.direction]||{n:'море',p:'',i:'🧭'};
+      var h='<div class="fn-verdict"><div class="fn-veyebrow">Твой разбор</div><div class="fn-vtitle">'+dir.i+' Направление: '+dir.n+'</div><div class="fn-vtext">'+cit+' '+doc+'</div></div>';
+      h+='<div class="fn-path">';
+      var steps=[];
+      if(fnState.documents==='yes') steps.push(['Резюме моряка','Собери CV по шаблону — за минуту, бесплатно.']);
+      else steps.push(['Сделать документы','BST + медкомиссия. Поможем, где и как — быстро и без переплат.']);
+      steps.push(['Выйти на работодателей','База '+dir.n+': пиши напрямую, без посредников.']);
+      steps.push(['Заработок '+dir.p,'Реальные цифры по твоему направлению из практики.']);
+      steps.forEach(function(s,i){ h+='<div class="fn-prow" style="animation-delay:'+(i*0.09)+'s"><div class="fn-pn">'+(i+1)+'</div><div><div class="fn-ph">'+s[0]+'</div><div class="fn-pd">'+s[1]+'</div></div></div>'; });
+      h+='</div>';
+      document.getElementById('fn-resultBox').innerHTML=h;
+      document.getElementById('fn-offerSub').textContent='Под твоё направление — '+dir.n+'. Всё для первого контракта в одном месте.';
+      fnGo('result');
+    }
+    window.fnSkip=function(){ fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; };
+    window.fnStartFree=function(){ fnMarkDone(); fnTrialStart(); document.getElementById('funnel').className='fn-overlay'; if(window.openResume)openResume(); };
+    function fnTrialStart(){
+      if(!tg||!tg.initData)return;
+      try{ fetch(BACKEND_URL+'/trialStart',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})}).catch(function(){}); }catch(e){}
+    }
+    window.fnSubscribe=function(){ fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; subscribe(); };
     window.paywall=function(title, text){
       var h='<div class="grip"></div>';
       h+='<div style="text-align:center;font-size:36px;margin-bottom:6px">🔒</div>';
@@ -1217,7 +1433,7 @@
         .then(function(r){return r.json();})
         .then(function(d){ if(d.ok){isAdmin=!!d.admin;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
-        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); maybeStartTour(); });
+        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); maybeStartFunnel(); });
     })();
   </script>
 </body>
