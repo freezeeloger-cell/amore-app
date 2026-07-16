@@ -382,12 +382,14 @@
     .hl-label{font-size:10.5px;color:#9AA3AB;margin-top:7px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .stv{position:fixed;inset:0;z-index:300;background:#000;display:none;flex-direction:column;padding-top:var(--safe-top)}
     .stv.on{display:flex}
-    .stv-bars{display:flex;gap:4px;padding:12px 12px 8px}
+    .stv-bars{display:flex;gap:4px;padding:12px 12px 8px;position:relative;z-index:4}
+    .stv::before{content:'';position:absolute;top:0;left:0;right:0;height:90px;background:linear-gradient(180deg,rgba(0,0,0,.5),transparent);z-index:2;pointer-events:none}
     .stv-bar{flex:1;height:3px;background:rgba(255,255,255,.28);border-radius:3px;overflow:hidden}
     .stv-bar>i{display:block;height:100%;width:0;background:#fff;border-radius:3px}
     .stv-ttl{position:absolute;top:calc(30px + var(--safe-top));left:16px;z-index:4;color:#fff;font-size:13px;font-weight:800;text-shadow:0 1px 5px rgba(0,0,0,.7)}
     .stv-close{position:absolute;top:calc(26px + var(--safe-top));right:14px;z-index:5;color:#fff;font-size:20px;background:rgba(0,0,0,.35);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
-    .stv-media{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#000}
+    .stv-media{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#000;opacity:0;transition:opacity .28s ease}
+    .stv-media.in{opacity:1}
     .stv-media img,.stv-media video{max-width:100%;max-height:100%;object-fit:contain}
     .stv-text{padding:34px;text-align:center}
     .stv-text h3{font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#8CC0A6}
@@ -574,7 +576,6 @@
     <div class="stv-close" onclick="stClose()">✕</div>
     <div class="stv-bars" id="stv-bars"></div>
     <div class="stv-media" id="stv-media"></div>
-    <div class="stv-nav"><div class="z zl" onclick="stNav(-1)"></div><div class="z zr" onclick="stNav(1)"></div></div>
   </div>
   <div class="overlay hidden" id="modal"><div class="sheet" id="sheet"></div></div>
   <div class="imgview" id="imgview" onclick="closeImg()"><span class="x">✕</span><img id="imgview-src" src=""></div>
@@ -693,25 +694,64 @@
       h+='</div>'; return h;
     }
     window.openHighlight=function(id){ var h=HIGHLIGHTS.filter(function(x){return x.id===id;})[0]; if(h)stOpen(h.items,h.label); };
-    var ST={items:[],i:0,timer:null,title:''};
-    function stOpen(items,title){ ST.items=items;ST.i=0;ST.title=title||'';
-      document.getElementById('stv').className='stv on';
-      var b='';for(var k=0;k<items.length;k++)b+='<div class="stv-bar" id="stb-'+k+'"><i></i></div>';
-      document.getElementById('stv-bars').innerHTML=b;
-      document.getElementById('stv-ttl').textContent=ST.title;
-      stShow();
-    }
+    var ST={items:[],i:0,timer:null,title:'',start:0,remain:0,dur:0,held:false};
+    function stOpenReset(){}
     function stClear(){ if(ST.timer){clearTimeout(ST.timer);ST.timer=null;} var m=document.getElementById('stv-media');var v=m&&m.querySelector('video'); if(v){v.onended=null;v.ontimeupdate=null;try{v.pause();}catch(e){}} }
     function stBars(){ for(var k=0;k<ST.items.length;k++){var el=document.getElementById('stb-'+k);if(!el)continue;var i=el.querySelector('i'); if(k<ST.i){i.style.transition='none';i.style.width='100%';} else if(k>ST.i){i.style.transition='none';i.style.width='0';}} }
-    function stShow(){ stClear(); stBars(); var it=ST.items[ST.i]; var m=document.getElementById('stv-media'); var cur=document.getElementById('stb-'+ST.i).querySelector('i');
-      if(it.t==='video'){ m.innerHTML='<video src="'+it.src+'" autoplay playsinline webkit-playsinline></video>'; var v=m.querySelector('video'); cur.style.transition='none';cur.style.width='0'; v.onended=stNext; v.ontimeupdate=function(){ if(v.duration){cur.style.transition='none';cur.style.width=(v.currentTime/v.duration*100)+'%';} }; v.onerror=stNext; }
-      else if(it.t==='photo'){ m.innerHTML='<img src="'+it.src+'" alt="">'; var d=4500; cur.style.transition='none';cur.style.width='0';void cur.offsetWidth;cur.style.transition='width '+d+'ms linear';cur.style.width='100%'; ST.timer=setTimeout(stNext,d); }
-      else { m.innerHTML='<div class="stv-text"><h3>'+esc(it.title)+'</h3><p>'+esc(it.body).replace(/\n/g,'<br>')+'</p></div>'; var d2=5000; cur.style.transition='none';cur.style.width='0';void cur.offsetWidth;cur.style.transition='width '+d2+'ms linear';cur.style.width='100%'; ST.timer=setTimeout(stNext,d2); }
+    function stCurBar(){ var el=document.getElementById('stb-'+ST.i); return el?el.querySelector('i'):null; }
+    function stShow(){ stClear(); stBars(); ST.held=false; var it=ST.items[ST.i]; var m=document.getElementById('stv-media'); var cur=stCurBar();
+      m.className='stv-media stv-fade';
+      if(it.t==='video'){
+        m.innerHTML='<video src="'+it.src+'" autoplay playsinline webkit-playsinline preload="auto"></video>';
+        var v=m.querySelector('video'); if(cur){cur.style.transition='none';cur.style.width='0';}
+        v.onended=stNext; v.onerror=stNext;
+        v.ontimeupdate=function(){ if(v.duration&&cur){cur.style.transition='none';cur.style.width=(v.currentTime/v.duration*100)+'%';} };
+      } else if(it.t==='photo'){
+        m.innerHTML='<img src="'+it.src+'" alt="">';
+        var img=m.querySelector('img'); img.onerror=stNext;
+        stTimed(cur, 5000);
+      } else {
+        m.innerHTML='<div class="stv-text"><h3>'+esc(it.title)+'</h3><p>'+esc(it.body).replace(/\n/g,'<br>')+'</p></div>';
+        stTimed(cur, 5200);
+      }
+      requestAnimationFrame(function(){ m.classList.add('in'); });
+    }
+    function stTimed(cur, dur){ ST.dur=dur; ST.remain=dur; ST.start=Date.now();
+      if(cur){ cur.style.transition='none'; cur.style.width='0'; void cur.offsetWidth; cur.style.transition='width '+dur+'ms linear'; cur.style.width='100%'; }
+      ST.timer=setTimeout(stNext,dur);
+    }
+    function stPause(){ if(ST.held)return; ST.held=true;
+      var m=document.getElementById('stv-media'); var v=m&&m.querySelector('video');
+      if(v){ try{v.pause();}catch(e){} return; }
+      if(ST.timer){ clearTimeout(ST.timer); ST.timer=null; ST.remain=ST.remain-(Date.now()-ST.start);
+        var cur=stCurBar(); if(cur){ var w=getComputedStyle(cur).width; cur.style.transition='none'; cur.style.width=w; } }
+    }
+    function stResume(){ if(!ST.held)return; ST.held=false;
+      var m=document.getElementById('stv-media'); var v=m&&m.querySelector('video');
+      if(v){ try{v.play();}catch(e){} return; }
+      var cur=stCurBar(); if(cur&&ST.remain>0){ void cur.offsetWidth; cur.style.transition='width '+ST.remain+'ms linear'; cur.style.width='100%'; }
+      ST.start=Date.now(); ST.timer=setTimeout(stNext, Math.max(ST.remain,50));
     }
     function stNext(){ if(ST.i>=ST.items.length-1){ stClose(); return; } ST.i++; stShow(); }
     function stPrev(){ if(ST.i<=0){ stShow(); return; } ST.i--; stShow(); }
     window.stClose=function(){ stClear(); document.getElementById('stv-media').innerHTML=''; document.getElementById('stv').className='stv'; };
-    window.stNav=function(dir){ if(dir<0)stPrev(); else stNext(); };
+    // тап vs удержание: короткий тап — листаем; удержание — пауза
+    (function(){
+      var downT=0, downX=0, moved=false;
+      function bind(){
+        var ov=document.getElementById('stv'); if(!ov)return;
+        ov.addEventListener('pointerdown',function(e){ if(e.target.closest('.stv-close'))return; downT=Date.now(); downX=e.clientX; moved=false; ST.holdTimer=setTimeout(stPause,180); },{passive:true});
+        ov.addEventListener('pointermove',function(e){ if(Math.abs(e.clientX-downX)>12)moved=true; },{passive:true});
+        ov.addEventListener('pointerup',function(e){ if(e.target.closest('.stv-close'))return; clearTimeout(ST.holdTimer);
+          var dt=Date.now()-downT;
+          if(ST.held){ stResume(); return; }
+          if(dt<180&&!moved){ var w=window.innerWidth||360; if(e.clientX < w*0.32) stPrev(); else stNext(); }
+          else { stResume(); }
+        },{passive:true});
+        ov.addEventListener('pointercancel',function(){ clearTimeout(ST.holdTimer); stResume(); },{passive:true});
+      }
+      if(document.readyState!=='loading')bind(); else document.addEventListener('DOMContentLoaded',bind);
+    })();
 
     function renderHome(){
       var html='';

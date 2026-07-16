@@ -10,50 +10,50 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Manrope', sans-serif; background: #F4F6F8; color: #0E2233; -webkit-font-smoothing: antialiased; }
+  body { font-family: 'Manrope', sans-serif; background: #060708; background-image: radial-gradient(125% 70% at 50% -6%, #171A1F 0%, #0C0E11 44%, #050506 100%); background-attachment: fixed; color: #EEF1F4; -webkit-font-smoothing: antialiased; }
   .wrap { max-width: 480px; margin: 0 auto; padding: 18px 16px 120px; }
   .top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .back { font-size: 13px; font-weight: 700; color: #0E5C8A; text-decoration: none; }
+  .back { font-size: 13px; font-weight: 700; color: #CBD5DD; text-decoration: none; }
   h1 { font-size: 19px; font-weight: 800; margin: 4px 0 2px; }
-  .lead { font-size: 12.5px; color: #6B7E8C; font-weight: 500; line-height: 1.5; margin-bottom: 16px; }
+  .lead { font-size: 12.5px; color: #9AA3AB; font-weight: 500; line-height: 1.5; margin-bottom: 16px; }
 
-  .seg { display: flex; background: #E8ECEF; border-radius: 11px; padding: 4px; margin-bottom: 16px; }
-  .seg button { flex: 1; border: none; background: transparent; padding: 9px; border-radius: 8px; font-family: 'Manrope'; font-size: 13px; font-weight: 700; color: #6B7E8C; cursor: pointer; }
-  .seg button.on { background: #fff; color: #0E5C8A; box-shadow: 0 1px 3px rgba(14,34,51,.1); }
+  .seg { display: flex; background: rgba(255,255,255,.06); border-radius: 11px; padding: 4px; margin-bottom: 16px; }
+  .seg button { flex: 1; border: none; background: transparent; padding: 9px; border-radius: 8px; font-family: 'Manrope'; font-size: 13px; font-weight: 700; color: #9AA3AB; cursor: pointer; }
+  .seg button.on { background: rgba(255,255,255,.12); color: #EEF1F4; box-shadow: 0 1px 3px rgba(14,34,51,.1); }
 
-  .group { background: #fff; border: 1px solid #E1E7EC; border-radius: 16px; padding: 15px; margin-bottom: 13px; }
+  .group { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); border-radius: 16px; padding: 15px; margin-bottom: 13px; }
   .group h2 { font-size: 13px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
-  label { display: block; font-size: 11px; font-weight: 700; color: #6B7E8C; margin: 9px 0 4px; }
-  input, textarea { width: 100%; border: 1px solid #E1E7EC; border-radius: 10px; padding: 10px 12px; font-family: 'Manrope'; font-size: 13.5px; color: #0E2233; outline: none; background: #fff; }
-  input:focus, textarea:focus { border-color: #0E5C8A; }
+  label { display: block; font-size: 11px; font-weight: 700; color: #9AA3AB; margin: 9px 0 4px; }
+  input, textarea { width: 100%; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 10px 12px; font-family: 'Manrope'; font-size: 13.5px; color: #EEF1F4; outline: none; background: rgba(255,255,255,.06); }
+  input:focus, textarea:focus { border-color: #8CC0A6; }
   .ph-wrap { display: flex; align-items: center; gap: 14px; }
-  .ph-prev { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid #E1E7EC; flex: 0 0 auto; background: #ECEFF2; }
-  .ph-btn { font-size: 12.5px; font-weight: 700; color: #0E5C8A; cursor: pointer; }
+  .ph-prev { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,.14); flex: 0 0 auto; background: rgba(255,255,255,.06); }
+  .ph-btn { font-size: 12.5px; font-weight: 700; color: #8CC0A6; cursor: pointer; }
 
   .rowline { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
   .rowline input { flex: 1; }
   .stars { display: flex; gap: 2px; }
-  .stars span { font-size: 18px; color: #C7D0D7; cursor: pointer; }
+  .stars span { font-size: 18px; color: #55606a; cursor: pointer; }
   .stars span.f { color: #E8A317; }
-  .del { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 8px; border: 1px solid #E1E7EC; background: #fff; color: #C2410C; font-size: 16px; cursor: pointer; }
-  .additem { width: 100%; padding: 9px; border: 1px dashed #9CC0D6; border-radius: 10px; background: #EEF5F9; color: #0E5C8A; font-family: 'Manrope'; font-size: 12.5px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .del { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); color: #E0864F; font-size: 16px; cursor: pointer; }
+  .additem { width: 100%; padding: 9px; border: 1px dashed rgba(140,192,166,.4); border-radius: 10px; background: rgba(140,192,166,.10); color: #8CC0A6; font-family: 'Manrope'; font-size: 12.5px; font-weight: 700; cursor: pointer; margin-top: 4px; }
   .prd { display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-bottom:4px; }
-  .prd-lbl { font-size:11px; font-weight:700; color:#6B7E8C; }
-  .prd select { flex:1; min-width:64px; border:1px solid #E1E7EC; border-radius:9px; padding:8px 6px; font-family:'Manrope'; font-size:12.5px; color:#0E2233; background:#fff; outline:none; }
-  .exp-card { border: 1px solid #EEF1F4; border-radius: 12px; padding: 11px; margin-bottom: 9px; background: #FAFBFC; }
+  .prd-lbl { font-size:11px; font-weight:700; color:#9AA3AB; }
+  .prd select { flex:1; min-width:64px; border:1px solid rgba(255,255,255,.12); border-radius:9px; padding:8px 6px; font-family:'Manrope'; font-size:12.5px; color:#EEF1F4; background:rgba(255,255,255,.06); outline:none; }
+  .exp-card { border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 11px; margin-bottom: 9px; background: rgba(255,255,255,.03); }
 
-  .preview-label { font-size: 12px; font-weight: 800; color: #6B7E8C; margin: 18px 2px 10px; text-transform: uppercase; letter-spacing: .05em; }
-  .stage { overflow: hidden; border-radius: 12px; border: 1px solid #E1E7EC; background: #fff; position: relative; }
+  .preview-label { font-size: 12px; font-weight: 800; color: #9AA3AB; margin: 18px 2px 10px; text-transform: uppercase; letter-spacing: .05em; }
+  .stage { overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,.10); background: #14181d; position: relative; }
   #wmark { position:absolute; inset:0; pointer-events:none; z-index:5; overflow:hidden; }
   #wmark .wm-fill { position:absolute; top:-60%; left:-60%; width:220%; height:220%; transform:rotate(-30deg); font-weight:800; font-size:58px; line-height:2.4; letter-spacing:8px; word-spacing:22px; color:rgba(120,140,160,.40); overflow:hidden; white-space:normal; }
   .scaler { transform-origin: top left; position: relative; }
 
-  .bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; gap: 10px; padding: 12px 16px 18px; background: rgba(255,255,255,.96); backdrop-filter: blur(10px); border-top: 1px solid #E1E7EC; }
+  .bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; gap: 10px; padding: 12px 16px 18px; background: rgba(10,12,14,.92); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,.10); }
   .bar button { flex: 1; padding: 13px; border: none; border-radius: 12px; font-family: 'Manrope'; font-size: 13.5px; font-weight: 800; cursor: pointer; }
   .b-pdf { background: #0E5C8A; color: #fff; }
-  .b-png { background: #EEF2F5; color: #0E2233; border: 1px solid #E1E7EC; }
+  .b-png { background: rgba(255,255,255,.08); color: #EEF1F4; border: 1px solid rgba(255,255,255,.12); }
 
-  .hint { font-size: 11px; color: #6B7E8C; text-align: center; margin-top: 10px; line-height: 1.5; }
+  .hint { font-size: 11px; color: #9AA3AB; text-align: center; margin-top: 10px; line-height: 1.5; }
 
   /* ===== РЕЗЮМЕ (А4) ===== */
   #cv-paper { width: 794px; min-height: 1123px; background: #fff; display: flex; font-family: 'Manrope', sans-serif; color: #2A3D4C; }
