@@ -276,6 +276,19 @@
     .fn-foot{padding:14px 20px 22px}
     .fn-q{font-size:19px;font-weight:800;color:#EEF1F4;letter-spacing:-.3px;line-height:1.25;margin:2px 2px 16px}
     .fn-opts{display:flex;flex-direction:column;gap:10px}
+    .massbar{display:flex;align-items:center;gap:12px;margin:2px 2px 12px;padding:13px 14px;border-radius:16px;cursor:pointer;background:linear-gradient(135deg,rgba(203,213,221,.14),rgba(120,150,175,.08));border:1.5px solid rgba(203,213,221,.28)}
+    .massbar:active{transform:scale(.99)}
+    .massbar-lock{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.10)}
+    .massbar-ico{font-size:22px;flex:0 0 auto}
+    .massbar-t{font-size:13.5px;font-weight:800;color:#EEF1F4}
+    .massbar-s{font-size:11.5px;color:#9AA3AB;line-height:1.4;margin-top:2px}
+    .massbar-cta{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#0B1418;background:#CBD5DD;padding:6px 12px;border-radius:999px}
+    .massbar-lock .massbar-cta{background:rgba(203,213,221,.9)}
+    .mass-prog{height:8px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin:14px 0 8px}
+    .mass-prog>i{display:block;height:100%;background:linear-gradient(90deg,#7FA8C0,#CBD5DD);width:0;transition:width .3s ease}
+    .mass-cur{font-size:12px;color:#9AA3AB;text-align:center;min-height:16px}
+    .mass-stat{display:flex;justify-content:center;gap:16px;font-size:12px;margin:6px 0 2px}
+    .mass-stat b{font-size:17px;display:block;text-align:center}
     .fn-opt{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.10);border-radius:14px;padding:15px 16px;cursor:pointer;font-size:14.5px;font-weight:700;color:#EEF1F4;transition:transform .12s,border-color .2s,background .2s}
     .fn-opt:active{transform:scale(.98)}
     .fn-opt.fn-sel{border-color:#37474F;background:rgba(210,225,240,.09)}
@@ -441,6 +454,7 @@
       <div class="chips" id="cntchips"></div>
       <div class="chips" id="typechips"></div>
       <div class="found" id="cfound"></div>
+      <div id="massbar"></div>
       <div id="clist"></div>
     </div>
 
@@ -895,7 +909,7 @@
     function skel(cls,n){ var h=''; for(var i=0;i<n;i++)h+='<div class="skel '+cls+'"></div>'; return h; }
     function loadVacancies(){
       var vb=document.getElementById('vlist'); if(vb)vb.innerHTML=skel('skel-card',3);
-      fetch(BACKEND_URL+'/vacancies').then(function(r){return r.json();})
+      fetch(BACKEND_URL+'/vacancies',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})}).then(function(r){return r.json();})
         .then(function(d){ if(d.ok){VACANCIES=d.vacancies||[];VACANCIES.forEach(function(v,i){v._i=i;});renderVacInto('vlist');renderVacInto('home-vac',2);} else document.getElementById('vlist').innerHTML='<div class="info">Не удалось загрузить вакансии.</div>'; })
         .catch(function(){document.getElementById('vlist').innerHTML='<div class="info">Сервер недоступен.</div>';});
     }
@@ -1412,6 +1426,17 @@
     function renderContacts(){
       var box=document.getElementById('clist'); var list=filtered();
       document.getElementById('cfound').innerHTML='Найдено <b>'+list.length+'</b>'+(cVisible<list.length?' · показано '+cVisible:'');
+      (function(){
+        var mb=document.getElementById('massbar'); if(!mb)return;
+        var mail=list.filter(function(c){return c.hasEmail&&c.email&&(isMember||!c.locked);}).length;
+        if(mail<2){ mb.innerHTML=''; return; }
+        var sub=isMember?('Разослать резюме всем '+mail+' работодателям по очереди'):('Разошли резюме сразу всем — для участников AMORE');
+        mb.innerHTML='<div class="massbar'+(isMember?'':' massbar-lock')+'" onclick="openMassApply()">'
+          +'<div class="massbar-ico">'+(isMember?'🚀':'🔒')+'</div>'
+          +'<div style="flex:1;min-width:0"><div class="massbar-t">Массовая рассылка резюме</div>'
+          +'<div class="massbar-s">'+sub+'</div></div>'
+          +'<span class="massbar-cta">'+(isMember?('Всем '+mail):'PRO')+'</span></div>';
+      })();
       if(!list.length){box.innerHTML='<div class="info">Ничего не нашлось. Поменяй запрос или фильтр.</div>';return;}
       var shown=list.slice(0,cVisible); window.__shown=shown;
       var html='';
@@ -1539,6 +1564,98 @@
         })
         .catch(function(){ popup('Сервер недоступен, попробуй ещё раз.'); btn.textContent='Отправить работодателю →'; btn.disabled=false; });
     };
+    /* ---------- МАССОВАЯ РАССЫЛКА РЕЗЮМЕ (для участников) ---------- */
+    var MASS_TPL = {
+      en:{ subj:'Application for a position on board — {company}',
+        body:'Hello,\n\nMy name is ___ and I would like to apply for a position on board your vessel at {company}. I have sea experience and hold the required certificates (STCW/BST, medical certificate). My CV is attached.\n\nI am ready to join at short notice. Thank you for your time.\n\nBest regards' },
+      no:{ subj:'Søknad om stilling om bord — {company}',
+        body:'Hei,\n\nMitt navn er ___ og jeg ønsker å søke en stilling om bord på fartøyet deres ved {company}. Jeg har erfaring til sjøs og har nødvendige sertifikater (STCW/BST, helseattest). CV er vedlagt.\n\nJeg kan mønstre på kort varsel. Takk for tiden deres.\n\nMed vennlig hilsen' }
+    };
+    var mass = { running:false, cancel:false };
+    window.openMassApply=function(){
+      if(!isMember){
+        paywall('Массовая рассылка резюме','Разошли резюме сразу всем работодателям из базы — по очереди, с твоей почтой в ответах и статусами доставки. Функция для участников AMORE.');
+        return;
+      }
+      var list=filtered().filter(function(c){return c.hasEmail&&c.email;});
+      if(list.length<2){ popup('В текущем фильтре мало работодателей с почтой. Убери фильтры или поменяй направление.'); return; }
+      var cvB64='', cvName='';
+      try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
+      var reply=''; try{ reply=localStorage.getItem('amore_reply_email')||''; }catch(e){}
+      var lang=(loadApply().lang)||'en'; var tpl=MASS_TPL[lang]||MASS_TPL.en;
+      var h='<div class="grip"></div><div class="det-title">🚀 Массовая рассылка резюме</div>';
+      h+='<div class="det-sub">Уйдёт по очереди '+list.length+' работодателям из текущего фильтра</div>';
+      if(!cvB64||!cvName){
+        h+='<div class="ml-note">⚠️ Сначала собери резюме: Профиль → «Моё резюме» → «Сохранить для откликов». Оно приложится к каждому письму.</div>';
+        h+='<button class="btn btn-gold" style="margin-top:10px" onclick="closeModal();openResume()">Собрать резюме</button>';
+        h+='<div class="close" onclick="closeModal()">Закрыть</div>';
+        document.getElementById('sheet').innerHTML=h; document.getElementById('modal').className='overlay'; return;
+      }
+      h+='<div class="seg-mail"><button class="'+(lang==='en'?'on':'')+'" onclick="massLang(\'en\')">English</button><button class="'+(lang==='no'?'on':'')+'" onclick="massLang(\'no\')">Norsk</button></div>';
+      h+='<label class="ml-lbl">Твоя почта (на неё придут ответы)</label><input class="ml-in" id="mass-reply" type="email" placeholder="you@gmail.com" value="'+esc(reply)+'">';
+      h+='<label class="ml-lbl">Тема (можно вставить {company})</label><input class="ml-in" id="mass-subj" value="'+esc(tpl.subj)+'">';
+      h+='<label class="ml-lbl">Текст письма (можно вставить {company})</label><textarea class="ml-ta" id="mass-body" rows="8">'+esc(tpl.body)+'</textarea>';
+      h+='<div class="ml-note">Письма уходят по одному с паузой, чтобы не попасть в спам. За день уходит до дневного лимита — остальным разошлёшь завтра. Статусы доставки — в «Мои отклики».</div>';
+      h+='<button class="btn btn-gold" style="margin-top:12px" onclick="startMassApply()">Разослать '+list.length+' работодателям →</button>';
+      h+='<div class="close" onclick="closeModal()">Отмена</div>';
+      document.getElementById('sheet').innerHTML=h; document.getElementById('modal').className='overlay';
+    };
+    window.massLang=function(l){ var a=loadApply(); a.lang=l; saveApply(a); openMassApply(); };
+    window.startMassApply=function(){
+      var reply=(document.getElementById('mass-reply').value||'').trim();
+      var subjT=(document.getElementById('mass-subj').value||'').trim();
+      var bodyT=(document.getElementById('mass-body').value||'').trim();
+      if(!reply || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(reply)){ popup('Впиши свою почту правильно — на неё придут ответы работодателей.'); return; }
+      if(!subjT || !bodyT){ popup('Заполни тему и текст письма.'); return; }
+      saveReplyEmail(reply);
+      var cvB64='', cvName='';
+      try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
+      var list=filtered().filter(function(c){return c.hasEmail&&c.email;});
+      var total=list.length, sent=0, fail=0, i=0;
+      mass.cancel=false; mass.running=true;
+      function fill(tmpl,c){ return String(tmpl).replace(/\{company\}/g,(c.company||c.vessel||'your company')).replace(/\{country\}/g,(c.country||'')); }
+      function renderProg(curName){
+        var pct=total?Math.round(i/total*100):0;
+        var h='<div class="grip"></div><div class="det-title">🚀 Рассылаю резюме…</div>';
+        h+='<div class="mass-prog"><i style="width:'+pct+'%"></i></div>';
+        h+='<div class="mass-stat"><div><b style="color:#8CC0A6">'+sent+'</b>отправлено</div><div><b>'+i+' / '+total+'</b>обработано</div>'+(fail?'<div><b style="color:#C2853F">'+fail+'</b>ошибок</div>':'')+'</div>';
+        h+='<div class="mass-cur">'+(curName?('→ '+esc(curName)):'')+'</div>';
+        h+='<button class="btn btn-lock" style="margin-top:16px" onclick="stopMassApply()">Остановить</button>';
+        document.getElementById('sheet').innerHTML=h;
+      }
+      function finish(reason){
+        mass.running=false;
+        var note = reason==='limit' ? 'Дневной лимит писем исчерпан — остальным разошлёшь завтра, так письма не улетают в спам.' : (reason==='stop' ? 'Рассылка остановлена. Уже отправленные письма ушли.' : 'Резюме ушло работодателям. Ответы придут на '+esc(reply)+'.');
+        var h='<div class="grip"></div><div style="text-align:center;padding:20px 8px">';
+        h+='<div style="font-size:42px">'+(sent?'✅':'🛑')+'</div>';
+        h+='<div style="font-size:17px;font-weight:800;margin:8px 0 6px">Отправлено: '+sent+' из '+total+'</div>';
+        h+='<div style="font-size:13px;color:#9AA3AB;line-height:1.55">'+note+'</div>';
+        h+='<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal();switchView(\'myapps\')">Смотреть статусы</button>';
+        h+='<div class="close" onclick="closeModal()">Закрыть</div></div>';
+        document.getElementById('sheet').innerHTML=h;
+      }
+      function step(){
+        if(mass.cancel){ finish('stop'); return; }
+        if(i>=total){ finish('done'); return; }
+        var c=list[i];
+        renderProg(c.company||c.vessel||c.email);
+        var payload={ initData: tg?tg.initData:'', to:c.email, replyTo:reply, subject:fill(subjT,c), text:fill(bodyT,c) };
+        if(cvB64&&cvName){ payload.cvBase64=cvB64; payload.cvName=cvName; }
+        fetch(BACKEND_URL+'/sendApplication',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+          .then(function(r){return r.json();})
+          .then(function(d){
+            if(d && d.limit){ finish('limit'); return; }
+            if(d && d.ok){ sent++; } else { fail++; }
+            i++;
+            if(mass.cancel){ finish('stop'); return; }
+            setTimeout(step, 1800);
+          })
+          .catch(function(){ fail++; i++; setTimeout(step, 1800); });
+      }
+      step();
+    };
+    window.stopMassApply=function(){ mass.cancel=true; };
+
     function copyRaw(val,msg){
       try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(val).then(function(){popup(msg);},function(){fallbackCopy(val);popup(msg);}); return; } }catch(e){}
       fallbackCopy(val); popup(msg);
