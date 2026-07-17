@@ -858,7 +858,7 @@
     };
     window.applyFromVac=function(i){
       var v=VACANCIES[i];
-      window.__curContact={ email:v.email, company:v.company||v.role||'', vessel:'', hasEmail:true };
+      window.__curContact={ email:v.email||'', vacId:(v.id!=null?v.id:null), company:v.company||v.role||'', vessel:'', hasEmail:!!(v.email||v.hasEmail) };
       openApply();
     };
     function vacCard(v){
@@ -1500,7 +1500,7 @@
     function guestRemaining(){ try{ var v=localStorage.getItem('amore_guest_remaining'); return v==null?null:parseInt(v,10); }catch(e){ return null; } }
     function guestExhaustedPaywall(){ paywall('Бесплатные отклики закончились','Ты использовал все 3 бесплатных отклика — круто, что попробовал! Оформи подписку AMORE: отклики без ограничений (15 в день), вся база из 5600 работодателей и прямые контакты.'); }
     window.openApply=function(){
-      var c=window.__curContact; if(!c||!c.email)return;
+      var c=window.__curContact; if(!c||(!c.email && c.vacId==null))return;
       if(!isMember){ var rem=guestRemaining(); if(rem!=null && rem<=0){ guestExhaustedPaywall(); return; } }
       applyState=loadApply();
       renderApply();
@@ -1516,7 +1516,7 @@
       var replyEmail=''; try{ replyEmail=localStorage.getItem('amore_reply_email')||''; }catch(e){}
       var cvName=''; try{ cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
       var h='<div class="grip"></div><div class="det-title">Откликнуться письмом</div>';
-      h+='<div class="det-sub">Кому: '+esc(c.email)+' · '+esc(company)+'</div>';
+      h+='<div class="det-sub">Кому: '+esc(c.email||company||'работодателю')+'</div>';
       h+='<div class="seg-mail"><button class="'+(applyState.lang==='en'?'on':'')+'" onclick="setApplyLang(\'en\')">English</button><button class="'+(applyState.lang==='no'?'on':'')+'" onclick="setApplyLang(\'no\')">Norsk</button></div>';
       h+='<label class="ml-lbl">Твоя почта (на неё придёт ответ работодателя)</label><input class="ml-in" id="apply-reply" type="email" placeholder="you@gmail.com" value="'+esc(replyEmail)+'" oninput="saveReplyEmail(this.value)">';
       h+='<label class="ml-lbl">Тема</label><input class="ml-in" id="apply-subj" value="'+esc(t.subj)+'" oninput="applyEdit(\'subj\',this.value)">';
@@ -1538,7 +1538,8 @@
       var cvB64='', cvName='';
       try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
       var btn=document.getElementById('apply-send'); btn.textContent='Отправляю…'; btn.disabled=true;
-      var payload={ initData: tg?tg.initData:'', to:c.email, replyTo:reply, subject:subj, text:body };
+      var payload={ initData: tg?tg.initData:'', to:c.email||'', replyTo:reply, subject:subj, text:body };
+      if(c.vacId!=null) payload.vacId=c.vacId;
       if(cvB64&&cvName){ payload.cvBase64=cvB64; payload.cvName=cvName; }
       fetch(BACKEND_URL+'/sendApplication',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
         .then(function(r){return r.json();})
