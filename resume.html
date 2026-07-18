@@ -190,6 +190,19 @@
 
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
+  /* ---------- автосохранение на устройстве ---------- */
+  var _saveT=null;
+  function saveState(){
+    if(_saveT) clearTimeout(_saveT);
+    _saveT=setTimeout(function(){ try{ localStorage.setItem('amore_cv_data', JSON.stringify(data)); }catch(e){} }, 500);
+  }
+  function loadState(){
+    try{
+      var s=localStorage.getItem('amore_cv_data');
+      if(s){ var p=JSON.parse(s); if(p && typeof p==='object'){ for(var k in p){ if(Object.prototype.hasOwnProperty.call(p,k)) data[k]=p[k]; } } }
+    }catch(e){}
+  }
+
   /* ---------- форма ---------- */
   function setLang(l){ data.lang=l; document.getElementById('lng-no').className=l==='no'?'on':''; document.getElementById('lng-en').className=l==='en'?'on':''; renderExps(); renderEdus(); render(); }
 
@@ -271,6 +284,7 @@
     html+='<div class="cv-sec"><span class="cv-secico">🎓</span>'+L.edu+'</div><div class="cv-tl cv-edu">'+edus+'</div>';
     html+='</div>';
     document.getElementById('cv-paper').innerHTML=html;
+    saveState();
     fitScale();
   }
   function fitScale(){
@@ -388,7 +402,12 @@
   }
 
   /* ---------- старт ---------- */
-  ['name','address','city','citizenship','phone','email'].forEach(function(k){ document.getElementById('f-'+k).value=data[k]; });
+  loadState();
+  ['name','address','city','citizenship','phone','email'].forEach(function(k){ var el=document.getElementById('f-'+k); if(el) el.value=data[k]||''; });
+  (function(){ var el=document.getElementById('f-birth'); if(el && data.birth){ var p=String(data.birth).split('.'); if(p.length===3) el.value=p[2]+'-'+p[1]+'-'+p[0]; } })();
+  document.getElementById('lng-no').className=data.lang==='no'?'on':'';
+  document.getElementById('lng-en').className=data.lang==='en'?'on':'';
+  if(data.photo){ var _pv=document.getElementById('ph-prev'); if(_pv) _pv.src=data.photo; }
   renderLangs(); renderExps(); renderEdus(); render();
 
   // гостевой режим: водяной знак на превью + замок на скачивание
