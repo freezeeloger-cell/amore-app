@@ -155,6 +155,11 @@
 <script>
   var tg = window.Telegram ? window.Telegram.WebApp : null;
   if (tg) { tg.ready(); tg.expand(); }
+  var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
+  // нативная кнопка «назад» Telegram — чтобы не закрывать всю апку
+  if (tg && tg.BackButton) {
+    try { tg.BackButton.show(); tg.BackButton.onClick(function(){ window.location.href='index.html'; }); } catch(e){}
+  }
 
   // гость или участник? (передаётся из апки через ?m=1/0)
   var IS_MEMBER = (function(){ try{ return new URLSearchParams(location.search).get('m')==='1'; }catch(e){ return false; } })();
@@ -326,23 +331,39 @@
     if(!IS_MEMBER){ alert('📥 Скачивание резюме доступно участникам AMORE.\n\nНо ты можешь нажать «Сохранить для откликов» — и отправить резюме работодателям прямо из апки!'); return; }
     if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
     capture(function(canvas){
-      if(type==='png'){
-        var url=canvas.toDataURL('image/png');
-        // 1) обычное скачивание — работает на компьютере и Android
-        try{ var a=document.createElement('a'); a.href=url; a.download='CV_'+(data.name||'AMORE').replace(/\s+/g,'_')+'.png'; document.body.appendChild(a); a.click(); a.remove(); }catch(e){}
-        // 2) на iPhone в Telegram скачивание не срабатывает — показываем картинку прямо в апке
-        showImgOverlay(url);
-      } else {
-        try {
+      var safe=(data.name||'AMORE').replace(/\s+/g,'_');
+      var b64, name;
+      try {
+        if(type==='png'){
+          b64=canvas.toDataURL('image/png').split(',')[1];
+          name='CV_'+safe+'.png';
+        } else {
           var jsPDF=window.jspdf.jsPDF;
           var pdf=new jsPDF('p','mm','a4');
           var w=210, h=canvas.height*w/canvas.width;
           pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',0,0,w,h);
-          pdf.save('CV_'+(data.name||'AMORE').replace(/\s+/g,'_')+'.pdf');
-        } catch(e){ alert('PDF лучше качать с компьютера. На телефоне используй PNG.'); }
-      }
+          var uri=pdf.output('datauristring');
+          b64=uri.indexOf(',')>=0?uri.split(',')[1]:uri;
+          name='CV_'+safe+'.pdf';
+        }
+      } catch(e){ alert('Не удалось собрать файл: '+e); return; }
+      // на компьютере/Android пробуем обычное скачивание
+      try { var a=document.createElement('a'); a.href='data:'+(type==='png'?'image/png':'application/pdf')+';base64,'+b64; a.download=name; document.body.appendChild(a); a.click(); a.remove(); } catch(e){}
+      // и в любом случае шлём файл в чат с ботом — на айфоне это единственный надёжный способ
+      sendResumeFile(b64, name);
     });
   };
+  function sendResumeFile(b64, name){
+    showBusy();
+    fetch(BACKEND_URL+'/sendResumeFile', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ initData: tg?tg.initData:'', fileBase64:b64, fileName:name })
+    }).then(function(r){return r.json();}).then(function(d){
+      hideBusy();
+      if(d && d.ok){ alert('📩 Отправил резюме тебе в чат с ботом.\n\nОткрой чат с @Crabnorwaybot — там файл, сохрани его или сразу перешли работодателю.'); }
+      else { alert('Не удалось отправить файл: '+((d&&d.error)||'ошибка')); }
+    }).catch(function(e){ hideBusy(); alert('Нет связи с сервером: '+e); });
+  }
   window.saveForApply=function(){
     if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
     capture(function(canvas){
