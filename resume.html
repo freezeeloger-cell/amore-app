@@ -280,13 +280,43 @@
   window.addEventListener('resize', fitScale);
 
   /* ---------- скачивание ---------- */
+  /* ---------- оверлеи: индикатор сборки + просмотр PNG (iOS-safe) ---------- */
+  (function(){
+    var css='#cv-busy{display:none;position:fixed;inset:0;z-index:9998;background:rgba(8,14,18,.72);align-items:center;justify-content:center}'
+    +'.cv-busy-card{background:#10222E;color:#EAF2F7;padding:22px 26px;border-radius:16px;font:600 15px sans-serif;display:flex;flex-direction:column;align-items:center;gap:12px}'
+    +'.cv-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:#CBD5DD;animation:cvspin .8s linear infinite}'
+    +'@keyframes cvspin{to{transform:rotate(360deg)}}'
+    +'#cv-imgov{display:none;position:fixed;inset:0;z-index:9999;background:rgba(8,14,18,.96);overflow:auto;padding:16px;justify-content:center}'
+    +'.cv-imgov-in{max-width:520px;width:100%;display:flex;flex-direction:column;gap:12px;align-items:center}'
+    +'.cv-imgov-hint{color:#EAF2F7;font:600 14px sans-serif;text-align:center;background:rgba(255,255,255,.08);padding:10px 14px;border-radius:12px}'
+    +'#cv-imgov img{width:100%;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.5)}'
+    +'#cv-imgov button{background:#CBD5DD;color:#0B1418;border:0;padding:12px 20px;border-radius:12px;font:700 15px sans-serif;cursor:pointer}';
+    var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
+    var b=document.createElement('div'); b.id='cv-busy';
+    b.innerHTML='<div class="cv-busy-card"><div class="cv-spin"></div><div>Собираю резюме…</div></div>';
+    document.body.appendChild(b);
+  })();
+  function showBusy(){var b=document.getElementById('cv-busy');if(b)b.style.display='flex';}
+  function hideBusy(){var b=document.getElementById('cv-busy');if(b)b.style.display='none';}
+  function showImgOverlay(url){
+    var o=document.getElementById('cv-imgov');
+    if(!o){ o=document.createElement('div'); o.id='cv-imgov'; document.body.appendChild(o); }
+    o.innerHTML='<div class="cv-imgov-in"><div class="cv-imgov-hint">📷 Зажми картинку пальцем и выбери «Сохранить в фото»</div><img src="'+url+'"><button onclick="document.getElementById(\'cv-imgov\').style.display=\'none\'">Готово</button></div>';
+    o.style.display='flex';
+  }
+
   function capture(cb){
+    if(typeof html2canvas!=='function'){ alert('Не загрузилась библиотека для сборки резюме 😕\n\nПроверь интернет и открой резюме заново (кнопка «← В приложение», потом снова «Моё резюме»).'); return; }
     var paper=document.getElementById('cv-paper');
     var scaler=document.getElementById('scaler');
     var prev=scaler.style.transform; scaler.style.transform='none';
-    html2canvas(paper, {scale:2, backgroundColor:'#fff', useCORS:true, windowWidth:794}).then(function(canvas){
-      scaler.style.transform=prev; fitScale(); cb(canvas);
-    }).catch(function(e){ scaler.style.transform=prev; fitScale(); alert('Не удалось собрать изображение: '+e); });
+    showBusy();
+    // даём индикатору отрисоваться перед тяжёлым рендером
+    setTimeout(function(){
+      html2canvas(paper, {scale:2, backgroundColor:'#fff', useCORS:true, windowWidth:794}).then(function(canvas){
+        scaler.style.transform=prev; fitScale(); hideBusy(); cb(canvas);
+      }).catch(function(e){ scaler.style.transform=prev; fitScale(); hideBusy(); alert('Не удалось собрать изображение: '+e); });
+    }, 40);
   }
   window.download=function(type){
     if(!IS_MEMBER){ alert('📥 Скачивание резюме доступно участникам AMORE.\n\nНо ты можешь нажать «Сохранить для откликов» — и отправить резюме работодателям прямо из апки!'); return; }
@@ -294,9 +324,10 @@
     capture(function(canvas){
       if(type==='png'){
         var url=canvas.toDataURL('image/png');
-        var a=document.createElement('a'); a.href=url; a.download='CV_'+(data.name||'AMORE').replace(/\s+/g,'_')+'.png';
-        document.body.appendChild(a); a.click(); a.remove();
-        showSaveHint(url);
+        // 1) обычное скачивание — работает на компьютере и Android
+        try{ var a=document.createElement('a'); a.href=url; a.download='CV_'+(data.name||'AMORE').replace(/\s+/g,'_')+'.png'; document.body.appendChild(a); a.click(); a.remove(); }catch(e){}
+        // 2) на iPhone в Telegram скачивание не срабатывает — показываем картинку прямо в апке
+        showImgOverlay(url);
       } else {
         try {
           var jsPDF=window.jspdf.jsPDF;
