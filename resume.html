@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 <title>AMORE — Резюме</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="html-to-image.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
@@ -306,17 +306,21 @@
   }
 
   function capture(cb){
-    if(typeof html2canvas!=='function'){ alert('Не загрузилась библиотека для сборки резюме 😕\n\nПроверь интернет и открой резюме заново (кнопка «← В приложение», потом снова «Моё резюме»).'); return; }
+    if(!window.htmlToImage || typeof htmlToImage.toCanvas!=='function'){ alert('Не загрузилась библиотека для сборки резюме 😕\n\nОткрой резюме заново (кнопка «← В приложение», потом снова «Моё резюме»).'); return; }
     var paper=document.getElementById('cv-paper');
     var scaler=document.getElementById('scaler');
     var prev=scaler.style.transform; scaler.style.transform='none';
     showBusy();
-    // даём индикатору отрисоваться перед тяжёлым рендером
-    setTimeout(function(){
-      html2canvas(paper, {scale:2, backgroundColor:'#fff', useCORS:true, windowWidth:794}).then(function(canvas){
-        scaler.style.transform=prev; fitScale(); hideBusy(); cb(canvas);
-      }).catch(function(e){ scaler.style.transform=prev; fitScale(); hideBusy(); alert('Не удалось собрать изображение: '+e); });
-    }, 40);
+    var done=function(canvas){ scaler.style.transform=prev; fitScale(); hideBusy(); cb(canvas); };
+    var fail=function(e){ scaler.style.transform=prev; fitScale(); hideBusy(); alert('Не удалось собрать изображение: '+e); };
+    // ждём, пока шрифт Manrope точно загрузится — иначе буквы могут разъехаться
+    var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    ready.then(function(){
+      setTimeout(function(){
+        htmlToImage.toCanvas(paper, { pixelRatio:2, backgroundColor:'#ffffff', width:794, height:paper.scrollHeight, cacheBust:true })
+          .then(done).catch(fail);
+      }, 40);
+    });
   }
   window.download=function(type){
     if(!IS_MEMBER){ alert('📥 Скачивание резюме доступно участникам AMORE.\n\nНо ты можешь нажать «Сохранить для откликов» — и отправить резюме работодателям прямо из апки!'); return; }
