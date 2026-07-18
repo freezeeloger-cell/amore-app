@@ -274,6 +274,22 @@
     @keyframes fnpulse{0%{box-shadow:0 0 0 0 rgba(124,217,194,.5)}70%{box-shadow:0 0 0 7px rgba(124,217,194,0)}100%{box-shadow:0 0 0 0 rgba(124,217,194,0)}}
     .fn-body{flex:1;overflow-y:auto;padding:20px}
     .fn-foot{padding:14px 20px 22px}
+    .fnc-body{display:flex;flex-direction:column;gap:10px}
+    .fnc-row{display:flex;gap:8px;max-width:100%;animation:fncIn .25s ease}
+    @keyframes fncIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .fnc-a{justify-content:flex-start}
+    .fnc-u{justify-content:flex-end}
+    .fnc-av{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:#0E2A3B;display:grid;place-items:center;font-size:15px;align-self:flex-end}
+    .fnc-b{max-width:80%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.42;background:#F3F5F7;color:#111;border-bottom-left-radius:5px}
+    .fnc-ub{background:linear-gradient(135deg,#1C4B66,#123B54);color:#EAF2F7;border-bottom-left-radius:16px;border-bottom-right-radius:5px}
+    .fnc-typing{display:flex;gap:4px;align-items:center;padding:14px 16px}
+    .fnc-typing span{width:7px;height:7px;border-radius:50%;background:#9AA3AB;animation:fncBlink 1s infinite}
+    .fnc-typing span:nth-child(2){animation-delay:.2s}
+    .fnc-typing span:nth-child(3){animation-delay:.4s}
+    @keyframes fncBlink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+    .fnc-foot{display:flex;flex-direction:column;gap:8px}
+    .fnc-qr{width:100%;padding:13px 14px;border-radius:14px;border:1.5px solid rgba(203,213,221,.28);background:rgba(255,255,255,.05);color:#EEF1F4;font-size:14px;font-weight:700;cursor:pointer;transition:transform .1s}
+    .fnc-qr:active{transform:scale(.98)}
     .fn-q{font-size:19px;font-weight:800;color:#EEF1F4;letter-spacing:-.3px;line-height:1.25;margin:2px 2px 16px}
     .fn-opts{display:flex;flex-direction:column;gap:10px}
     .massbar{display:flex;align-items:center;gap:12px;margin:2px 2px 12px;padding:13px 14px;border-radius:16px;cursor:pointer;background:linear-gradient(135deg,rgba(203,213,221,.14),rgba(120,150,175,.08));border:1.5px solid rgba(203,213,221,.28)}
@@ -555,6 +571,12 @@
         <div class="fn-opt" onclick="fnPick('direction','merch',this)"><span class="fn-oi">🚢</span> Торговый флот <span class="fn-ok">✓</span></div>
         <div class="fn-opt" onclick="fnPick('direction','any',this)"><span class="fn-oi">🤔</span> Ещё не решил <span class="fn-ok">✓</span></div>
       </div></div>
+    </div>
+    <!-- ai chat -->
+    <div class="fn-screen" id="fn-chat">
+      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">🤖</div><div><div class="fn-name">AI-ассистент AMORE</div><div class="fn-sub"><span class="fn-live"></span> анализирует ответы</div></div></div></div>
+      <div class="fn-body fnc-body" id="fn-chatBody"></div>
+      <div class="fn-foot fnc-foot" id="fn-chatQR"></div>
     </div>
     <!-- analyze -->
     <div class="fn-screen" id="fn-analyze"><div class="fn-analyze"><div class="fn-radar"><span>⚓</span></div><div class="fn-h" style="font-size:20px">Смотрю твои ответы…</div><div class="fn-typing"><i></i><i></i><i></i></div></div></div>
@@ -1132,7 +1154,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function maybeStartTour(){ if(tourShouldRun()){ tourI=0; setTimeout(renderTour, 700); } }
 
     /* ===== ВОРОНКА-ОПРОСНИК ===== */
-    var FUNNEL_VERSION='1'; // подними номер, чтобы показать воронку заново
+    var FUNNEL_VERSION='2'; // подними номер, чтобы показать воронку заново
     var fnState={}, fnLeadSent=false;
     function fnShouldRun(){ try{ return localStorage.getItem('amore_funnel_v')!==FUNNEL_VERSION; }catch(e){ return false; } }
     function fnMarkDone(){ try{ localStorage.setItem('amore_funnel_v',FUNNEL_VERSION); }catch(e){} }
@@ -1153,7 +1175,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       setTimeout(function(){
         if(key==='citizenship')fnGo('q2');
         else if(key==='documents')fnGo('q3');
-        else { fnGo('analyze'); fnSendLead(); setTimeout(fnResult,1900); }
+        else { fnGo('chat'); fnSendLead(); startFnChat(); }
       },340);
     };
     function fnSendLead(){
@@ -1189,6 +1211,82 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       document.getElementById('fn-resultBox').innerHTML=h;
       document.getElementById('fn-offerSub').textContent='Под твоё направление — '+dir.n+'. Всё для первого контракта в одном месте.';
       fnGo('result');
+    }
+    /* ---------- AI-ЧАТ В ВОРОНКЕ (скриптованный, под tone AMORE) ---------- */
+    var fnChat = { steps:[], i:0 };
+    function fnChatBuild(){
+      var dirLine={
+        crab:'🦀 Краболов — серьёзный выбор. Деньги там реальные, но работа жёсткая. Сам начинал именно с него.',
+        wash:'🧽 Замывка трюмов — быстрый вход в море и живые деньги за контракт. Нормальный старт.',
+        yacht:'⛵ Яхтинг — чисто, престижно и платят хорошо. Но заходят туда по-своему — покажу как.',
+        merch:'🚢 Торговый флот — стабильные контракты и рост по карьере. Разложу, с чего начать.',
+        any:'🧭 Ещё не определился — это нормально. По ответам подскажу, что реально твоё.'
+      }[fnState.direction]||'Принял. Гляну по твоим ответам.';
+      var docLine={
+        yes:'И документы у тебя уже есть — считай, половина пути пройдена. Ты реально близко.',
+        one:'Один документ есть — второй добьём за неделю, это не преграда.',
+        no:'Документов пока нет — это не страшно. BST и медкомиссия делаются за неделю-две.',
+        dk:'По документам всё просто: нужны всего два — BST и медкомиссия. Покажу, где и как.'
+      }[fnState.documents]||'';
+      return [
+        {t:'msg', text:'Привет 👋 Гляну твои ответы — пару секунд.'},
+        {t:'msg', text:dirLine},
+        {t:'q', key:'goal', text:'Скажи честно: тебе в море ради денег или хочешь поменять жизнь целиком?',
+          opts:[{label:'💰 Ради денег',val:'money'},{label:'🔄 Сменить жизнь',val:'life'},{label:'И то, и то',val:'both'}]},
+        {t:'react', key:'goal', map:{
+          money:'Понятно, деньги — честная мотивация. В море они есть, если зайти правильно.',
+          life:'Уважаю. Море реально меняет жизнь — сам это прошёл.',
+          both:'Так и должно быть — и деньги, и другая жизнь. Это совмещается.'}},
+        {t:'q', key:'ready', text:'Если помогу с документами и выведу на работодателя — готов выйти в первый рейс в ближайшие 1–2 месяца?',
+          opts:[{label:'🔥 Да, готов',val:'yes'},{label:'🧭 Нужно подготовиться',val:'prep'},{label:'Пока думаю',val:'think'}]},
+        {t:'msg', textFn:function(){ return docLine || 'Хорошо, тогда двигаемся по шагам.'; }},
+        {t:'last', text:'Понял тебя. Собираю персональный разбор под твой случай… 🧭'}
+      ];
+    }
+    window.startFnChat=function(){
+      var body=document.getElementById('fn-chatBody'); if(body)body.innerHTML='';
+      var qr=document.getElementById('fn-chatQR'); if(qr)qr.innerHTML='';
+      fnChat.steps=fnChatBuild(); fnChat.i=0;
+      fnChatNext();
+    };
+    function fnChatScroll(){ var b=document.getElementById('fn-chatBody'); if(b)b.scrollTop=b.scrollHeight; }
+    function fnChatTyping(cb, ms){
+      var body=document.getElementById('fn-chatBody'); if(!body){cb();return;}
+      var t=document.createElement('div'); t.className='fnc-row fnc-a';
+      t.innerHTML='<div class="fnc-av">🤖</div><div class="fnc-b fnc-typing"><span></span><span></span><span></span></div>';
+      body.appendChild(t); fnChatScroll();
+      setTimeout(function(){ if(t.parentNode)t.parentNode.removeChild(t); cb(); }, ms||900);
+    }
+    function fnChatSay(text, cb){
+      fnChatTyping(function(){
+        var body=document.getElementById('fn-chatBody'); if(!body)return;
+        var r=document.createElement('div'); r.className='fnc-row fnc-a';
+        r.innerHTML='<div class="fnc-av">🤖</div><div class="fnc-b">'+text+'</div>';
+        body.appendChild(r); fnChatScroll(); if(cb)setTimeout(cb,420);
+      }, Math.min(1500, 550+String(text).length*11));
+    }
+    function fnChatUser(label){
+      var body=document.getElementById('fn-chatBody'); if(!body)return;
+      var r=document.createElement('div'); r.className='fnc-row fnc-u';
+      r.innerHTML='<div class="fnc-b fnc-ub">'+label+'</div>';
+      body.appendChild(r); fnChatScroll();
+    }
+    function fnChatNext(){
+      if(fnChat.i>=fnChat.steps.length){ setTimeout(fnResult,600); return; }
+      var s=fnChat.steps[fnChat.i++];
+      if(s.t==='msg'){ fnChatSay(s.textFn?s.textFn():s.text, fnChatNext); }
+      else if(s.t==='last'){ fnChatSay(s.text, function(){ setTimeout(fnResult,950); }); }
+      else if(s.t==='react'){ var txt=(s.map&&s.map[fnState[s.key]])||''; if(txt) fnChatSay(txt, fnChatNext); else fnChatNext(); }
+      else if(s.t==='q'){ fnChatSay(s.text, function(){ fnChatShowQR(s); }); }
+    }
+    function fnChatShowQR(s){
+      var qr=document.getElementById('fn-chatQR'); if(!qr)return; qr.innerHTML='';
+      s.opts.forEach(function(o){
+        var b=document.createElement('button'); b.className='fnc-qr'; b.textContent=o.label;
+        b.onclick=function(){ fnState[s.key]=o.val; fnChatUser(o.label); qr.innerHTML=''; fnChatNext(); };
+        qr.appendChild(b);
+      });
+      fnChatScroll();
     }
     window.fnSkip=function(){ fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; };
     window.fnStartFree=function(){ fnMarkDone(); fnTrialStart(); document.getElementById('funnel').className='fn-overlay'; if(window.openResume)openResume(); };
