@@ -1540,7 +1540,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           sub='Запусти и не отправляй вручную — рассылка сама пройдёт по базе'; cta='Подключить';
         } else {
           lock=false; ico='🚀'; t='Массовая рассылка резюме';
-          sub='Разослать резюме всем '+mail+' работодателям по очереди'; cta='Всем '+mail;
+          sub='Очередь по базе — продолжится с места, где встала'; cta='Разослать';
         }
         mb.innerHTML='<div class="massbar'+(lock?' massbar-lock':'')+'" onclick="openMassApply()">'
           +'<div class="massbar-ico">'+ico+'</div>'
@@ -1684,6 +1684,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         body:'Hei,\n\nMitt navn er ___ og jeg ønsker å søke en stilling om bord på fartøyet deres ved {company}. Jeg har erfaring til sjøs og har nødvendige sertifikater (STCW/BST, helseattest). CV er vedlagt.\n\nJeg kan mønstre på kort varsel. Takk for tiden deres.\n\nMed vennlig hilsen' }
     };
     var mass = { running:false, cancel:false };
+    var massSent = null; // множество уже отправленных адресов (по этому пользователю)
     window.subscribeMass=function(){ if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_MASS_URL);} else {window.open(TRIBUTE_MASS_URL,'_blank');} };
     window.massPaywall=function(){
       var h='<div class="grip"></div><div class="det-title">🚀 Автоматическая рассылка</div>';
@@ -1700,30 +1701,51 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         return;
       }
       if(!hasMass){ massPaywall(); return; }
-      var list=filtered().filter(function(c){return c.hasEmail&&c.email;});
-      if(list.length<2){ popup('В текущем фильтре мало работодателей с почтой. Убери фильтры или поменяй направление.'); return; }
+      // подгружаем, кому уже отправляли — чтобы продолжить очередь с места остановки
+      document.getElementById('sheet').innerHTML='<div class="grip"></div><div class="det-title">🚀 Массовая рассылка</div><div class="det-sub">Готовлю очередь…</div>';
+      document.getElementById('modal').className='overlay';
+      fetch(BACKEND_URL+'/massTargets',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
+        .then(function(r){return r.json();})
+        .then(function(d){ massSent={}; if(d&&d.ok&&d.targets){ d.targets.forEach(function(t){ massSent[String(t).toLowerCase()]=1; }); } massBuildSheet(); })
+        .catch(function(){ massSent={}; massBuildSheet(); });
+    };
+    function massRemaining(){
+      var sent=massSent||{};
+      return filtered().filter(function(c){ return c.hasEmail && c.email && !sent[String(c.email).toLowerCase()]; });
+    }
+    function massBuildSheet(){
+      var list=massRemaining();
+      var totalMail=filtered().filter(function(c){return c.hasEmail&&c.email;}).length;
+      var sheet=document.getElementById('sheet');
+      if(list.length===0){
+        var msg = totalMail>0
+          ? 'Ты уже разослал резюме всем работодателям из базы по текущему фильтру. Когда появятся новые — сможешь отправить и им.'
+          : 'В текущем фильтре нет работодателей с почтой. Убери фильтры или поменяй направление.';
+        sheet.innerHTML='<div class="grip"></div><div style="text-align:center;padding:24px 8px"><div style="font-size:44px">✅</div><div style="font-size:18px;font-weight:800;margin:10px 0 6px">Все обработаны</div><div style="font-size:13px;color:#9AA3AB;line-height:1.55">'+msg+'</div><div class="close" onclick="closeModal()">Закрыть</div></div>';
+        return;
+      }
       var cvB64='', cvName='';
       try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
       var reply=''; try{ reply=localStorage.getItem('amore_reply_email')||''; }catch(e){}
       var lang=(loadApply().lang)||'en'; var tpl=MASS_TPL[lang]||MASS_TPL.en;
       var h='<div class="grip"></div><div class="det-title">🚀 Массовая рассылка резюме</div>';
-      h+='<div class="det-sub">Уйдёт по очереди '+list.length+' работодателям из текущего фильтра</div>';
+      h+='<div class="det-sub">Осталось '+list.length+' работодателей — очередь продолжится с места, где встала</div>';
       if(!cvB64||!cvName){
         h+='<div class="ml-note">⚠️ Сначала собери резюме: Профиль → «Моё резюме» → «Сохранить для откликов». Оно приложится к каждому письму.</div>';
         h+='<button class="btn btn-gold" style="margin-top:10px" onclick="closeModal();openResume()">Собрать резюме</button>';
         h+='<div class="close" onclick="closeModal()">Закрыть</div>';
-        document.getElementById('sheet').innerHTML=h; document.getElementById('modal').className='overlay'; return;
+        sheet.innerHTML=h; return;
       }
       h+='<div class="seg-mail"><button class="'+(lang==='en'?'on':'')+'" onclick="massLang(\'en\')">English</button><button class="'+(lang==='no'?'on':'')+'" onclick="massLang(\'no\')">Norsk</button></div>';
       h+='<label class="ml-lbl">Твоя почта (на неё придут ответы)</label><input class="ml-in" id="mass-reply" type="email" placeholder="you@gmail.com" value="'+esc(reply)+'">';
       h+='<label class="ml-lbl">Тема (можно вставить {company})</label><input class="ml-in" id="mass-subj" value="'+esc(tpl.subj)+'">';
       h+='<label class="ml-lbl">Текст письма (можно вставить {company})</label><textarea class="ml-ta" id="mass-body" rows="8">'+esc(tpl.body)+'</textarea>';
-      h+='<div class="ml-note">Письма уходят по одному с паузой, чтобы не попасть в спам. За день уходит до дневного лимита — остальным разошлёшь завтра. Статусы доставки — в «Мои отклики».</div>';
-      h+='<button class="btn btn-gold" style="margin-top:12px" onclick="startMassApply()">Разослать '+list.length+' работодателям →</button>';
+      h+='<div class="ml-note">Письма уходят по одному с паузой. За день уходит до 15 писем, кому уже отправляли — пропускаются. Продолжишь завтра с того же места. Статусы — в «Мои отклики».</div>';
+      h+='<button class="btn btn-gold" style="margin-top:12px" onclick="startMassApply()">Разослать (осталось '+list.length+') →</button>';
       h+='<div class="close" onclick="closeModal()">Отмена</div>';
-      document.getElementById('sheet').innerHTML=h; document.getElementById('modal').className='overlay';
-    };
-    window.massLang=function(l){ var a=loadApply(); a.lang=l; saveApply(a); openMassApply(); };
+      sheet.innerHTML=h;
+    }
+    window.massLang=function(l){ var a=loadApply(); a.lang=l; saveApply(a); massBuildSheet(); };
     window.startMassApply=function(){
       var reply=(document.getElementById('mass-reply').value||'').trim();
       var subjT=(document.getElementById('mass-subj').value||'').trim();
@@ -1733,7 +1755,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       saveReplyEmail(reply);
       var cvB64='', cvName='';
       try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
-      var list=filtered().filter(function(c){return c.hasEmail&&c.email;});
+      var list=massRemaining();
       var total=list.length, sent=0, fail=0, i=0;
       mass.cancel=false; mass.running=true;
       function fill(tmpl,c){ return String(tmpl).replace(/\{company\}/g,(c.company||c.vessel||'your company')).replace(/\{country\}/g,(c.country||'')); }
