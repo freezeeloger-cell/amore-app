@@ -287,6 +287,7 @@
     .mass-prog{height:8px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin:14px 0 8px}
     .mass-prog>i{display:block;height:100%;background:linear-gradient(90deg,#7FA8C0,#CBD5DD);width:0;transition:width .3s ease}
     .mass-cur{font-size:12px;color:#9AA3AB;text-align:center;min-height:16px}
+    .mass-price{text-align:center;font-size:14px;font-weight:800;color:#CBD5DD;margin-top:12px;letter-spacing:.2px}
     .mass-stat{display:flex;justify-content:center;gap:16px;font-size:12px;margin:6px 0 2px}
     .mass-stat b{font-size:17px;display:block;text-align:center}
     .fn-opt{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.10);border-radius:14px;padding:15px 16px;cursor:pointer;font-size:14.5px;font-weight:700;color:#EEF1F4;transition:transform .12s,border-color .2s,background .2s}
@@ -597,8 +598,10 @@
   <script>
     var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
     var TRIBUTE_URL = "https://t.me/tribute/app?startapp=sUKo";
+// Ссылка на ОТДЕЛЬНУЮ подписку Tribute на массовую рассылку.
+var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var tg = window.Telegram ? window.Telegram.WebApp : null;
-    var isMember = false, isAdmin = false, uName = "моряк";
+    var isMember = false, isAdmin = false, hasMass = false, uName = "моряк";
     var memberKnown = false; // пока не проверили доступ — не показываем гостевые блоки (чтобы не мигали участнику)
 
     var FLAG = { "Норвегия": "🇳🇴", "Дания": "🇩🇰", "Британия": "🇬🇧" };
@@ -1430,12 +1433,22 @@
         var mb=document.getElementById('massbar'); if(!mb)return;
         var mail=list.filter(function(c){return c.hasEmail&&c.email&&(isMember||!c.locked);}).length;
         if(mail<2){ mb.innerHTML=''; return; }
-        var sub=isMember?('Разослать резюме всем '+mail+' работодателям по очереди'):('Разошли резюме сразу всем — для участников AMORE');
-        mb.innerHTML='<div class="massbar'+(isMember?'':' massbar-lock')+'" onclick="openMassApply()">'
-          +'<div class="massbar-ico">'+(isMember?'🚀':'🔒')+'</div>'
-          +'<div style="flex:1;min-width:0"><div class="massbar-t">Массовая рассылка резюме</div>'
+        var ico,t,sub,cta,lock;
+        if(!isMember){
+          lock=true; ico='🔒'; t='Массовая рассылка резюме';
+          sub='Разошли резюме сразу всем — для участников AMORE'; cta='PRO';
+        } else if(!hasMass){
+          lock=true; ico='🚀'; t='Автоматическая рассылка резюме';
+          sub='Запусти и не отправляй вручную — рассылка сама пройдёт по базе'; cta='Подключить';
+        } else {
+          lock=false; ico='🚀'; t='Массовая рассылка резюме';
+          sub='Разослать резюме всем '+mail+' работодателям по очереди'; cta='Всем '+mail;
+        }
+        mb.innerHTML='<div class="massbar'+(lock?' massbar-lock':'')+'" onclick="openMassApply()">'
+          +'<div class="massbar-ico">'+ico+'</div>'
+          +'<div style="flex:1;min-width:0"><div class="massbar-t">'+t+'</div>'
           +'<div class="massbar-s">'+sub+'</div></div>'
-          +'<span class="massbar-cta">'+(isMember?('Всем '+mail):'PRO')+'</span></div>';
+          +'<span class="massbar-cta">'+cta+'</span></div>';
       })();
       if(!list.length){box.innerHTML='<div class="info">Ничего не нашлось. Поменяй запрос или фильтр.</div>';return;}
       var shown=list.slice(0,cVisible); window.__shown=shown;
@@ -1573,11 +1586,22 @@
         body:'Hei,\n\nMitt navn er ___ og jeg ønsker å søke en stilling om bord på fartøyet deres ved {company}. Jeg har erfaring til sjøs og har nødvendige sertifikater (STCW/BST, helseattest). CV er vedlagt.\n\nJeg kan mønstre på kort varsel. Takk for tiden deres.\n\nMed vennlig hilsen' }
     };
     var mass = { running:false, cancel:false };
+    window.subscribeMass=function(){ if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_MASS_URL);} else {window.open(TRIBUTE_MASS_URL,'_blank');} };
+    window.massPaywall=function(){
+      var h='<div class="grip"></div><div class="det-title">🚀 Автоматическая рассылка</div>';
+      h+='<div class="det-sub">Отдельная подписка для участников AMORE</div>';
+      h+='<div class="ml-note">Подключи авторассылку — и не отправляй резюме вручную. Ты запускаешь один раз, а рассылка сама идёт по базе работодателей и складывает статусы в «Мои отклики». До 15 писем в день.</div>';
+      h+='<div class="mass-price">💶 15€ / месяц &nbsp;·&nbsp; 40€ / 3 месяца</div>';
+      h+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribeMass()">Подключить рассылку →</button>';
+      h+='<div class="close" onclick="closeModal()">Закрыть</div>';
+      document.getElementById('sheet').innerHTML=h; document.getElementById('modal').className='overlay';
+    };
     window.openMassApply=function(){
       if(!isMember){
         paywall('Массовая рассылка резюме','Разошли резюме сразу всем работодателям из базы — по очереди, с твоей почтой в ответах и статусами доставки. Функция для участников AMORE.');
         return;
       }
+      if(!hasMass){ massPaywall(); return; }
       var list=filtered().filter(function(c){return c.hasEmail&&c.email;});
       if(list.length<2){ popup('В текущем фильтре мало работодателей с почтой. Убери фильтры или поменяй направление.'); return; }
       var cvB64='', cvName='';
@@ -1640,11 +1664,12 @@
         if(i>=total){ finish('done'); return; }
         var c=list[i];
         renderProg(c.company||c.vessel||c.email);
-        var payload={ initData: tg?tg.initData:'', to:c.email, replyTo:reply, subject:fill(subjT,c), text:fill(bodyT,c) };
+        var payload={ initData: tg?tg.initData:'', mass:true, to:c.email, replyTo:reply, subject:fill(subjT,c), text:fill(bodyT,c) };
         if(cvB64&&cvName){ payload.cvBase64=cvB64; payload.cvName=cvName; }
         fetch(BACKEND_URL+'/sendApplication',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
           .then(function(r){return r.json();})
           .then(function(d){
+            if(d && d.massRequired){ mass.running=false; massPaywall(); return; }
             if(d && d.limit){ finish('limit'); return; }
             if(d && d.ok){ sent++; } else { fail++; }
             i++;
@@ -1731,7 +1756,7 @@
       if(u&&u.first_name){document.getElementById('uname').textContent=u.first_name;uName=u.first_name;}
       fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(d.ok){isAdmin=!!d.admin;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
+        .then(function(d){ if(d.ok){isAdmin=!!d.admin;hasMass=!!d.mass;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
         .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); updateSplashBtn(); });
     })();
