@@ -147,7 +147,7 @@
   <div class="bar" style="flex-direction:column; gap:8px">
     <button class="b-pdf" style="width:100%" onclick="saveForApply()">💾 Сохранить для откликов</button>
     <div id="dlrow" style="display:flex; gap:10px; width:100%">
-      <button class="b-png" style="flex:1" onclick="download('png')">Скачать PNG</button>
+      <button class="b-png" style="flex:1" onclick="download('png')">Скачать фото</button>
       <button class="b-png" style="flex:1" onclick="download('pdf')">Скачать PDF</button>
     </div>
   </div>
@@ -346,27 +346,33 @@
     if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
     capture(function(canvas){
       var safe=(data.name||'AMORE').replace(/\s+/g,'_');
+      var small=scaledCanvas(canvas, 1100); // уменьшаем вес файла, иначе Telegram обрывает запрос
       var b64, name;
       try {
         if(type==='png'){
-          b64=canvas.toDataURL('image/png').split(',')[1];
-          name='CV_'+safe+'.png';
+          b64=small.toDataURL('image/jpeg',0.85).split(',')[1];
+          name='CV_'+safe+'.jpg';
         } else {
           var jsPDF=window.jspdf.jsPDF;
           var pdf=new jsPDF('p','mm','a4');
-          var w=210, h=canvas.height*w/canvas.width;
-          pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',0,0,w,h);
+          var w=210, h=small.height*w/small.width;
+          pdf.addImage(small.toDataURL('image/jpeg',0.85),'JPEG',0,0,w,h);
           var uri=pdf.output('datauristring');
           b64=uri.indexOf(',')>=0?uri.split(',')[1]:uri;
           name='CV_'+safe+'.pdf';
         }
       } catch(e){ alert('Не удалось собрать файл: '+e); return; }
-      // на компьютере/Android пробуем обычное скачивание
-      try { var a=document.createElement('a'); a.href='data:'+(type==='png'?'image/png':'application/pdf')+';base64,'+b64; a.download=name; document.body.appendChild(a); a.click(); a.remove(); } catch(e){}
-      // и в любом случае шлём файл в чат с ботом — на айфоне это единственный надёжный способ
       sendResumeFile(b64, name);
     });
   };
+  function scaledCanvas(src, maxW){
+    if(!src || src.width<=maxW) return src;
+    var r=maxW/src.width;
+    var c=document.createElement('canvas'); c.width=maxW; c.height=Math.round(src.height*r);
+    var ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    ctx.drawImage(src,0,0,c.width,c.height);
+    return c;
+  }
   function sendResumeFile(b64, name){
     showBusy();
     fetch(BACKEND_URL+'/sendResumeFile', {
@@ -376,7 +382,7 @@
       hideBusy();
       if(d && d.ok){ alert('📩 Отправил резюме тебе в чат с ботом.\n\nОткрой чат с @Crabnorwaybot — там файл, сохрани его или сразу перешли работодателю.'); }
       else { alert('Не удалось отправить файл: '+((d&&d.error)||'ошибка')); }
-    }).catch(function(e){ hideBusy(); alert('Нет связи с сервером: '+e); });
+    }).catch(function(e){ hideBusy(); alert('Не удалось отправить файл 😕\n\nПроверь интернет и что бэкенд обновлён на Railway.\n('+e+')'); });
   }
   window.saveForApply=function(){
     if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
