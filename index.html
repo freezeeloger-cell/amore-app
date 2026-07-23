@@ -1473,6 +1473,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       html+='</div>';
       html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка <span class="hbadge" onclick="showHint(event,\'docs\')">?</span></div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#9AA3AB">›</span></div>';
       html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме <span class="hbadge" onclick="showHint(event,\'resume\')">?</span></div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#9AA3AB">›</span></div>';
+      if(isAdmin){ html+='<div class="prow" onclick="openDigest()"><div class="prow-ico">📢</div><div style="flex:1"><div class="prow-t">Сводка вакансий за сегодня</div><div class="prow-s">Разослать всем: сколько добавили и куда</div></div><span style="color:#9AA3AB">›</span></div>'; }
       html+='<div class="prow" onclick="switchView(\'docapply\')"><div class="prow-ico">🛠️</div><div style="flex:1"><div class="prow-t">Сделать документы</div><div class="prow-s">Оставь заявку — поможем оформить сертификаты</div></div><span style="color:#9AA3AB">›</span></div>';
       html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">📧</div><div style="flex:1"><div class="prow-t">Письмо для рассылки <span class="hbadge" onclick="showHint(event,\'mail\')">?</span></div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div><span style="color:#9AA3AB">›</span></div>';
       html+='<div class="prow" onclick="switchView(\'myapps\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики <span class="hbadge" onclick="showHint(event,\'myapps\')">?</span></div><div class="prow-s">Статусы отправленных писем</div></div><span style="color:#9AA3AB">›</span></div>';
@@ -1694,6 +1695,38 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       h+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribeMass()">Подключить рассылку →</button>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h; document.getElementById('modal').className='overlay';
+    };
+    window.openDigest=function(){
+      var sheet=document.getElementById('sheet');
+      sheet.innerHTML='<div class="grip"></div><div class="det-title">📢 Сводка вакансий</div><div class="det-sub">Считаю, что добавили сегодня…</div>';
+      document.getElementById('modal').className='overlay';
+      fetch(BACKEND_URL+'/vacancyDigest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:'',preview:true})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(!d||!d.ok){ sheet.innerHTML='<div class="grip"></div><div class="ml-note">Не получилось: '+((d&&d.error)||'ошибка')+'</div><div class="close" onclick="closeModal()">Закрыть</div>'; return; }
+          var h='<div class="grip"></div><div class="det-title">📢 Сводка за сегодня</div>';
+          if(!d.total){ h+='<div class="ml-note">Сегодня новых вакансий не добавлено — рассылать нечего.</div><div class="close" onclick="closeModal()">Закрыть</div>'; sheet.innerHTML=h; return; }
+          h+='<div class="det-sub">Так увидят пользователи:</div>';
+          h+='<div class="ml-note" style="white-space:pre-wrap">'+String(d.preview).replace(/<[^>]+>/g,'')+'</div>';
+          h+='<button class="btn btn-gold" style="margin-top:12px" onclick="sendDigest()">Разослать всем →</button>';
+          h+='<div class="close" onclick="closeModal()">Отмена</div>';
+          sheet.innerHTML=h;
+        })
+        .catch(function(e){ sheet.innerHTML='<div class="grip"></div><div class="ml-note">Нет связи с сервером.</div><div class="close" onclick="closeModal()">Закрыть</div>'; });
+    };
+    window.sendDigest=function(){
+      var sheet=document.getElementById('sheet');
+      sheet.innerHTML='<div class="grip"></div><div style="text-align:center;padding:24px 8px"><div class="mass-prog"><i style="width:60%"></i></div><div class="mass-cur">Рассылаю сводку…</div></div>';
+      fetch(BACKEND_URL+'/vacancyDigest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          var h='<div class="grip"></div><div style="text-align:center;padding:24px 8px">';
+          if(d&&d.ok){ h+='<div style="font-size:44px">✅</div><div style="font-size:17px;font-weight:800;margin:10px 0 6px">Сводка отправлена</div><div style="font-size:13px;color:#9AA3AB">Вакансий: '+d.total+' · получили: '+d.sent+'</div>'; }
+          else { h+='<div style="font-size:44px">⚠️</div><div style="font-size:15px;margin-top:8px">'+((d&&d.error)||'Не удалось отправить')+'</div>'; }
+          h+='<div class="close" onclick="closeModal()">Закрыть</div></div>';
+          sheet.innerHTML=h;
+        })
+        .catch(function(){ sheet.innerHTML='<div class="grip"></div><div class="ml-note">Нет связи с сервером.</div><div class="close" onclick="closeModal()">Закрыть</div>'; });
     };
     window.openMassApply=function(){
       if(!isMember){
