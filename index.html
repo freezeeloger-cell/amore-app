@@ -1455,7 +1455,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var btn=document.getElementById('da-submit'); if(btn){ btn.textContent='Отправляю…'; btn.disabled=true; }
       fetch(BACKEND_URL+'/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:'',name:da.name,phone:da.phone,citizenship:da.citizenship,certs:da.certs})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(d.ok){ da.sent=true; renderDocApply(); } else { popup('Не удалось отправить: '+(d.error||'ошибка')+'. Попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} } })
+        .then(function(d){ if(d.ok){ da.sent=true; renderDocApply(); } else { popup(d.error || 'Не получилось отправить. Попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} } })
         .catch(function(){ popup('Сервер недоступен, попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} });
     };
     window.openResume=function(){
@@ -1671,7 +1671,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             closeModal();
             guestExhaustedPaywall();
           } else {
-            popup('Не удалось отправить: '+(d.error||'ошибка')+'. Попробуй ещё раз.');
+            popup(d.error || 'Не получилось отправить. Попробуй ещё раз.');
             btn.textContent='Отправить работодателю →'; btn.disabled=false;
           }
         })
@@ -1703,7 +1703,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       fetch(BACKEND_URL+'/vacancyDigest',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:'',preview:true})})
         .then(function(r){return r.json();})
         .then(function(d){
-          if(!d||!d.ok){ sheet.innerHTML='<div class="grip"></div><div class="ml-note">Не получилось: '+((d&&d.error)||'ошибка')+'</div><div class="close" onclick="closeModal()">Закрыть</div>'; return; }
+          if(!d||!d.ok){ sheet.innerHTML='<div class="grip"></div><div class="ml-note">'+esc((d&&d.error)||'Не получилось. Попробуй ещё раз.')+'</div><div class="close" onclick="closeModal()">Закрыть</div>'; return; }
           var h='<div class="grip"></div><div class="det-title">📢 Сводка за сегодня</div>';
           if(!d.total){ h+='<div class="ml-note">Сегодня новых вакансий не добавлено — рассылать нечего.</div><div class="close" onclick="closeModal()">Закрыть</div>'; sheet.innerHTML=h; return; }
           h+='<div class="det-sub">Так увидят пользователи:</div>';
@@ -1712,7 +1712,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           h+='<div class="close" onclick="closeModal()">Отмена</div>';
           sheet.innerHTML=h;
         })
-        .catch(function(e){ sheet.innerHTML='<div class="grip"></div><div class="ml-note">Нет связи с сервером.</div><div class="close" onclick="closeModal()">Закрыть</div>'; });
+        .catch(function(e){ sheet.innerHTML='<div class="grip"></div><div class="ml-note">Не получилось связаться с сервером. Проверь интернет и попробуй ещё раз.</div><div class="close" onclick="closeModal()">Закрыть</div>'; });
     };
     window.sendDigest=function(){
       var sheet=document.getElementById('sheet');
@@ -1722,11 +1722,11 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         .then(function(d){
           var h='<div class="grip"></div><div style="text-align:center;padding:24px 8px">';
           if(d&&d.ok){ h+='<div style="font-size:44px">✅</div><div style="font-size:17px;font-weight:800;margin:10px 0 6px">Сводка отправлена</div><div style="font-size:13px;color:#9AA3AB">Вакансий: '+d.total+' · получили: '+d.sent+'</div>'; }
-          else { h+='<div style="font-size:44px">⚠️</div><div style="font-size:15px;margin-top:8px">'+((d&&d.error)||'Не удалось отправить')+'</div>'; }
+          else { h+='<div style="font-size:44px">⚠️</div><div style="font-size:15px;margin-top:8px">'+esc((d&&d.error)||'Не получилось отправить. Попробуй ещё раз.')+'</div>'; }
           h+='<div class="close" onclick="closeModal()">Закрыть</div></div>';
           sheet.innerHTML=h;
         })
-        .catch(function(){ sheet.innerHTML='<div class="grip"></div><div class="ml-note">Нет связи с сервером.</div><div class="close" onclick="closeModal()">Закрыть</div>'; });
+        .catch(function(){ sheet.innerHTML='<div class="grip"></div><div class="ml-note">Не получилось связаться с сервером. Проверь интернет и попробуй ещё раз.</div><div class="close" onclick="closeModal()">Закрыть</div>'; });
     };
     window.openMassApply=function(){
       if(!isMember){

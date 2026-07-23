@@ -331,7 +331,7 @@
     var prev=scaler.style.transform; scaler.style.transform='none';
     showBusy();
     var done=function(canvas){ scaler.style.transform=prev; fitScale(); hideBusy(); cb(canvas); };
-    var fail=function(e){ scaler.style.transform=prev; fitScale(); hideBusy(); alert('Не удалось собрать изображение: '+e); };
+    var fail=function(e){ scaler.style.transform=prev; fitScale(); hideBusy(); console.log('capture:',e); alert('Не получилось собрать резюме. Попробуй ещё раз — а если повторится, закрой и открой резюме заново.'); };
     // ждём, пока шрифт Manrope точно загрузится — иначе буквы могут разъехаться
     var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
     ready.then(function(){
@@ -361,7 +361,7 @@
           b64=uri.indexOf(',')>=0?uri.split(',')[1]:uri;
           name='CV_'+safe+'.pdf';
         }
-      } catch(e){ alert('Не удалось собрать файл: '+e); return; }
+      } catch(e){ console.log('build:',e); alert('Не получилось подготовить файл. Попробуй ещё раз.'); return; }
       sendResumeFile(b64, name);
     });
   };
@@ -381,8 +381,8 @@
     }).then(function(r){return r.json();}).then(function(d){
       hideBusy();
       if(d && d.ok){ alert('📩 Отправил резюме тебе в чат с ботом.\n\nОткрой чат с @Crabnorwaybot — там файл, сохрани его или сразу перешли работодателю.'); }
-      else { alert('Не удалось отправить файл: '+((d&&d.error)||'ошибка')); }
-    }).catch(function(e){ hideBusy(); alert('Не удалось отправить файл 😕\n\nПроверь интернет и что бэкенд обновлён на Railway.\n('+e+')'); });
+      else { alert((d&&d.error) ? d.error : 'Не получилось отправить файл. Попробуй ещё раз чуть позже.'); }
+    }).catch(function(e){ hideBusy(); console.log('sendFile:',e); alert('Не получилось отправить файл. Проверь интернет и попробуй ещё раз.'); });
   }
   window.saveForApply=function(){
     if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
@@ -398,7 +398,7 @@
         localStorage.setItem('amore_cv_b64', b64);
         localStorage.setItem('amore_cv_name', name);
         alert('✅ Резюме сохранено!\n\nТеперь оно будет автоматически прикладываться к откликам в разделе «База работодателей».');
-      } catch(e){ alert('Не удалось сохранить резюме: '+e); }
+      } catch(e){ console.log('save:',e); alert('Не получилось сохранить резюме. Попробуй ещё раз.'); }
     });
   };
   function showSaveHint(url){
