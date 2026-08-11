@@ -299,6 +299,14 @@
     .massbar-t{font-size:13.5px;font-weight:800;color:#EEF1F4}
     .massbar-s{font-size:11.5px;color:#9AA3AB;line-height:1.4;margin-top:2px}
     .massbar-cta{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#0B1418;background:#CBD5DD;padding:6px 12px;border-radius:999px}
+    .ap-box{display:flex;align-items:center;gap:11px;margin-top:12px;padding:13px 14px;border-radius:15px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);font-size:12px;color:#9AA3AB}
+    .ap-box.ap-on{background:linear-gradient(135deg,rgba(140,192,166,.16),rgba(120,180,150,.05));border-color:rgba(140,192,166,.42)}
+    .ap-t{font-size:13.5px;font-weight:800;color:#EAF2E9}
+    .ap-s{font-size:11.5px;color:#9FB4A8;line-height:1.4;margin-top:2px}
+    .ap-btn{flex:0 0 auto;font-size:12px;font-weight:800;color:#0B1418;background:#8CC0A6;border:0;padding:9px 15px;border-radius:999px;cursor:pointer}
+    .ap-off-btn{background:rgba(255,255,255,.14);color:#EAE7EA}
+    .ap-spin-mini{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.2);border-top-color:#8CC0A6;animation:cvspin .8s linear infinite;flex:0 0 auto}
+    @keyframes cvspin{to{transform:rotate(360deg)}}
     .massbar-lock .massbar-cta{background:rgba(203,213,221,.9)}
     .mass-prog{height:8px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin:14px 0 8px}
     .mass-prog>i{display:block;height:100%;background:linear-gradient(90deg,#7FA8C0,#CBD5DD);width:0;transition:width .3s ease}
@@ -319,6 +327,18 @@
     .fn-btn{display:block;width:100%;text-align:center;border:none;border-radius:14px;font-family:'Manrope';font-size:15px;font-weight:800;padding:16px;cursor:pointer;transition:transform .12s}
     .fn-btn:active{transform:scale(.98)}
     .fn-primary{background:#37474F;color:#fff;box-shadow:0 8px 22px rgba(14,92,138,.28)}
+    .fn-freebar{display:flex;align-items:center;gap:11px;margin:16px 2px 2px;padding:13px 15px;border-radius:15px;
+      background:linear-gradient(135deg,rgba(140,192,166,.16),rgba(120,180,150,.06));
+      border:1.5px solid rgba(140,192,166,.4);opacity:0;transform:translateY(10px);
+      animation:fnFreeIn .5s ease .25s forwards}
+    @keyframes fnFreeIn{to{opacity:1;transform:none}}
+    .fn-freebar-dot{flex:0 0 auto;width:11px;height:11px;border-radius:50%;background:#8CC0A6;
+      box-shadow:0 0 0 0 rgba(140,192,166,.6);animation:fnPulse 1.9s ease-out infinite}
+    @keyframes fnPulse{0%{box-shadow:0 0 0 0 rgba(140,192,166,.55)}70%{box-shadow:0 0 0 12px rgba(140,192,166,0)}100%{box-shadow:0 0 0 0 rgba(140,192,166,0)}}
+    .fn-freebar-t{font-size:14px;font-weight:800;color:#EAF2E9}
+    .fn-freebar-s{font-size:11.5px;color:#9FB4A8;line-height:1.4;margin-top:2px}
+    .fn-primary-glow{position:relative;animation:fnGlow 2.4s ease-in-out infinite}
+    @keyframes fnGlow{0%,100%{box-shadow:0 8px 22px rgba(14,92,138,.28)}50%{box-shadow:0 8px 30px rgba(140,192,166,.5)}}
     .fn-skip{text-align:center;font-size:13px;color:#6E7882;font-weight:700;margin-top:12px;cursor:pointer}
     .fn-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 26px}
     .fn-badge{width:84px;height:84px;border-radius:26px;display:grid;place-items:center;font-size:40px;background:linear-gradient(135deg,#37474F,#0A2130);color:#fff;box-shadow:0 14px 34px rgba(14,34,51,.3);margin-bottom:20px;animation:fnfloat 3.5s ease-in-out infinite}
@@ -600,9 +620,13 @@
           <div class="fn-feat"><span class="fn-fi">✓</span> Наставник-практик по твоему направлению</div>
         </div>
         <div class="fn-season">🗓️ <div><b>Крабовый сезон стартует в январе.</b> Документы и поиск судна — это месяцы. Кто готовится сейчас — тот в январе в море.</div></div>
+        <div class="fn-freebar" id="fn-freebar">
+          <span class="fn-freebar-dot"></span>
+          <div><div class="fn-freebar-t">Первые шаги — бесплатно</div><div class="fn-freebar-s">Собери резюме, открой 5 контактов и отправь 3 отклика. Без оплаты.</div></div>
+        </div>
       </div>
       <div class="fn-foot">
-        <button class="fn-btn fn-primary" onclick="fnStartFree()">Собрать резюме бесплатно →</button>
+        <button class="fn-btn fn-primary fn-primary-glow" onclick="fnStartFree()">Попробовать бесплатно →</button>
         <div class="fn-osmall">Уже готов? <span onclick="fnSubscribe()">Открыть полный доступ — 50€/мес</span></div>
       </div>
     </div>
@@ -1240,7 +1264,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         {t:'q', key:'ready', text:'Если помогу с документами и выведу на работодателя — готов выйти в первый рейс в ближайшие 1–2 месяца?',
           opts:[{label:'🔥 Да, готов',val:'yes'},{label:'🧭 Нужно подготовиться',val:'prep'},{label:'Пока думаю',val:'think'}]},
         {t:'msg', textFn:function(){ return docLine || 'Хорошо, тогда двигаемся по шагам.'; }},
-        {t:'last', text:'Понял тебя. Собираю персональный разбор под твой случай… 🧭'}
+        {t:'last', text:'Понял тебя. Собираю разбор под твой случай — и покажу, что можно сделать прямо сейчас бесплатно 🧭'}
       ];
     }
     window.startFnChat=function(){
@@ -1775,10 +1799,59 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       h+='<label class="ml-lbl">Текст письма (можно вставить {company})</label><textarea class="ml-ta" id="mass-body" rows="8">'+esc(tpl.body)+'</textarea>';
       h+='<div class="ml-note">Письма уходят по одному с паузой. За день уходит до 15 писем, кому уже отправляли — пропускаются. Продолжишь завтра с того же места. Статусы — в «Мои отклики».</div>';
       h+='<button class="btn btn-gold" style="margin-top:12px" onclick="startMassApply()">Разослать (осталось '+list.length+') →</button>';
+      h+='<div class="ap-box" id="ap-box"><div class="ap-spin-mini"></div> Проверяю автопилот…</div>';
       h+='<div class="close" onclick="closeModal()">Отмена</div>';
       sheet.innerHTML=h;
+      refreshAutopilot();
     }
     window.massLang=function(l){ var a=loadApply(); a.lang=l; saveApply(a); massBuildSheet(); };
+
+    /* ---------- АВТОПИЛОТ (рассылка каждое утро) ---------- */
+    function refreshAutopilot(){
+      var box=document.getElementById('ap-box'); if(!box)return;
+      fetch(BACKEND_URL+'/autopilotStatus',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
+        .then(function(r){return r.json();}).then(function(d){
+          var on=d&&d.ok&&d.enabled;
+          if(on){
+            box.className='ap-box ap-on';
+            box.innerHTML='<div style="flex:1"><div class="ap-t">🤖 Автопилот включён</div><div class="ap-s">Рассылка идёт сама каждое утро в 9:00. Вечером — отчёт.</div></div><button class="ap-btn ap-off-btn" onclick="autopilotOff()">Выключить</button>';
+          } else {
+            box.className='ap-box';
+            box.innerHTML='<div style="flex:1"><div class="ap-t">🤖 Автопилот рассылки</div><div class="ap-s">Включи один раз — резюме будет уходить само каждое утро, без захода в апку.</div></div><button class="ap-btn" onclick="autopilotOn()">Включить</button>';
+          }
+        }).catch(function(){ box.innerHTML=''; });
+    }
+    window.autopilotOn=function(){
+      var reply=(document.getElementById('mass-reply')||{}).value; reply=(reply||'').trim();
+      var subj=(document.getElementById('mass-subj')||{}).value; subj=(subj||'').trim();
+      var body=(document.getElementById('mass-body')||{}).value; body=(body||'').trim();
+      if(!reply || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(reply)){ popup('Впиши свою почту — на неё придут ответы работодателей.'); return; }
+      if(!subj || !body){ popup('Заполни тему и текст письма.'); return; }
+      var cvB64='', cvName='';
+      try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
+      if(!cvB64||!cvName){ popup('Сначала сохрани резюме для откликов.'); return; }
+      saveReplyEmail(reply);
+      var box=document.getElementById('ap-box'); if(box){ box.className='ap-box'; box.innerHTML='<div class="ap-spin-mini"></div> Включаю автопилот…'; }
+      fetch(BACKEND_URL+'/autopilotOn',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({initData:tg?tg.initData:'', replyTo:reply, subject:subj, body:body, lang:(loadApply().lang)||'en', cvBase64:cvB64, cvName:cvName})})
+        .then(function(r){return r.json();}).then(function(d){
+          if(d&&d.ok){
+            var sheet=document.getElementById('sheet');
+            sheet.innerHTML='<div class="grip"></div><div style="text-align:center;padding:22px 8px">'
+              +'<div style="font-size:44px">🤖</div>'
+              +'<div style="font-size:18px;font-weight:800;margin:10px 0 8px">Автопилот включён</div>'
+              +'<div style="font-size:13.5px;color:#9AA3AB;line-height:1.6">Твоя рассылка начнётся <b style="color:#EAF2E9">завтра в 9:00 утра</b> и дальше будет идти сама каждый день. Каждый вечер пришлю отчёт: сколько писем ушло и сколько открыли.<br><br>Заходить в приложение больше не нужно — всё на автомате.</div>'
+              +'<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal()">Понятно</button></div>';
+          } else if(d&&d.massRequired){ massPaywall(); }
+          else { popup((d&&d.error)||'Не получилось включить. Попробуй ещё раз.'); refreshAutopilot(); }
+        }).catch(function(){ popup('Нет связи с сервером. Попробуй ещё раз.'); refreshAutopilot(); });
+    };
+    window.autopilotOff=function(){
+      var box=document.getElementById('ap-box'); if(box){ box.innerHTML='<div class="ap-spin-mini"></div> Выключаю…'; }
+      fetch(BACKEND_URL+'/autopilotOff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
+        .then(function(r){return r.json();}).then(function(){ refreshAutopilot(); })
+        .catch(function(){ refreshAutopilot(); });
+    };
     window.startMassApply=function(){
       var reply=(document.getElementById('mass-reply').value||'').trim();
       var subjT=(document.getElementById('mass-subj').value||'').trim();
