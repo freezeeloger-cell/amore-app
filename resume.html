@@ -145,7 +145,11 @@
   </div>
 
   <div class="bar" style="flex-direction:column; gap:8px">
-    <button class="b-pdf" style="width:100%" onclick="saveForApply()">💾 Сохранить для откликов</button>
+    <button class="b-pdf" style="width:100%" onclick="saveForApply()">💾 Сохранить это резюме для откликов</button>
+    <div style="text-align:center;font-size:12px;color:#8A94A0;margin:2px 0">— или —</div>
+    <button class="b-pdf" style="width:100%;background:rgba(255,255,255,.06)" onclick="document.getElementById('own-cv-input').click()">📎 Загрузить своё резюме (PDF или фото)</button>
+    <input type="file" id="own-cv-input" accept="application/pdf,image/*" style="display:none">
+    <div id="own-cv-status" style="display:none;font-size:12px;text-align:center;color:#8CC0A6"></div>
     <div id="dlrow" style="display:flex; gap:10px; width:100%">
       <button class="b-png" style="flex:1" onclick="download('png')">Скачать фото</button>
       <button class="b-png" style="flex:1" onclick="download('pdf')">Скачать PDF</button>
@@ -384,6 +388,38 @@
       else { alert((d&&d.error) ? d.error : 'Не получилось отправить файл. Попробуй ещё раз чуть позже.'); }
     }).catch(function(e){ hideBusy(); console.log('sendFile:',e); alert('Не получилось отправить файл. Проверь интернет и попробуй ещё раз.'); });
   }
+  // загрузка своего резюме файлом (PDF или фото) — сохраняется так же, как собранное
+  (function(){
+    var inp=document.getElementById('own-cv-input');
+    if(!inp) return;
+    inp.addEventListener('change', function(){
+      var f=inp.files && inp.files[0];
+      if(!f) return;
+      if(f.size > 5*1024*1024){ alert('Файл великоват (больше 5 МБ). Сожми или выбери файл поменьше.'); inp.value=''; return; }
+      var isPdf = f.type==='application/pdf' || /\.pdf$/i.test(f.name);
+      var isImg = /^image\//.test(f.type);
+      if(!isPdf && !isImg){ alert('Можно загрузить только PDF или фото (jpg, png).'); inp.value=''; return; }
+      var r=new FileReader();
+      r.onload=function(ev){
+        try{
+          var uri=String(ev.target.result);
+          var b64=uri.indexOf(',')>=0?uri.split(',')[1]:uri;
+          var ext=isPdf?'.pdf':(/\.(jpe?g|png|webp)$/i.test(f.name)?f.name.slice(f.name.lastIndexOf('.')):'.jpg');
+          var base=(data.name||'AMORE').replace(/\s+/g,'_');
+          var name='CV_'+base+ext;
+          localStorage.setItem('amore_cv_b64', b64);
+          localStorage.setItem('amore_cv_name', name);
+          var st=document.getElementById('own-cv-status');
+          if(st){ st.style.display='block'; st.textContent='✅ Загружено: '+f.name+' — приложится к откликам'; }
+          alert('✅ Твоё резюме загружено!\n\nТеперь оно будет прикладываться к откликам вместо собранного в конструкторе.');
+        }catch(e){ console.log('own-cv:',e); alert('Не получилось загрузить файл. Попробуй другой.'); }
+        inp.value='';
+      };
+      r.onerror=function(){ alert('Не получилось прочитать файл. Попробуй ещё раз.'); inp.value=''; };
+      r.readAsDataURL(f);
+    });
+  })();
+
   window.saveForApply=function(){
     if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
     capture(function(canvas){
