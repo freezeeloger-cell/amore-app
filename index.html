@@ -869,6 +869,22 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     window.claimDiscount=function(){
       if(tg&&tg.openTelegramLink){ tg.openTelegramLink(TRIBUTE_DISCOUNT_URL); } else { window.open(TRIBUTE_DISCOUNT_URL,'_blank'); }
     };
+    // общая карточка спецпредложения (используется и в дорожке, и после отклика)
+    window.rewardSheet=function(){
+      var h='<div class="grip"></div><div class="rw-card" style="margin:0">';
+      h+='<div class="rw-h">🎉 Ты прошёл все шаги — вот твоё спецпредложение!</div>';
+      h+='<div class="rw-code">Промокод: <b>'+PROMO_CODE+'</b> · только для тебя</div>';
+      h+='<div class="rw-list">Что откроется в AMORE:<br>• Вся база 5600+ работодателей с контактами<br>• Безлимит откликов + авторассылка<br>• Обучение и личные наставники<br>• Все вакансии с прямыми контактами</div>';
+      h+='<button class="btn btn-gold" style="margin-top:12px" onclick="claimDiscount()">Забрать спецпредложение →</button>';
+      h+='<div class="close" onclick="closeModal()">Позже</div></div>';
+      document.getElementById('sheet').innerHTML=h; document.getElementById('modal').className='overlay';
+    };
+    // клик по шагу 3: если отклики кончились (значит уже отправлял) — сразу спецпредложение, иначе в базу
+    window.goStep3=function(){
+      var rem=guestRemaining();
+      if((rem!=null && rem<=0) || taskDone('apply')){ rewardSheet(); return; }
+      switchView('contacts');
+    };
     // карточка-поздравление после открытия базы (второй шаг), показываем 1 раз
     window.baseCongrats=function(){
       try{ if(localStorage.getItem('amore_congrats_base')==='1') return; }catch(e){}
@@ -896,7 +912,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       }
       if(!isMember && memberKnown){
         var hasCv=false; try{ hasCv=!!(localStorage.getItem('amore_cv_b64')&&localStorage.getItem('amore_cv_name')); }catch(e){}
-        var t1=taskDone('cv')||hasCv, t2=taskDone('base'), t3=taskDone('apply');
+        var remApply=guestRemaining();
+        var appliedBefore = taskDone('apply') || (remApply!=null && remApply<=0); // отклики кончились = когда-то отправлял
+        var t1=taskDone('cv')||hasCv, t2=taskDone('base'), t3=appliedBefore;
         var done=(t1?1:0)+(t2?1:0)+(t3?1:0);
         var pct=Math.round(done/3*100);
         html+='<div class="plan-box plan-hot">';
@@ -906,7 +924,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         html+='<div class="tp-cnt">Выполнено '+done+' из 3</div>';
         html+=gpStep(1, t1, "openResume()", "Собери резюме моряка", "На норвежском или английском, за минуту", "бесплатно");
         html+=gpStep(2, t2, "switchView('contacts')", "Открой контакты работодателей", "Реальная база Норвегии, Дании, Британии", "5 бесплатно");
-        html+=gpStep(3, t3, "switchView('contacts')", "Отправь отклик с резюме", "Открой контакт в базе и отправь письмо — 3 бесплатно", "3 бесплатно");
+        html+=gpStep(3, t3, "goStep3()", "Отправь отклик с резюме", "Открой контакт в базе и отправь письмо — 3 бесплатно", "3 бесплатно");
         if(done>=3){
           html+='<div class="rw-card">';
           html+='<div class="rw-h">🎉 Ты прошёл все шаги — вот твоё спецпредложение!</div>';
