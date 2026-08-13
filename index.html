@@ -1757,8 +1757,22 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         .then(function(r){return r.json();})
         .then(function(d){
           if(d.ok){
+            var wasApply=taskDone('apply');
             markTask('apply');
             if(d.guest && d.remaining!=null){ try{ localStorage.setItem('amore_guest_remaining', String(d.remaining)); }catch(e){} }
+            // если гость этим откликом ЗАКРЫЛ весь путь — сразу показываем спецпредложение
+            var hasCvNow=false; try{ hasCvNow=!!(localStorage.getItem('amore_cv_b64')&&localStorage.getItem('amore_cv_name')); }catch(e){}
+            var pathDone = !isMember && (hasCvNow||taskDone('cv')) && taskDone('base') && !wasApply;
+            if(pathDone){
+              var h='<div class="grip"></div><div class="rw-card" style="margin:0">';
+              h+='<div class="rw-h">🎉 Готово! Ты прошёл все шаги — вот твоё спецпредложение</div>';
+              h+='<div class="rw-code">Промокод: <b>'+PROMO_CODE+'</b> · только для тебя</div>';
+              h+='<div class="rw-list">Что откроется в AMORE:<br>• Вся база 5600+ работодателей с контактами<br>• Безлимит откликов + авторассылка<br>• Обучение и личные наставники<br>• Все вакансии с прямыми контактами</div>';
+              h+='<button class="btn btn-gold" style="margin-top:12px" onclick="claimDiscount()">Забрать спецпредложение →</button>';
+              h+='<div class="close" onclick="closeModal()">Позже</div></div>';
+              document.getElementById('sheet').innerHTML=h;
+              return;
+            }
             var h='<div class="grip"></div><div style="text-align:center;padding:24px 10px"><div style="font-size:42px">✅</div><div style="font-size:17px;font-weight:800;margin:10px 0 6px">Письмо отправлено!</div>';
             h+='<div style="font-size:13px;color:#9AA3AB;line-height:1.55">Резюме ушло работодателю '+esc(c.company||c.email)+'. Ответ придёт на '+esc(reply)+'.</div>';
             if(d.remaining!=null) h+='<div style="font-size:12px;color:#9AA3AB;margin-top:10px">Осталось откликов'+(d.guest?' (бесплатно)':' сегодня')+': '+d.remaining+'</div>';
