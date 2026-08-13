@@ -742,6 +742,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       updateBackBtn();
       if(v==='home') renderHome();
       if(v==='contacts' && CONTACTS.length===0) loadContacts();
+      else if(v==='contacts'){ renderChips(); renderContacts(); }
       if(v==='contacts'){ var wasBase=taskDone('base'); markTask('base'); if(!wasBase && !isMember) setTimeout(baseCongrats, 500); }
       if(v==='plan'){ planDir=null; if(LESSONS.length===0) loadLessons(); else renderPlan(); }
       if(v==='mentors') renderMentors();
@@ -2017,13 +2018,21 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         })
         .catch(function(){ box.innerHTML='<div class="info">Сервер недоступен.</div>'; });
     }
-    function loadContacts(){
-      document.getElementById('clist').innerHTML=skel('skel-row',5);
+    function loadContacts(bg){
+      // мгновенно показываем из локального кэша, если есть
+      if(!bg && CONTACTS.length===0){
+        try{ var cc=JSON.parse(localStorage.getItem('amore_contacts_cache')||'null');
+          if(cc&&cc.list&&cc.list.length){ CONTACTS=cc.list; var el=document.getElementById('ccount'); if(el)el.textContent=(cc.count||cc.list.length)+' контактов'; renderChips(); renderContacts(); }
+        }catch(e){}
+      }
+      if(!bg && CONTACTS.length===0){ var cl=document.getElementById('clist'); if(cl)cl.innerHTML=skel('skel-row',5); }
       fetch(BACKEND_URL+'/contacts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(!d.ok){document.getElementById('clist').innerHTML='<div class="info">Не удалось загрузить базу.</div>';return;}
-          CONTACTS=d.contacts||[]; document.getElementById('ccount').textContent=d.count+' контактов'; renderChips(); renderContacts(); })
-        .catch(function(){document.getElementById('clist').innerHTML='<div class="info">Сервер недоступен.</div>';});
+        .then(function(d){ if(!d.ok){ if(CONTACTS.length===0){var cl=document.getElementById('clist'); if(cl)cl.innerHTML='<div class="info">Не удалось загрузить базу.</div>';} return;}
+          CONTACTS=d.contacts||[]; var el=document.getElementById('ccount'); if(el)el.textContent=d.count+' контактов';
+          try{ localStorage.setItem('amore_contacts_cache', JSON.stringify({list:CONTACTS,count:d.count,ts:Date.now()})); }catch(e){}
+          var vis=document.getElementById('view-contacts'); if(vis && vis.className.indexOf('hidden')<0){ renderChips(); renderContacts(); } })
+        .catch(function(){ if(CONTACTS.length===0){var cl=document.getElementById('clist'); if(cl)cl.innerHTML='<div class="info">Сервер недоступен.</div>';} });
     }
     document.getElementById('csearch').addEventListener('input',function(e){cSearch=e.target.value;cVisible=PAGE;renderContacts();});
     window.scrollTop=function(){ window.scrollTo({top:0,behavior:'smooth'}); };
@@ -2045,7 +2054,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     (function(){
       loadMG();
       renderHome();
-      if(!tg||!tg.initData){ memberKnown=true; setStatus('guest','Открой через бота'); renderHome(); loadVacancies(); updateSplashBtn(); return; }
+      if(!tg||!tg.initData){ memberKnown=true; setStatus('guest','Открой через бота'); renderHome(); loadVacancies(); updateSplashBtn(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); return; }
       tg.ready(); tg.expand();
       if(tg.BackButton){ try{ tg.BackButton.onClick(function(){ goBack(); }); }catch(e){} }
       try{ if(tg.requestFullscreen) tg.requestFullscreen(); }catch(e){}
@@ -2061,7 +2070,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         .then(function(r){return r.json();})
         .then(function(d){ if(d.ok){isAdmin=!!d.admin;hasMass=!!d.mass;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
-        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); updateSplashBtn(); });
+        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); updateSplashBtn(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); });
     })();
   </script>
 </body>
