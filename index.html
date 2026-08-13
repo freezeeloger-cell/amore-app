@@ -100,6 +100,9 @@
     .prof-name { font-size: 18px; font-weight: 800; }
     .prof-tag { font-size: 11.5px; color: #9AA3AB; margin-top: 3px; font-weight: 500; }
     .plan-box { margin: 16px 0; padding: 17px; border-radius: 18px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); }
+    .plan-hot { border:1.5px solid rgba(140,192,166,.55); background:linear-gradient(160deg,rgba(140,192,166,.12),rgba(255,255,255,.04)); animation:planGlow 2.6s ease-in-out infinite; }
+    @keyframes planGlow{0%,100%{box-shadow:0 0 0 0 rgba(140,192,166,0)}50%{box-shadow:0 0 22px 0 rgba(140,192,166,.28)}}
+    .plan-badge{ font-size:12px;font-weight:900;color:#0B1418;background:#8CC0A6;padding:2px 9px;border-radius:999px;vertical-align:middle;margin-left:4px; }
     .gp-title { font-size: 15px; font-weight: 800; color: #EEF1F4; }
     .gp-sub { font-size: 12px; color: #9AA3AB; margin: 4px 0 12px; }
     .gp-step { display: flex; align-items: center; gap: 11px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); border-radius: 13px; padding: 11px 12px; margin-bottom: 8px; cursor: pointer; }
@@ -107,6 +110,18 @@
     .gp-last { border-color: rgba(226,196,137,.35); background: rgba(226,196,137,.10); }
     .gp-n { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 50%; background: #37474F; color: #fff; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; }
     .gp-last .gp-n { background: #E0864F; }
+    .gp-n-done { background:#8CC0A6 !important; color:#0B1418 !important; }
+    .gp-step-done { border-color:rgba(140,192,166,.35); background:rgba(140,192,166,.08); }
+    .gp-free-done { color:#0B1418 !important; background:#8CC0A6 !important; }
+    .tp-bar{height:8px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin:4px 0 6px}
+    .tp-bar>i{display:block;height:100%;background:linear-gradient(90deg,#7FA8C0,#8CC0A6);width:0;transition:width .5s ease}
+    .tp-cnt{font-size:11.5px;color:#9AA3AB;margin-bottom:10px}
+    .rw-teaser{margin-top:10px;font-size:12.5px;color:#C9D3B8;background:rgba(140,192,166,.10);border:1px solid rgba(140,192,166,.28);border-radius:12px;padding:11px 13px;line-height:1.45}
+    .rw-card{margin-top:12px;padding:15px;border-radius:16px;background:linear-gradient(135deg,rgba(140,192,166,.20),rgba(120,180,150,.06));border:1.5px solid rgba(140,192,166,.5);animation:fnFreeIn .5s ease}
+    .rw-h{font-size:15px;font-weight:800;color:#EAF2E9}
+    .rw-code{margin-top:8px;font-size:13.5px;color:#EAF2E9;background:rgba(0,0,0,.25);border:1px dashed rgba(140,192,166,.6);border-radius:10px;padding:8px 12px;text-align:center}
+    .rw-code b{color:#8CC0A6;letter-spacing:.5px}
+    .rw-list{margin-top:10px;font-size:12px;color:#B9C6BC;line-height:1.7}
     .gp-c { flex: 1; min-width: 0; }
     .gp-h { font-size: 12.5px; font-weight: 800; color: #EEF1F4; }
     .gp-d { font-size: 11px; color: #9AA3AB; margin-top: 1px; }
@@ -158,7 +173,8 @@
     .hero-tag { font-size:13px; font-weight:700; color:#EEF1F4; margin-top:2px; }
     .hero-desc { font-size:12.5px; color:#9AA3AB; line-height:1.55; margin-top:10px; font-weight:500; }
     .hero-row { display:flex; gap:8px; margin-top:8px; font-size:11px; color:#DCE4EA; font-weight:700; }
-    .hero-row span { flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:9px; padding:7px 9px; text-align:center; }
+    .hero-row span { flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:9px; padding:7px 9px; text-align:center; cursor:pointer; }
+    .hero-row span:active { transform:scale(.97); background:rgba(255,255,255,.11); }
 
     .cp-btn { flex:0 0 auto; margin-left:6px; padding:8px 11px; border-radius:10px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); color:#EEF1F4; font-size:14px; text-decoration:none; cursor:pointer; display:inline-grid; place-items:center; }
     .cp-btn:active { background:#D9E6EF; }
@@ -644,6 +660,11 @@
   <script>
     var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
     var TRIBUTE_URL = "https://t.me/tribute/app?startapp=sUKo";
+    var TRIBUTE_DISCOUNT_URL = "https://t.me/tribute/app?startapp=sUKo_pc_CRABINTOP"; // -10% промокод CRABINTOP
+    var PROMO_CODE = "CRABINTOP";
+    // отметки выполнения задач гостя (для дорожки с наградой)
+    function taskDone(k){ try{ return localStorage.getItem('amore_task_'+k)==='1'; }catch(e){ return false; } }
+    function markTask(k){ try{ if(localStorage.getItem('amore_task_'+k)!=='1'){ localStorage.setItem('amore_task_'+k,'1'); var hv=document.getElementById('view-home'); if(typeof renderHome==='function'&&hv&&hv.className.indexOf('hidden')<0) renderHome(); } }catch(e){} }
 // Ссылка на ОТДЕЛЬНУЮ подписку Tribute на массовую рассылку.
 var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var tg = window.Telegram ? window.Telegram.WebApp : null;
@@ -700,12 +721,28 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var NAV=['home','plan','vacancies','contacts','profile'];
     var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen','docapply','myapps'];
     var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile',docapply:'profile',myapps:'profile'};
-    function switchView(v){
+    var navHist=[];            // история переходов внутри апки
+    var curV='home';
+    function updateBackBtn(){
+      if(!tg||!tg.BackButton)return;
+      try{ if(navHist.length>0) tg.BackButton.show(); else tg.BackButton.hide(); }catch(e){}
+    }
+    window.goBack=function(){
+      if(navHist.length>0){ var prev=navHist.pop(); switchView(prev, true); }
+    };
+    function switchView(v, isBack){
+      if(!isBack){
+        if(v!==curV){ navHist.push(curV); }   // запоминаем, откуда пришли
+        if(navHist.length>40) navHist.shift();
+      }
+      curV=v;
       ALLV.forEach(function(n){var el=document.getElementById('view-'+n);if(el)el.className='view'+(v===n?'':' hidden');});
       var act = NAV.indexOf(v)>=0 ? v : (PARENT[v]||'home');
       NAV.forEach(function(n){document.getElementById('nav-'+n).className='nav-item'+(n===act?' on':'');});
+      updateBackBtn();
       if(v==='home') renderHome();
       if(v==='contacts' && CONTACTS.length===0) loadContacts();
+      if(v==='contacts') markTask('base');
       if(v==='plan'){ planDir=null; if(LESSONS.length===0) loadLessons(); else renderPlan(); }
       if(v==='mentors') renderMentors();
       if(v==='reviews'){ if(REVIEWS.length===0) loadReviews(); else renderReviews(); }
@@ -822,26 +859,50 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(document.readyState!=='loading')bind(); else document.addEventListener('DOMContentLoaded',bind);
     })();
 
+    function gpStep(n, done, onclick, head, desc, badge){
+      var mark = done ? '<div class="gp-n gp-n-done">✓</div>' : '<div class="gp-n">'+n+'</div>';
+      var bd = done ? '<span class="gp-free gp-free-done">готово</span>' : '<span class="gp-free">'+badge+'</span>';
+      return '<div class="gp-step'+(done?' gp-step-done':'')+'" onclick="'+onclick+'">'+mark+
+        '<div class="gp-c"><div class="gp-h">'+head+' '+bd+'</div><div class="gp-d">'+desc+'</div></div><span class="gp-arr">›</span></div>';
+    }
+    window.claimDiscount=function(){
+      if(tg&&tg.openTelegramLink){ tg.openTelegramLink(TRIBUTE_DISCOUNT_URL); } else { window.open(TRIBUTE_DISCOUNT_URL,'_blank'); }
+    };
     function renderHome(){
       var html='';
       html+=highlightsHTML();
       html+='<div class="hero"><div class="hero-name">⚓ AMORE</div>';
       html+='<div class="hero-tag">Сообщество для работы в море</div>';
       html+='<div class="hero-desc">Помогаем новичкам выйти в море с нуля, а опытным морякам — сменить направление и тип флота. Норвегия, Дания, Британия: краболовы и рыбаки, торговый флот, яхты, замывка трюмов.</div>';
-      html+='<div class="hero-row"><span>⚓ База работодателей</span><span>⚡ Свежие вакансии</span></div>';
-      html+='<div class="hero-row"><span>📚 Обучение с нуля</span><span>👥 Наставники-практики</span></div></div>';
+      html+='<div class="hero-row"><span onclick="switchView(\'contacts\')">⚓ База работодателей</span><span onclick="switchView(\'vacancies\')">⚡ Свежие вакансии</span></div>';
+      html+='<div class="hero-row"><span onclick="switchView(\'plan\')">📚 Обучение с нуля</span><span onclick="switchView(\'mentors\')">👥 Наставники-практики</span></div></div>';
       if(!memberKnown){
         html+='<div class="skel skel-card"></div>';
       }
       if(!isMember && memberKnown){
-        html+='<div class="plan-box">';
-        html+='<div class="gp-title">🧭 Твой план: от нуля до работы в море</div>';
-        html+='<div class="gp-sub">Первые шаги — бесплатно. Попробуй прямо сейчас 👇</div>';
-        html+='<div class="gp-step" onclick="openResume()"><div class="gp-n">1</div><div class="gp-c"><div class="gp-h">Собери резюме моряка <span class="gp-free">бесплатно</span></div><div class="gp-d">На норвежском или английском, за минуту</div></div><span class="gp-arr">›</span></div>';
-        html+='<div class="gp-step" onclick="switchView(\'contacts\')"><div class="gp-n">2</div><div class="gp-c"><div class="gp-h">Открой контакты работодателей <span class="gp-free">5 бесплатно</span></div><div class="gp-d">Реальная база Норвегии, Дании, Британии</div></div><span class="gp-arr">›</span></div>';
-        html+='<div class="gp-step" onclick="switchView(\'vacancies\')"><div class="gp-n">3</div><div class="gp-c"><div class="gp-h">Отправь отклик с резюме <span class="gp-free">3 бесплатно</span></div><div class="gp-d">Письмо работодателю прямо из приложения</div></div><span class="gp-arr">›</span></div>';
-        html+='<div class="gp-step gp-last" onclick="subscribe()"><div class="gp-n">4</div><div class="gp-c"><div class="gp-h">Открой всё без лимитов 🔓</div><div class="gp-d">Вся база, безлимит откликов, обучение и наставники</div></div><span class="gp-arr">›</span></div>';
-        html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Оформить AMORE — 50€/мес</button>';
+        var hasCv=false; try{ hasCv=!!(localStorage.getItem('amore_cv_b64')&&localStorage.getItem('amore_cv_name')); }catch(e){}
+        var t1=taskDone('cv')||hasCv, t2=taskDone('base'), t3=taskDone('apply');
+        var done=(t1?1:0)+(t2?1:0)+(t3?1:0);
+        var pct=Math.round(done/3*100);
+        html+='<div class="plan-box plan-hot">';
+        html+='<div class="gp-title">🎁 Твой план: пройди 3 шага → скидка <span class="plan-badge">−10%</span></div>';
+        html+='<div class="gp-sub">Всё бесплатно. Выполни шаги и забери промокод на подписку 👇</div>';
+        html+='<div class="tp-bar"><i style="width:'+pct+'%"></i></div>';
+        html+='<div class="tp-cnt">Выполнено '+done+' из 3</div>';
+        html+=gpStep(1, t1, "openResume()", "Собери резюме моряка", "На норвежском или английском, за минуту", "бесплатно");
+        html+=gpStep(2, t2, "switchView('contacts')", "Открой контакты работодателей", "Реальная база Норвегии, Дании, Британии", "5 бесплатно");
+        html+=gpStep(3, t3, "switchView('vacancies')", "Отправь отклик с резюме", "Письмо работодателю прямо из приложения", "3 бесплатно");
+        if(done>=3){
+          html+='<div class="rw-card">';
+          html+='<div class="rw-h">🎉 Ты прошёл все шаги — держи скидку!</div>';
+          html+='<div class="rw-code">Промокод: <b>'+PROMO_CODE+'</b> · −10%</div>';
+          html+='<div class="rw-list">Что откроется в AMORE:<br>• Вся база 5600+ работодателей с контактами<br>• Безлимит откликов + авторассылка<br>• Обучение и личные наставники<br>• Все вакансии с прямыми контактами</div>';
+          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="claimDiscount()">Забрать скидку −10% →</button>';
+          html+='</div>';
+        } else {
+          html+='<div class="rw-teaser">🎁 Впереди: пройди все 3 шага и получи <b>−10%</b> на первый месяц</div>';
+          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Оформить AMORE — 50€/мес</button>';
+        }
         html+='</div>';
       }
       html+='<div class="sec-title"><span style="color:#CBD5DD">⚡</span> Срочные вакансии <span class="hbadge" onclick="showHint(event,\'vac\')">?</span> <span class="see" onclick="switchView(\'vacancies\')">все ›</span></div>';
@@ -1681,6 +1742,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         .then(function(r){return r.json();})
         .then(function(d){
           if(d.ok){
+            markTask('apply');
             if(d.guest && d.remaining!=null){ try{ localStorage.setItem('amore_guest_remaining', String(d.remaining)); }catch(e){} }
             var h='<div class="grip"></div><div style="text-align:center;padding:24px 10px"><div style="font-size:42px">✅</div><div style="font-size:17px;font-weight:800;margin:10px 0 6px">Письмо отправлено!</div>';
             h+='<div style="font-size:13px;color:#9AA3AB;line-height:1.55">Резюме ушло работодателю '+esc(c.company||c.email)+'. Ответ придёт на '+esc(reply)+'.</div>';
@@ -1971,6 +2033,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       renderHome();
       if(!tg||!tg.initData){ memberKnown=true; setStatus('guest','Открой через бота'); renderHome(); loadVacancies(); updateSplashBtn(); return; }
       tg.ready(); tg.expand();
+      if(tg.BackButton){ try{ tg.BackButton.onClick(function(){ goBack(); }); }catch(e){} }
       try{ if(tg.requestFullscreen) tg.requestFullscreen(); }catch(e){}
       try{
         var _st=(tg.contentSafeAreaInset&&tg.contentSafeAreaInset.top)||(tg.safeAreaInset&&tg.safeAreaInset.top)||0;
