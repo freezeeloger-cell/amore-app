@@ -742,7 +742,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       updateBackBtn();
       if(v==='home') renderHome();
       if(v==='contacts' && CONTACTS.length===0) loadContacts();
-      if(v==='contacts') markTask('base');
+      if(v==='contacts'){ var wasBase=taskDone('base'); markTask('base'); if(!wasBase && !isMember) setTimeout(baseCongrats, 500); }
       if(v==='plan'){ planDir=null; if(LESSONS.length===0) loadLessons(); else renderPlan(); }
       if(v==='mentors') renderMentors();
       if(v==='reviews'){ if(REVIEWS.length===0) loadReviews(); else renderReviews(); }
@@ -868,6 +868,20 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     window.claimDiscount=function(){
       if(tg&&tg.openTelegramLink){ tg.openTelegramLink(TRIBUTE_DISCOUNT_URL); } else { window.open(TRIBUTE_DISCOUNT_URL,'_blank'); }
     };
+    // карточка-поздравление после открытия базы (второй шаг), показываем 1 раз
+    window.baseCongrats=function(){
+      try{ if(localStorage.getItem('amore_congrats_base')==='1') return; }catch(e){}
+      var done3=taskDone('apply');
+      if(done3) return; // если отклик уже отправлен — незачем
+      try{ localStorage.setItem('amore_congrats_base','1'); }catch(e){}
+      var h='<div class="grip"></div><div style="text-align:center;padding:20px 10px">';
+      h+='<div style="font-size:46px">🎉</div>';
+      h+='<div style="font-size:18px;font-weight:800;margin:10px 0 8px">Отлично, база открыта!</div>';
+      h+='<div style="font-size:13.5px;color:#9AA3AB;line-height:1.6">Остался <b style="color:#EAF2E9">последний шаг</b> — отправь отклик работодателю прямо из базы. После этого откроется твоё <b style="color:#8CC0A6">спецпредложение</b> на подписку 🎁</div>';
+      h+='<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal()">Отправить отклик →</button></div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+    };
     function renderHome(){
       var html='';
       html+=highlightsHTML();
@@ -885,22 +899,22 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         var done=(t1?1:0)+(t2?1:0)+(t3?1:0);
         var pct=Math.round(done/3*100);
         html+='<div class="plan-box plan-hot">';
-        html+='<div class="gp-title">🎁 Твой план: пройди 3 шага → скидка <span class="plan-badge">−10%</span></div>';
-        html+='<div class="gp-sub">Всё бесплатно. Выполни шаги и забери промокод на подписку 👇</div>';
+        html+='<div class="gp-title">🎁 Твой план: пройди 3 шага → <span class="plan-badge">спецпредложение</span></div>';
+        html+='<div class="gp-sub">Всё бесплатно. Выполни шаги и забери личное предложение на подписку 👇</div>';
         html+='<div class="tp-bar"><i style="width:'+pct+'%"></i></div>';
         html+='<div class="tp-cnt">Выполнено '+done+' из 3</div>';
         html+=gpStep(1, t1, "openResume()", "Собери резюме моряка", "На норвежском или английском, за минуту", "бесплатно");
         html+=gpStep(2, t2, "switchView('contacts')", "Открой контакты работодателей", "Реальная база Норвегии, Дании, Британии", "5 бесплатно");
-        html+=gpStep(3, t3, "switchView('vacancies')", "Отправь отклик с резюме", "Письмо работодателю прямо из приложения", "3 бесплатно");
+        html+=gpStep(3, t3, "switchView('contacts')", "Отправь отклик с резюме", "Открой контакт в базе и отправь письмо — 3 бесплатно", "3 бесплатно");
         if(done>=3){
           html+='<div class="rw-card">';
-          html+='<div class="rw-h">🎉 Ты прошёл все шаги — держи скидку!</div>';
-          html+='<div class="rw-code">Промокод: <b>'+PROMO_CODE+'</b> · −10%</div>';
+          html+='<div class="rw-h">🎉 Ты прошёл все шаги — вот твоё спецпредложение!</div>';
+          html+='<div class="rw-code">Промокод: <b>'+PROMO_CODE+'</b> · только для тебя</div>';
           html+='<div class="rw-list">Что откроется в AMORE:<br>• Вся база 5600+ работодателей с контактами<br>• Безлимит откликов + авторассылка<br>• Обучение и личные наставники<br>• Все вакансии с прямыми контактами</div>';
-          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="claimDiscount()">Забрать скидку −10% →</button>';
+          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="claimDiscount()">Забрать спецпредложение →</button>';
           html+='</div>';
         } else {
-          html+='<div class="rw-teaser">🎁 Впереди: пройди все 3 шага и получи <b>−10%</b> на первый месяц</div>';
+          html+='<div class="rw-teaser">🎁 Впереди: пройди все 3 шага и получи <b>личное спецпредложение</b> на подписку</div>';
           html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Оформить AMORE — 50€/мес</button>';
         }
         html+='</div>';
