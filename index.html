@@ -1194,8 +1194,13 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(allDone){
         html+='<div class="plan-box" style="margin-top:16px;text-align:center"><div style="font-size:32px">🎉</div>';
         html+='<div style="font-size:15px;font-weight:700;margin:4px 0 6px">Ты готов выходить в море!</div>';
-        html+='<div style="font-size:12.5px;color:#9AA3AB;margin-bottom:14px">Все документы на руках. В AMORE поможем найти судно и выйти на работодателя напрямую.</div>';
-        html+='<button class="btn btn-gold" onclick="subscribe()">Найти судно с AMORE</button></div>';
+        if(isMember){
+          html+='<div style="font-size:12.5px;color:#9AA3AB;margin-bottom:14px">Все документы на руках. Открывай базу работодателей и выходи на них напрямую.</div>';
+          html+='<button class="btn btn-gold" onclick="switchView(\'contacts\')">Найти судно с AMORE</button></div>';
+        } else {
+          html+='<div style="font-size:12.5px;color:#9AA3AB;margin-bottom:14px">Все документы на руках. В AMORE поможем найти судно и выйти на работодателя напрямую.</div>';
+          html+='<button class="btn btn-gold" onclick="subscribe()">Найти судно с AMORE</button></div>';
+        }
       } else {
         html+='<div style="font-size:11.5px;color:#9AA3AB;text-align:center;margin-top:14px;line-height:1.5">Чего-то не хватает? В AMORE поможем собрать документы и довести до первого контракта.</div>';
         html+='<button class="btn btn-gold" style="margin-top:10px" onclick="subscribe()">Помочь с документами</button>';
