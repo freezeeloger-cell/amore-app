@@ -195,10 +195,12 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
   /* ---------- автосохранение на устройстве ---------- */
+  function saveNow(){ try{ localStorage.setItem('amore_cv_data', JSON.stringify(data)); }catch(e){} }
   var _saveT=null;
   function saveState(){
+    saveNow(); // сохраняем сразу
     if(_saveT) clearTimeout(_saveT);
-    _saveT=setTimeout(function(){ try{ localStorage.setItem('amore_cv_data', JSON.stringify(data)); }catch(e){} }, 500);
+    _saveT=setTimeout(saveNow, 300); // и ещё раз чуть позже (подстраховка)
   }
   function loadState(){
     try{
@@ -213,16 +215,16 @@
   document.getElementById('ph-input').addEventListener('change', function(e){
     var f=e.target.files[0]; if(!f)return;
     var r=new FileReader();
-    r.onload=function(ev){ data.photo=ev.target.result; document.getElementById('ph-prev').src=data.photo; render(); };
+    r.onload=function(ev){ data.photo=ev.target.result; document.getElementById('ph-prev').src=data.photo; saveState(); render(); };
     r.readAsDataURL(f);
   });
   ['name','address','city','citizenship','phone','email'].forEach(function(k){
-    document.getElementById('f-'+k).addEventListener('input', function(e){ data[k]=e.target.value; render(); });
+    document.getElementById('f-'+k).addEventListener('input', function(e){ data[k]=e.target.value; saveState(); render(); });
   });
   document.getElementById('f-birth').addEventListener('input', function(e){
     var v=e.target.value; // yyyy-mm-dd
     if(v){ var p=v.split('-'); data.birth=p[2]+'.'+p[1]+'.'+p[0]; } else { data.birth=''; }
-    render();
+    saveState(); render();
   });
 
   function renderLangs(){
@@ -231,10 +233,10 @@
       return '<div class="rowline"><input value="'+esc(L.n)+'" oninput="setLangName('+i+',this.value)" placeholder="Язык"><div class="stars">'+stars+'</div><button class="del" onclick="delLang('+i+')">×</button></div>';
     }).join('');
   }
-  window.addLang=function(){ data.langs.push({n:'',s:3}); renderLangs(); render(); };
-  window.delLang=function(i){ data.langs.splice(i,1); renderLangs(); render(); };
-  window.setLangName=function(i,v){ data.langs[i].n=v; render(); };
-  window.setStar=function(i,s){ data.langs[i].s=s; renderLangs(); render(); };
+  window.addLang=function(){ data.langs.push({n:'',s:3}); renderLangs(); saveState(); render(); };
+  window.delLang=function(i){ data.langs.splice(i,1); renderLangs(); saveState(); render(); };
+  window.setLangName=function(i,v){ data.langs[i].n=v; saveState(); render(); };
+  window.setStar=function(i,s){ data.langs[i].s=s; renderLangs(); saveState(); render(); };
 
   function periodRow(i,E,setter){
     return '<div class="prd"><span class="prd-lbl">с</span><select onchange="'+setter+'(\''+i+'\',\'pm1\',this.value)">'+monthOpts(E.pm1)+'</select><select onchange="'+setter+'(\''+i+'\',\'py1\',this.value)">'+yearOpts(E.py1)+'</select>'
@@ -248,9 +250,9 @@
         +'<input value="'+esc(E.r)+'" oninput="setExp('+i+',\'r\',this.value)" placeholder="Напр.: Fisker / Matros"></div>';
     }).join('');
   }
-  window.addExp=function(){ data.exps.push({pm1:'',py1:'',pm2:'',py2:'',v:'',r:''}); renderExps(); render(); };
-  window.delExp=function(i){ data.exps.splice(i,1); renderExps(); render(); };
-  window.setExp=function(i,k,v){ data.exps[i][k]=v; render(); };
+  window.addExp=function(){ data.exps.push({pm1:'',py1:'',pm2:'',py2:'',v:'',r:''}); renderExps(); saveState(); render(); };
+  window.delExp=function(i){ data.exps.splice(i,1); renderExps(); saveState(); render(); };
+  window.setExp=function(i,k,v){ data.exps[i][k]=v; saveState(); render(); };
 
   function renderEdus(){
     document.getElementById('edus').innerHTML = data.edus.map(function(E,i){
@@ -259,9 +261,9 @@
         +'<input value="'+esc(E.v)+'" oninput="setEdu('+i+',\'v\',this.value)" placeholder="Напр.: Basic Safety Training STCW" style="margin-top:8px"></div>';
     }).join('');
   }
-  window.addEdu=function(){ data.edus.push({pm1:'',py1:'',pm2:'',py2:'',v:''}); renderEdus(); render(); };
-  window.delEdu=function(i){ data.edus.splice(i,1); renderEdus(); render(); };
-  window.setEdu=function(i,k,v){ data.edus[i][k]=v; render(); };
+  window.addEdu=function(){ data.edus.push({pm1:'',py1:'',pm2:'',py2:'',v:''}); renderEdus(); saveState(); render(); };
+  window.delEdu=function(i){ data.edus.splice(i,1); renderEdus(); saveState(); render(); };
+  window.setEdu=function(i,k,v){ data.edus[i][k]=v; saveState(); render(); };
 
   /* ---------- сборка резюме ---------- */
   function stars(n){ var h=''; for(var i=1;i<=5;i++) h+='<span class="'+(i<=n?'cv-star-f':'cv-star-e')+'">★</span>'; return h; }
@@ -444,6 +446,11 @@
   }
 
   /* ---------- старт ---------- */
+  // подстраховка: сохраняем при уходе со страницы / сворачивании / потере фокуса
+  window.addEventListener('pagehide', saveNow);
+  window.addEventListener('beforeunload', saveNow);
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') saveNow(); });
+  window.addEventListener('blur', saveNow);
   loadState();
   ['name','address','city','citizenship','phone','email'].forEach(function(k){ var el=document.getElementById('f-'+k); if(el) el.value=data[k]||''; });
   (function(){ var el=document.getElementById('f-birth'); if(el && data.birth){ var p=String(data.birth).split('.'); if(p.length===3) el.value=p[2]+'-'+p[1]+'-'+p[0]; } })();
