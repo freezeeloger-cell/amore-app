@@ -1202,8 +1202,13 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           html+='<button class="btn btn-gold" onclick="subscribe()">Найти судно с AMORE</button></div>';
         }
       } else {
-        html+='<div style="font-size:11.5px;color:#9AA3AB;text-align:center;margin-top:14px;line-height:1.5">Чего-то не хватает? В AMORE поможем собрать документы и довести до первого контракта.</div>';
-        html+='<button class="btn btn-gold" style="margin-top:10px" onclick="subscribe()">Помочь с документами</button>';
+        if(isMember){
+          html+='<div style="font-size:11.5px;color:#9AA3AB;text-align:center;margin-top:14px;line-height:1.5">Чего-то не хватает? Оставь заявку — подскажем, где и как оформить документы быстрее и без переплат.</div>';
+          html+='<button class="btn btn-gold" style="margin-top:10px" onclick="switchView(\'docapply\')">Помочь с документами</button>';
+        } else {
+          html+='<div style="font-size:11.5px;color:#9AA3AB;text-align:center;margin-top:14px;line-height:1.5">Чего-то не хватает? В AMORE поможем собрать документы и довести до первого контракта.</div>';
+          html+='<button class="btn btn-gold" style="margin-top:10px" onclick="subscribe()">Помочь с документами</button>';
+        }
       }
       box.innerHTML=html;
     }
