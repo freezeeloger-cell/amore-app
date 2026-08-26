@@ -1212,7 +1212,10 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       }
       box.innerHTML=html;
     }
-    window.docHelp=function(name){ paywall('Поможем с документом', 'Нужен «'+name+'»? В AMORE подскажем, где и как его оформить быстрее и без переплат — и доведём до выхода в море.'); };
+    window.docHelp=function(name){
+      if(isMember){ switchView('docapply'); }
+      else { paywall('Поможем с документом', 'Нужен «'+name+'»? В AMORE подскажем, где и как его оформить быстрее и без переплат — и доведём до выхода в море.'); }
+    };
 
     /* ---------- ПРОФИЛЬ ---------- */
     function updateSplashBtn(){ try{ var b=document.getElementById('sp-btn'); if(!b)return; var passed = (localStorage.getItem('amore_funnel_v')==='1'); b.textContent = (passed||isMember) ? 'Войти →' : 'Продолжить →'; }catch(e){} }
