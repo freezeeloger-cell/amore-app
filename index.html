@@ -2113,7 +2113,17 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(u&&u.first_name){document.getElementById('uname').textContent=u.first_name;uName=u.first_name;}
       fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(d.ok){isAdmin=!!d.admin;hasMass=!!d.mass;} if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');} })
+        .then(function(d){
+          if(d&&d.transient){ // Telegram не ответил серверу — не выдаём участника за гостя: берём прошлый статус и переспросим через 20с
+            var prev=null; try{ prev=localStorage.getItem('amore_last_member'); }catch(e){}
+            if(prev==='1'){ isMember=true; setStatus('member','✅ Ты участник'); } else { isMember=false; setStatus('guest','🔒 Гостевой доступ'); }
+            setTimeout(function(){ fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})}).then(function(r){return r.json();}).then(function(d2){ if(d2&&d2.ok){ isAdmin=!!d2.admin; hasMass=!!d2.mass; isMember=!!d2.member; setStatus(isMember?'member':'guest', isMember?'✅ Ты участник':'🔒 Гостевой доступ'); try{ localStorage.setItem('amore_last_member', isMember?'1':'0'); }catch(e){} renderHome(); } }).catch(function(){}); }, 20000);
+            return;
+          }
+          if(d.ok){isAdmin=!!d.admin;hasMass=!!d.mass;}
+          if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');}
+          try{ localStorage.setItem('amore_last_member', (d.ok&&d.member)?'1':'0'); }catch(e){}
+        })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
         .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); updateSplashBtn(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); });
     })();
