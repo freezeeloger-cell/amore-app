@@ -144,6 +144,7 @@
     <div class="hint">На телефоне самый надёжный способ сохранить — скачать PNG, затем зажать картинку и «Сохранить в фото». PDF лучше всего качается на компьютере.</div>
   </div>
 
+  <div id="cv-current" style="display:none;font-size:12.5px;color:#8CC0A6;background:rgba(140,192,166,.10);border:1px solid rgba(140,192,166,.3);border-radius:10px;padding:9px 12px;margin:0 0 8px;line-height:1.45"></div>
   <div class="bar" style="flex-direction:column; gap:8px">
     <button class="b-pdf" style="width:100%" onclick="saveForApply()">💾 Сохранить это резюме для откликов</button>
     <div style="text-align:center;font-size:12px;color:#8A94A0;margin:2px 0">— или —</div>
@@ -361,8 +362,25 @@
         } else {
           var jsPDF=window.jspdf.jsPDF;
           var pdf=new jsPDF('p','mm','a4');
-          var w=210, h=small.height*w/small.width;
-          pdf.addImage(small.toDataURL('image/jpeg',0.85),'JPEG',0,0,w,h);
+          var pageW=210, pageH=297;
+          var imgH=small.height*pageW/small.width; // высота картинки в мм при ширине 210
+          if(imgH<=pageH){
+            // влезает на одну страницу
+            pdf.addImage(small.toDataURL('image/jpeg',0.85),'JPEG',0,0,pageW,imgH);
+          } else {
+            // не влезает — режем на страницы A4
+            var imgData=small.toDataURL('image/jpeg',0.9);
+            var left=imgH;
+            var pos=0;
+            pdf.addImage(imgData,'JPEG',0,pos,pageW,imgH);
+            left-=pageH;
+            while(left>0){
+              pos-=pageH; // сдвигаем картинку вверх на страницу
+              pdf.addPage();
+              pdf.addImage(imgData,'JPEG',0,pos,pageW,imgH);
+              left-=pageH;
+            }
+          }
           var uri=pdf.output('datauristring');
           b64=uri.indexOf(',')>=0?uri.split(',')[1]:uri;
           name='CV_'+safe+'.pdf';
@@ -397,7 +415,7 @@
     inp.addEventListener('change', function(){
       var f=inp.files && inp.files[0];
       if(!f) return;
-      if(f.size > 5*1024*1024){ alert('Файл великоват (больше 5 МБ). Сожми или выбери файл поменьше.'); inp.value=''; return; }
+      if(f.size > 3.5*1024*1024){ alert('Файл больше 3,5 МБ — такой не поместится в память телефона и не приложится к письму.\n\nСожми PDF (например, на ilovepdf.com → Compress) или сохрани его в меньшем качестве.'); inp.value=''; return; }
       var isPdf = f.type==='application/pdf' || /\.pdf$/i.test(f.name);
       var isImg = /^image\//.test(f.type);
       if(!isPdf && !isImg){ alert('Можно загрузить только PDF или фото (jpg, png).'); inp.value=''; return; }
@@ -407,13 +425,16 @@
           var uri=String(ev.target.result);
           var b64=uri.indexOf(',')>=0?uri.split(',')[1]:uri;
           var ext=isPdf?'.pdf':(/\.(jpe?g|png|webp)$/i.test(f.name)?f.name.slice(f.name.lastIndexOf('.')):'.jpg');
-          var base=(data.name||'AMORE').replace(/\s+/g,'_');
-          var name='CV_'+base+ext;
-          localStorage.setItem('amore_cv_b64', b64);
-          localStorage.setItem('amore_cv_name', name);
+          // имя: настоящее имя файла (очищенное), либо CV_<имя из конструктора>
+          var orig=String(f.name||'').replace(/\.[^.]+$/,'').replace(/[^\w\-А-Яа-яЁё ]/g,'').trim().replace(/\s+/g,'_').slice(0,50);
+          var base=orig || ((data.name||'').trim() ? 'CV_'+data.name.trim().replace(/\s+/g,'_') : 'CV_'+(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user&&tg.initDataUnsafe.user.first_name ? tg.initDataUnsafe.user.first_name : 'seafarer'));
+          var name=base+ext;
+          var ok=cvStore(b64, name, 'твой файл');
+          if(!ok){ alert('Не получилось сохранить в память телефона (не хватает места). Я сохраню копию на сервере — отклики будут работать.'); }
+          cvShowStatus(name, 'твой файл', false);
           var st=document.getElementById('own-cv-status');
           if(st){ st.style.display='block'; st.textContent='✅ Загружено: '+f.name+' — приложится к откликам'; }
-          alert('✅ Твоё резюме загружено!\n\nТеперь оно будет прикладываться к откликам вместо собранного в конструкторе.');
+          alert('✅ Твоё резюме загружено!\n\nТеперь к откликам будет прикладываться файл «'+name+'».');
         }catch(e){ console.log('own-cv:',e); alert('Не получилось загрузить файл. Попробуй другой.'); }
         inp.value='';
       };
@@ -422,20 +443,63 @@
     });
   })();
 
+  // Сохраняет резюме для откликов: локально + копия на сервер. Возвращает true, если хотя бы локально записалось.
+  function cvStore(b64, name, sourceLabel){
+    var localOk=false;
+    try{ localStorage.setItem('amore_cv_b64', b64); localStorage.setItem('amore_cv_name', name); localOk=true; }
+    catch(e){ console.log('cv local:', e); }
+    // копия на сервер — переживает чистку памяти телефона и подхватывается на другом устройстве
+    try{
+      fetch(BACKEND_URL+'/cvSave',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ initData: tg?tg.initData:'', cvBase64:b64, cvName:name })}).then(function(r){return r.json();})
+        .then(function(d){ if(d&&d.ok){ try{ localStorage.setItem('amore_cv_server','1'); }catch(e){} cvShowStatus(name, sourceLabel, true); } })
+        .catch(function(){});
+    }catch(e){}
+    return localOk;
+  }
+  function cvShowStatus(name, sourceLabel, onServer){
+    var st=document.getElementById('cv-current'); if(!st) return;
+    st.style.display='block';
+    st.innerHTML='📎 Для откликов сейчас: <b>'+String(name).replace(/</g,'&lt;')+'</b>'+(sourceLabel?' · '+sourceLabel:'')+(onServer?' · сохранено на сервере ✓':'');
+  }
+  // при открытии страницы показываем, что сохранено; если локально пусто — тянем с сервера
+  (function(){
+    var n=null,b=null; try{ n=localStorage.getItem('amore_cv_name'); b=localStorage.getItem('amore_cv_b64'); }catch(e){}
+    if(n&&b){ cvShowStatus(n, '', (function(){ try{ return localStorage.getItem('amore_cv_server')==='1'; }catch(e){ return false; } })()); return; }
+    if(!tg||!tg.initData) return;
+    fetch(BACKEND_URL+'/cvGet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok&&d.cv&&d.cv.b64){
+          try{ localStorage.setItem('amore_cv_b64', d.cv.b64); localStorage.setItem('amore_cv_name', d.cv.name); localStorage.setItem('amore_cv_server','1'); }catch(e){}
+          cvShowStatus(d.cv.name, 'восстановлено с сервера', true);
+        }
+      }).catch(function(){});
+  })();
+
   window.saveForApply=function(){
     if(!data.name){ alert('Впиши хотя бы имя — оно нужно в резюме.'); return; }
     capture(function(canvas){
       try {
         var jsPDF=window.jspdf.jsPDF;
         var pdf=new jsPDF('p','mm','a4');
-        var w=210, h=canvas.height*w/canvas.width;
-        pdf.addImage(canvas.toDataURL('image/jpeg',0.9),'JPEG',0,0,w,h);
+        var small=scaledCanvas(canvas, 1100);
+        var pageW=210, pageH=297;
+        var imgH=small.height*pageW/small.width;
+        var imgData=small.toDataURL('image/jpeg',0.9);
+        if(imgH<=pageH){
+          pdf.addImage(imgData,'JPEG',0,0,pageW,imgH);
+        } else {
+          var left=imgH, pos=0;
+          pdf.addImage(imgData,'JPEG',0,pos,pageW,imgH);
+          left-=pageH;
+          while(left>0){ pos-=pageH; pdf.addPage(); pdf.addImage(imgData,'JPEG',0,pos,pageW,imgH); left-=pageH; }
+        }
         var uri=pdf.output('datauristring');
         var b64=uri.indexOf(',')>=0?uri.split(',')[1]:uri;
         var name='CV_'+(data.name||'AMORE').replace(/\s+/g,'_')+'.pdf';
-        localStorage.setItem('amore_cv_b64', b64);
-        localStorage.setItem('amore_cv_name', name);
-        alert('✅ Резюме сохранено!\n\nТеперь оно будет автоматически прикладываться к откликам в разделе «База работодателей».');
+        cvStore(b64, name, 'из конструктора');
+        cvShowStatus(name, 'из конструктора', false);
+        alert('✅ Резюме сохранено!\n\nТеперь к откликам будет прикладываться «'+name+'».');
       } catch(e){ console.log('save:',e); alert('Не получилось сохранить резюме. Попробуй ещё раз.'); }
     });
   };

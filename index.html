@@ -860,6 +860,19 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(document.readyState!=='loading')bind(); else document.addEventListener('DOMContentLoaded',bind);
     })();
 
+    function cvSizeLabel(b64){ var kb=Math.round((b64||'').length*0.75/1024); return kb>=1024?(kb/1024).toFixed(1)+' МБ':kb+' КБ'; }
+    var cvRestoring=false;
+    function cvRestoreFromServer(){
+      if(cvRestoring||!tg||!tg.initData) return; cvRestoring=true;
+      fetch(BACKEND_URL+'/cvGet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
+        .then(function(r){return r.json();}).then(function(d){
+          if(d&&d.ok&&d.cv&&d.cv.b64){
+            try{ localStorage.setItem('amore_cv_b64', d.cv.b64); localStorage.setItem('amore_cv_name', d.cv.name); }catch(e){}
+            var el=document.getElementById('cv-attach-line');
+            if(el){ el.className='attach-ok'; el.innerHTML='📎 Резюме приложится: '+esc(d.cv.name)+' <span style="opacity:.7">(восстановлено с сервера)</span>'; }
+          }
+        }).catch(function(){}).finally(function(){ cvRestoring=false; });
+    }
     function gpStep(n, done, onclick, head, desc, badge){
       var mark = done ? '<div class="gp-n gp-n-done">✓</div>' : '<div class="gp-n">'+n+'</div>';
       var bd = done ? '<span class="gp-free gp-free-done">готово</span>' : '<span class="gp-free">'+badge+'</span>';
@@ -1757,15 +1770,17 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var c=window.__curContact; var t=curApply();
       var company=c.company||c.vessel||'';
       var replyEmail=''; try{ replyEmail=localStorage.getItem('amore_reply_email')||''; }catch(e){}
-      var cvName=''; try{ cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
+      var cvName='', cvB64=''; try{ cvName=localStorage.getItem('amore_cv_name')||''; cvB64=localStorage.getItem('amore_cv_b64')||''; }catch(e){}
+      if(!cvB64) cvName=''; // имя без файла — не считается
+      if(!cvName) cvRestoreFromServer(); // попробуем подтянуть копию с сервера и обновить надпись
       var h='<div class="grip"></div><div class="det-title">Откликнуться письмом</div>';
       h+='<div class="det-sub">Кому: '+esc(c.email||company||'работодателю')+'</div>';
       h+='<div class="seg-mail"><button class="'+(applyState.lang==='en'?'on':'')+'" onclick="setApplyLang(\'en\')">English</button><button class="'+(applyState.lang==='no'?'on':'')+'" onclick="setApplyLang(\'no\')">Norsk</button></div>';
       h+='<label class="ml-lbl">Твоя почта (на неё придёт ответ работодателя)</label><input class="ml-in" id="apply-reply" type="email" placeholder="you@gmail.com" value="'+esc(replyEmail)+'" oninput="saveReplyEmail(this.value)">';
       h+='<label class="ml-lbl">Тема</label><input class="ml-in" id="apply-subj" value="'+esc(t.subj)+'" oninput="applyEdit(\'subj\',this.value)">';
       h+='<label class="ml-lbl">Текст письма</label><textarea class="ml-ta" id="apply-body" rows="9" oninput="applyEdit(\'body\',this.value)">'+esc(t.body)+'</textarea>';
-      if(cvName) h+='<div class="attach-ok">📎 Резюме приложится: '+esc(cvName)+'</div>';
-      else h+='<div class="ml-note">⚠️ Резюме не найдено. Зайди в Профиль → «Моё резюме», собери и нажми «Сохранить для откликов» — тогда оно приложится само. Можно отправить и без него.</div>';
+      if(cvName) h+='<div class="attach-ok" id="cv-attach-line">📎 Резюме приложится: '+esc(cvName)+' <span style="opacity:.7">('+cvSizeLabel(cvB64)+')</span></div>';
+      else h+='<div class="ml-note" id="cv-attach-line">⚠️ Резюме не найдено. Зайди в Профиль → «Моё резюме», собери и нажми «Сохранить для откликов» — тогда оно приложится само. Можно отправить и без него.</div>';
       h+='<button class="btn btn-gold" id="apply-send" onclick="sendApply()">Отправить работодателю →</button>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
@@ -2099,6 +2114,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     (function(){
       loadMG();
       renderHome();
+      try{ if(!localStorage.getItem('amore_cv_b64')) setTimeout(cvRestoreFromServer, 1500); }catch(e){}
       if(!tg||!tg.initData){ memberKnown=true; setStatus('guest','Открой через бота'); renderHome(); loadVacancies(); updateSplashBtn(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); return; }
       tg.ready(); tg.expand();
       if(tg.BackButton){ try{ tg.BackButton.onClick(function(){ goBack(); }); }catch(e){} }
