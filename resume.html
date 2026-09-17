@@ -196,13 +196,31 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
   /* ---------- автосохранение на устройстве ---------- */
-  function saveNow(){ try{ localStorage.setItem('amore_cv_data', JSON.stringify(data)); }catch(e){} }
+  function saveNow(){
+    try{ localStorage.setItem('amore_cv_data', JSON.stringify(data)); localStorage.setItem('amore_cv_data_ts', String(Date.now())); }catch(e){}
+  }
+  // копия данных на сервере — переживает чистку памяти телефона и рейс; шлём не чаще раза в 2 сек
+  var _srvT=null, _srvDirty=false;
+  function syncServerNow(){
+    if(!tg||!tg.initData) return;
+    _srvDirty=false;
+    try{
+      fetch(BACKEND_URL+'/cvDataSave',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ initData: tg.initData, data: data })}).catch(function(){ _srvDirty=true; });
+    }catch(e){ _srvDirty=true; }
+  }
+  function syncServer(){ _srvDirty=true; if(_srvT) clearTimeout(_srvT); _srvT=setTimeout(syncServerNow, 2000); }
   var _saveT=null;
   function saveState(){
     saveNow(); // сохраняем сразу
     if(_saveT) clearTimeout(_saveT);
     _saveT=setTimeout(saveNow, 300); // и ещё раз чуть позже (подстраховка)
+    syncServer();
   }
+  // при уходе со страницы — досылаем на сервер, если что-то не успело
+  function flushServer(){ if(_srvDirty){ if(_srvT) clearTimeout(_srvT); syncServerNow(); } }
+  window.addEventListener('pagehide', flushServer);
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') flushServer(); });
   function loadState(){
     try{
       var s=localStorage.getItem('amore_cv_data');
@@ -516,6 +534,30 @@
   document.addEventListener('visibilitychange', function(){ if(document.visibilityState==='hidden') saveNow(); });
   window.addEventListener('blur', saveNow);
   loadState();
+  function applyDataToForm(){
+    ['name','address','city','citizenship','phone','email'].forEach(function(k){ var el=document.getElementById('f-'+k); if(el) el.value=data[k]||''; });
+    (function(){ var el=document.getElementById('f-birth'); if(el){ if(data.birth){ var p=String(data.birth).split('.'); if(p.length===3) el.value=p[2]+'-'+p[1]+'-'+p[0]; } else el.value=''; } })();
+    document.getElementById('lng-no').className=data.lang==='no'?'on':'';
+    document.getElementById('lng-en').className=data.lang==='en'?'on':'';
+    var _pv=document.getElementById('ph-prev'); if(_pv) _pv.src=data.photo||'';
+    renderLangs(); renderExps(); renderEdus(); render();
+  }
+  (function restoreFromServer(){
+    if(!tg||!tg.initData) return;
+    var localTs=0; try{ localTs=parseInt(localStorage.getItem('amore_cv_data_ts')||'0',10)||0; }catch(e){}
+    var localEmpty=!(data.name||data.email||data.phone||(data.exps&&data.exps.length));
+    fetch(BACKEND_URL+'/cvDataGet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d||!d.ok||!d.data) { if(!localEmpty) syncServer(); return; } // на сервере пусто — отправим то, что есть локально
+        var srvTs=d.updated?Date.parse(d.updated):0;
+        if(localEmpty || srvTs>localTs+5000){
+          for(var k in d.data){ if(Object.prototype.hasOwnProperty.call(d.data,k)) data[k]=d.data[k]; }
+          saveNow(); applyDataToForm();
+          var st=document.getElementById('cv-current');
+          if(st){ st.style.display='block'; st.innerHTML='↩️ Резюме восстановлено с сервера — можно редактировать'; }
+        }
+      }).catch(function(){});
+  })();
   ['name','address','city','citizenship','phone','email'].forEach(function(k){ var el=document.getElementById('f-'+k); if(el) el.value=data[k]||''; });
   (function(){ var el=document.getElementById('f-birth'); if(el && data.birth){ var p=String(data.birth).split('.'); if(p.length===3) el.value=p[2]+'-'+p[1]+'-'+p[0]; } })();
   document.getElementById('lng-no').className=data.lang==='no'?'on':'';
