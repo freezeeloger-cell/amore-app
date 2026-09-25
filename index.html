@@ -673,24 +673,58 @@
         else h.impactOccurred(kind||'light');
       }catch(e){}
     }
+    function homeScreenSupported(){
+      try{ return !!(tg && tg.addToHomeScreen && tg.isVersionAtLeast && tg.isVersionAtLeast('8.0')); }catch(e){ return false; }
+    }
+    function isAndroid(){ try{ return tg && tg.platform==='android'; }catch(e){ return false; } }
+    // Диалог "добавь на экран". На iOS/Android с новым Telegram — нативно; иначе — подсказка через меню.
+    window.homeScreenSheet=function(){
+      var sheet=document.getElementById('sheet');
+      var body;
+      if(homeScreenSupported()){
+        body='<button class="btn btn-gold" style="margin-top:14px" onclick="hap(\'medium\');homeScreenAdd();closeModal()">Добавить на экран</button>';
+      } else {
+        // старый Telegram или платформа без поддержки: показываем ручной путь
+        var how = isAndroid()
+          ? 'Нажми <b>⋮</b> в правом верхнем углу приложения → <b>«Добавить на главный экран»</b>. Если пункта нет — обнови Telegram в Google Play.'
+          : 'Нажми <b>⋯</b> в правом верхнем углу приложения → <b>«Добавить на экран»</b>. Если пункта нет — обнови Telegram.';
+        body='<div style="font-size:13px;color:#EAF2E9;line-height:1.6;margin-top:12px;background:rgba(255,255,255,.06);border-radius:12px;padding:12px">'+how+'</div>'
+            +'<button class="btn btn-gold" style="margin-top:14px" onclick="closeModal()">Понятно</button>';
+      }
+      sheet.innerHTML='<div class="grip"></div><div style="text-align:center;padding:18px 8px">'
+        +'<div style="font-size:44px">⚓</div>'
+        +'<div style="font-size:17px;font-weight:800;margin:10px 0 6px">Добавь AMORE на экран</div>'
+        +'<div style="font-size:13px;color:#9AA3AB;line-height:1.55">Иконка на телефоне — открываешь как обычное приложение, без поиска в Telegram. Ответы работодателей и вакансии всегда под рукой.</div>'
+        +body
+        +'<div class="close" onclick="closeModal()">Не сейчас</div></div>';
+      document.getElementById('modal').className='overlay';
+    };
+    window.homeScreenAdd=function(){
+      try{
+        if(!homeScreenSupported()){ homeScreenSheet(); return; }
+        // подтверждение по факту добавления (событие есть на iOS и Android 8.0+)
+        try{ tg.onEvent && tg.onEvent('homeScreenAdded', function(){ hap('success'); try{ localStorage.setItem('amore_home_added','1'); }catch(e){} popup('✅ AMORE на экране телефона'); }); }catch(e){}
+        tg.addToHomeScreen();
+      }catch(e){ console.log('home:',e); homeScreenSheet(); }
+    };
     function homeScreenPrompt(){
       try{
-        if(!tg||!tg.checkHomeScreenStatus||!tg.addToHomeScreen) return;
+        if(!tg) return;
         var n=0; try{ n=parseInt(localStorage.getItem('amore_visits')||'0',10)+1; localStorage.setItem('amore_visits',String(n)); }catch(e){}
-        var asked=false; try{ asked=localStorage.getItem('amore_home_asked')==='1'; }catch(e){}
-        if(asked||n<2) return;
-        tg.checkHomeScreenStatus(function(st){
-          if(st!=='missed') return; // 'added' / 'unsupported' / 'unknown' — не предлагаем
-          try{ localStorage.setItem('amore_home_asked','1'); }catch(e){}
-          var sheet=document.getElementById('sheet');
-          sheet.innerHTML='<div class="grip"></div><div style="text-align:center;padding:18px 8px">'
-            +'<div style="font-size:44px">⚓</div>'
-            +'<div style="font-size:17px;font-weight:800;margin:10px 0 6px">Добавь AMORE на экран</div>'
-            +'<div style="font-size:13px;color:#9AA3AB;line-height:1.55">Иконка на телефоне — открываешь как обычное приложение, без поиска в Telegram. Ответы работодателей и вакансии всегда под рукой.</div>'
-            +'<button class="btn btn-gold" style="margin-top:14px" onclick="hap(\'medium\');tg.addToHomeScreen();closeModal()">Добавить на экран</button>'
-            +'<div class="close" onclick="closeModal()">Не сейчас</div></div>';
-          document.getElementById('modal').className='overlay';
-        });
+        var asked=false, added=false; try{ asked=localStorage.getItem('amore_home_asked')==='1'; added=localStorage.getItem('amore_home_added')==='1'; }catch(e){}
+        if(asked||added||n<2) return;
+        if(!homeScreenSupported()) return; // старый клиент — не навязываем; пункт в Профиле подскажет ручной путь
+        var shown=false;
+        var show=function(){ if(shown) return; shown=true; try{ localStorage.setItem('amore_home_asked','1'); }catch(e){} homeScreenSheet(); };
+        // Android часто отвечает 'unknown' или не отвечает вовсе — предлагаем всё равно; не показываем только если 'added'/'unsupported'
+        var timer=setTimeout(function(){ show(); }, 2500);
+        try{
+          tg.checkHomeScreenStatus(function(st){
+            clearTimeout(timer);
+            if(st==='added'||st==='unsupported') return;
+            show();
+          });
+        }catch(e){ clearTimeout(timer); show(); }
       }catch(e){}
     }
     // Поделиться в сторис: карточка события с брендом AMORE (картинка рисуется на лету)
@@ -1673,7 +1707,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       html+='<div class="prow" onclick="switchView(\'docapply\')"><div class="prow-ico">🛠️</div><div style="flex:1"><div class="prow-t">Сделать документы</div><div class="prow-s">Оставь заявку — поможем оформить сертификаты</div></div><span style="color:#9AA3AB">›</span></div>';
       html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">📧</div><div style="flex:1"><div class="prow-t">Письмо для рассылки <span class="hbadge" onclick="showHint(event,\'mail\')">?</span></div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div><span style="color:#9AA3AB">›</span></div>';
       html+='<div class="prow" onclick="switchView(\'myapps\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики <span class="hbadge" onclick="showHint(event,\'myapps\')">?</span></div><div class="prow-s">Статусы отправленных писем</div></div><span style="color:#9AA3AB">›</span></div>';
-      if(tg&&tg.addToHomeScreen){ html+='<div class="prow" onclick="hap(\'medium\');tg.addToHomeScreen()"><div class="prow-ico">📲</div><div style="flex:1"><div class="prow-t">Добавить AMORE на экран</div><div class="prow-s">Иконка на телефоне — как обычное приложение</div></div><span style="color:#9AA3AB">›</span></div>'; }
+      if(tg){ html+='<div class="prow" onclick="hap(\'medium\');homeScreenAdd()"><div class="prow-ico">📲</div><div style="flex:1"><div class="prow-t">Добавить AMORE на экран</div><div class="prow-s">Иконка на телефоне — как обычное приложение</div></div><span style="color:#9AA3AB">›</span></div>'; }
       if(tg&&tg.shareToStory){ html+='<div class="prow" onclick="shareStory(\'app\',\'Ищу работу в море через AMORE — база 5000+ работодателей и ответы капитанов прямо в телефоне\')"><div class="prow-ico">📣</div><div style="flex:1"><div class="prow-t">Рассказать в сторис</div><div class="prow-s">Поделиться AMORE с друзьями-моряками</div></div><span style="color:#9AA3AB">›</span></div>'; }
       document.getElementById('profbox').innerHTML=html;
     }
