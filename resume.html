@@ -196,8 +196,40 @@
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
   /* ---------- автосохранение на устройстве ---------- */
+  // Текст и фото храним отдельно: фото большое, и если оно не влезает в память телефона —
+  // текст всё равно должен сохраниться. Раньше всё писалось одной строкой, и при нехватке места
+  // (фото с камеры 3–8 МБ + PDF резюме) терялось ВСЁ — человек открывал пустой шаблон.
+  function _lsSet(k,v){
+    try{ localStorage.setItem(k,v); return true; }
+    catch(e){
+      // не хватило места: освобождаем тяжёлое (файл резюме уже лежит на сервере) и пробуем ещё раз
+      try{ if(localStorage.getItem('amore_cv_server')==='1'){ localStorage.removeItem('amore_cv_b64'); } }catch(_){}
+      try{ localStorage.setItem(k,v); return true; }catch(e2){ console.log('ls fail',k,e2); return false; }
+    }
+  }
   function saveNow(){
-    try{ localStorage.setItem('amore_cv_data', JSON.stringify(data)); localStorage.setItem('amore_cv_data_ts', String(Date.now())); }catch(e){}
+    try{
+      var txt={}; for(var k in data){ if(k!=='photo' && Object.prototype.hasOwnProperty.call(data,k)) txt[k]=data[k]; }
+      var ok=_lsSet('amore_cv_data', JSON.stringify(txt));
+      if(data.photo){ _lsSet('amore_cv_photo', data.photo); } else { try{ localStorage.removeItem('amore_cv_photo'); }catch(e){} }
+      if(ok) _lsSet('amore_cv_data_ts', String(Date.now()));
+    }catch(e){ console.log('saveNow', e); }
+  }
+  // сжимаем фото до ~500px JPEG: с камеры приходит 3–8 МБ, после сжатия ~40–80 КБ
+  function shrinkPhoto(dataUrl, cb){
+    try{
+      var img=new Image();
+      img.onload=function(){
+        try{
+          var max=600, w=img.width, h=img.height, s=Math.min(1, max/Math.max(w,h));
+          var c=document.createElement('canvas'); c.width=Math.round(w*s); c.height=Math.round(h*s);
+          c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+          cb(c.toDataURL('image/jpeg',0.85));
+        }catch(e){ cb(dataUrl); }
+      };
+      img.onerror=function(){ cb(dataUrl); };
+      img.src=dataUrl;
+    }catch(e){ cb(dataUrl); }
   }
   // копия данных на сервере — переживает чистку памяти телефона и рейс; шлём не чаще раза в 2 сек
   var _srvT=null, _srvDirty=false;
@@ -225,7 +257,10 @@
     try{
       var s=localStorage.getItem('amore_cv_data');
       if(s){ var p=JSON.parse(s); if(p && typeof p==='object'){ for(var k in p){ if(Object.prototype.hasOwnProperty.call(p,k)) data[k]=p[k]; } } }
+      var ph=localStorage.getItem('amore_cv_photo'); if(ph) data.photo=ph;
     }catch(e){}
+    // старое фото без сжатия (могло быть несколько МБ) — ужимаем один раз
+    if(data.photo && data.photo.length>300000){ shrinkPhoto(data.photo, function(u){ data.photo=u; saveState(); var pv=document.getElementById('ph-prev'); if(pv) pv.src=u; render(); }); }
   }
 
   /* ---------- форма ---------- */
@@ -234,7 +269,7 @@
   document.getElementById('ph-input').addEventListener('change', function(e){
     var f=e.target.files[0]; if(!f)return;
     var r=new FileReader();
-    r.onload=function(ev){ data.photo=ev.target.result; document.getElementById('ph-prev').src=data.photo; saveState(); render(); };
+    r.onload=function(ev){ shrinkPhoto(ev.target.result, function(u){ data.photo=u; document.getElementById('ph-prev').src=data.photo; saveState(); render(); }); };
     r.readAsDataURL(f);
   });
   ['name','address','city','citizenship','phone','email'].forEach(function(k){
@@ -553,6 +588,7 @@
         if(localEmpty || srvTs>localTs+5000){
           for(var k in d.data){ if(Object.prototype.hasOwnProperty.call(d.data,k)) data[k]=d.data[k]; }
           saveNow(); applyDataToForm();
+          if(data.photo && data.photo.length>300000){ shrinkPhoto(data.photo, function(u){ data.photo=u; saveState(); applyDataToForm(); }); }
           var st=document.getElementById('cv-current');
           if(st){ st.style.display='block'; st.innerHTML='↩️ Резюме восстановлено с сервера — можно редактировать'; }
         }
