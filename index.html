@@ -135,6 +135,19 @@
     .prow-s { font-size: 11px; color: #9AA3AB; margin-top: 2px; font-weight: 500; }
     .doc { display: flex; align-items: center; gap: 13px; padding: 13px; border-radius: 13px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 9px; cursor: pointer; }
     .doc.done { background: rgba(120,200,160,.10); border-color: #BFE3D4; }
+    .pd-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09); border-radius: 16px; padding: 12px; margin-bottom: 10px; }
+    .pd-cur { border-color: #D8B25A; background: rgba(216,178,90,.06); }
+    .pd-head { display: flex; gap: 10px; align-items: center; cursor: pointer; }
+    .pd-sub { font-size: 12px; color: #9AA3AB; margin-top: 2px; line-height: 1.35; }
+    .pd-pick { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #3a424b; display: grid; place-items: center; font-size: 13px; color: #111; flex: 0 0 auto; }
+    .pd-cur .pd-pick { background: #D8B25A; border-color: #D8B25A; }
+    .pd-row { display: flex; gap: 8px; margin-top: 10px; }
+    .pd-chip { flex: 1; height: 64px; border-radius: 12px; background: #1d232a center/cover no-repeat; position: relative; overflow: hidden; cursor: pointer; }
+    .pd-chip-in { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.75)); display: flex; flex-direction: column; justify-content: flex-end; padding: 7px 9px; }
+    .pd-chip-in span { font-size: 13px; font-weight: 800; color: #fff; }
+    .pd-chip-in small { font-size: 10.5px; color: #CBD5DD; }
+    .pd-lock .pd-chip-in { background: rgba(0,0,0,.35); }
+    .pd-select { margin-top: 10px; text-align: center; font-size: 13px; font-weight: 700; color: #D8B25A; padding: 8px; border: 1px solid rgba(216,178,90,.35); border-radius: 10px; cursor: pointer; }
     .pulse { font-size: 12px; color: #9AA3AB; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 8px 10px; margin: 10px 0 0; line-height: 1.45; }
     .pulse b { color: #8CC0A6; }
     .rv-q { background: rgba(255,255,255,.04); border-left: 3px solid #D8B25A; border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #CBD5DD; margin: 4px 0 12px; line-height: 1.45; }
@@ -635,7 +648,7 @@
         <div class="fn-oh">Твой короткий путь в море</div>
         <div class="fn-osub" id="fn-offerSub">Всё, что нужно для первого контракта — в одном месте.</div>
         <div class="fn-plan">
-          <div class="fn-ptop"><span style="font-size:26px">⚓</span><div><div class="fn-pname">AMORE</div><div style="font-size:11px;color:#9AA3AB;font-weight:600">сообщество для работы в море</div></div><div class="fn-price"><b>120€</b><span>за 3 месяца</span></div></div>
+          <div class="fn-ptop"><span style="font-size:26px">⚓</span><div><div class="fn-pname">AMORE</div><div style="font-size:11px;color:#9AA3AB;font-weight:600">сообщество для работы в море</div></div><div class="fn-price"><b>50€</b><span>в месяц</span></div></div>
           <div class="fn-feat"><span class="fn-fi">✓</span> База 5 600 работодателей Норвегии, Дании, Британии</div>
           <div class="fn-feat"><span class="fn-fi">✓</span> Отклики работодателям прямо из приложения</div>
           <div class="fn-feat"><span class="fn-fi">✓</span> Помощь с документами и резюме</div>
@@ -649,7 +662,7 @@
       </div>
       <div class="fn-foot">
         <button class="fn-btn fn-primary fn-primary-glow" onclick="fnStartFree()">Попробовать бесплатно →</button>
-        <div class="fn-osmall">Уже готов? <span onclick="fnSubscribe()">Открыть весь путь — 3 мес · 120€ (или 50€/мес)</span></div>
+        <div class="fn-osmall">Уже готов? <span onclick="fnSubscribe()">Открыть весь путь — 50€/мес (или 120€ за 3 месяца)</span></div>
       </div>
     </div>
   </div>
@@ -1050,7 +1063,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           html+='</div>';
         } else {
           html+='<div class="rw-teaser">🎁 Впереди: пройди все 3 шага и получи <b>личное спецпредложение</b> на подписку</div>';
-          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Открыть весь путь — 3 мес · '+PRICE_3M+'</button>';
+          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
         }
         html+='</div>';
       }
@@ -1102,8 +1115,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(L.d||extra) h+='<div style="font-size:13px;color:#CBD5DD;line-height:1.5;margin:6px 2px 10px">'+esc(extra||L.d)+'</div>';
       if(kind==='applies' && PULSE && PULSE.letters24h) h+='<div class="pulse" style="margin:0 0 10px">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> писем · ответов за неделю: <b>'+PULSE.replies7d+'</b></div>';
       var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
-      h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — 3 мес · '+PRICE_3M+'</button>';
-      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или '+PRICE_1M+'/мес · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+      h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
+      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или 3 месяца за '+PRICE_3M+' · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
       hap('select');
@@ -1183,44 +1196,35 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var watched=PATH.data.watched||{};
       var h='<div class="back" onclick="goBack()">← На главную</div>';
       h+='<div class="sec-title">🧭 Шаг 1 — выбери направление</div>';
-      h+='<div style="font-size:12.5px;color:#9AA3AB;margin:0 2px 14px;line-height:1.5">Посмотри минутный обзор по каждому направлению: кому подходит, какие деньги, сколько до выхода. Потом выбери то, куда тебе реальнее попасть — и весь путь дальше будет под него.</div>';
+      h+='<div style="font-size:12.5px;color:#9AA3AB;margin:0 2px 14px;line-height:1.5">Минутный обзор по каждому: кому подходит, деньги, сколько до выхода. Выбери одно — дальше весь путь будет под него.</div>';
       PLAN_DIRS.forEach(function(p){
         var ls=LESSONS.filter(function(l){return l.direction===p.value;}).sort(function(a,b){return a.order-b.order;});
         var ov=ls.filter(function(l){return l.order===0;})[0];
         var base=ls.filter(function(l){return l.order>0;})[0];
         var isCur=PATH.direction===p.value, w=!!watched[p.value];
-        h+='<div class="card" style="margin-bottom:12px;'+(isCur?'border:1px solid #D8B25A;':'')+'">';
-        h+='<div style="display:flex;gap:10px;align-items:center"><div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div><div style="flex:1"><div class="dirname">'+esc(p.label)+'</div><div class="dircount">'+(isCur?'✅ твоё направление':(w?'обзор посмотрен':'обзор · 1 мин'))+'</div></div></div>';
-        h+='<div style="font-size:12.5px;color:#CBD5DD;margin:10px 0;line-height:1.5">'+esc(PATH_WHO[p.value]||'')+'</div>';
+        var short=(PATH_WHO[p.value]||'').split('.')[0];
+        h+='<div class="pd-card'+(isCur?' pd-cur':'')+'">';
+        h+='<div class="pd-head" onclick="pathChoose(\''+esc(p.value)+'\')"><div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div>';
+        var PATH_SHORT={"Рыболовные суда":"Краб, рыба, фабрики","Замывка трюмов":"Замывка трюмов","Яхты":"Яхты","Торговый флот":"Торговый флот"};
+        h+='<div style="flex:1;min-width:0"><div class="dirname">'+esc(PATH_SHORT[p.value]||p.label)+'</div><div class="pd-sub">'+esc(short)+'</div></div>';
+        h+='<div class="pd-pick">'+(isCur?'✓':'')+'</div></div>';
+        h+='<div class="pd-row">';
         if(ov && ov.videoId){
-          h+='<div class="lesson" onclick="pathPlay(\''+esc(p.value)+'\',\''+esc(ov.videoId)+'\',\''+esc(ov.title)+'\')"><div class="thumb" style="background-image:url(https://img.youtube.com/vi/'+ov.videoId+'/mqdefault.jpg)"><div class="play">▶</div></div>';
-          h+='<div style="flex:1"><div class="ltitle">'+esc(ov.title)+'</div><div class="ldur">▶ Обзор'+(ov.duration?' · '+esc(ov.duration):'')+(w?' · ✓':'')+'</div></div></div>';
+          h+='<div class="pd-chip" onclick="pathPlay(\''+esc(p.value)+'\',\''+esc(ov.videoId)+'\',\''+esc(ov.title)+'\')" style="background-image:url(https://img.youtube.com/vi/'+ov.videoId+'/mqdefault.jpg)"><div class="pd-chip-in"><span>▶ Обзор</span><small>'+(ov.duration?esc(ov.duration):'1 мин')+(w?' · ✓':'')+'</small></div></div>';
         }
         if(base){
           if(base.videoId){
-            h+='<div class="lesson" onclick="playVid(\''+esc(base.videoId)+'\',\''+esc(base.title)+'\')"><div class="thumb" style="background-image:url(https://img.youtube.com/vi/'+base.videoId+'/mqdefault.jpg)"><div class="play">▶</div></div>';
-            h+='<div style="flex:1"><div class="ltitle">'+esc(base.title)+'</div><div class="ldur">▶ Полное видео'+(base.duration?' · '+esc(base.duration):'')+'</div></div></div>';
+            h+='<div class="pd-chip" onclick="playVid(\''+esc(base.videoId)+'\',\''+esc(base.title)+'\')" style="background-image:url(https://img.youtube.com/vi/'+base.videoId+'/mqdefault.jpg)"><div class="pd-chip-in"><span>▶ Полное</span><small>'+(base.duration?esc(base.duration):'')+'</small></div></div>';
           } else {
-            h+='<div class="lesson" onclick="lockSheet(\'video\')"><div class="thumb" style="background:#1d232a"><span class="lk">🔒</span></div>';
-            h+='<div style="flex:1"><div class="ltitle">'+esc(base.title)+'</div><div class="ldur">🔒 Полное видео'+(base.duration?' · '+esc(base.duration):'')+' · для участников</div></div></div>';
+            h+='<div class="pd-chip pd-lock" onclick="lockSheet(\'video\')"><div class="pd-chip-in"><span>🔒 Полное</span><small>'+(base.duration?esc(base.duration):'')+' · участникам</small></div></div>';
           }
         }
-        if(!ov && !base){
-          h+='<div class="info" style="margin:0 0 10px">Видео по направлению скоро появится.</div>';
-        }
-        h+='<button class="btn '+(isCur?'':'btn-gold')+'" onclick="pathChoose(\''+esc(p.value)+'\')">'+(isCur?'Выбрано ✓':'Выбрать это направление')+'</button>';
+        h+='</div>';
+        if(!isCur) h+='<div class="pd-select" onclick="pathChoose(\''+esc(p.value)+'\')">Выбрать</div>';
         h+='</div>';
       });
       box.innerHTML=h;
     }
-    // переход на конкретный шаг пути (из бота, кнопка «Шаг n»)
-    window.goPathStep=function(n){
-      if(n===1){ if(isMember) switchView('path'); else switchView('plan'); return; }
-      if(n===2){ var dk=isMember&&PATH.direction?PATH_DIR2DOC[PATH.direction]:null; if(dk){ openDocDir(dk); } switchView('docs'); return; }
-      if(n===3){ openResume(); return; }
-      if(n===4){ switchView('contacts'); return; }
-      if(n===5){ if(isMember&&PATH.direction) pathMentor(); else switchView('mentors'); return; }
-    };
     window.pathPlay=function(dir, vid, title){
       PATH.data.watched=PATH.data.watched||{}; PATH.data.watched[dir]=1; pathSave();
       playVid(vid, title); renderPathView2();
@@ -1488,7 +1492,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         html+='<div class="doc'+(on?' done':'')+'">';
         html+='<div class="doc-chk" onclick="toggleDoc('+i+')">'+(on?'✓':'')+'</div>';
         html+='<div style="flex:1"><div class="doc-name">'+esc(d.name)+'</div><div class="doc-sub">'+esc(d.sub)+'</div>';
-        if(!on)html+='<div class="doc-help" onclick="docHelp(\''+esc(d.name)+'\')">Нет этого документа? Поможем оформить →</div>';
+        if(!on)html+='<div class="doc-help" onclick="docHelp(\''+esc(d.name)+'\')">'+(isMember?'Нет этого документа? Поможем оформить →':'Нет этого документа? Как сделать →')+'</div>';
         html+='</div></div>';
       });
       if(allDone){
@@ -1506,15 +1510,37 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           html+='<div style="font-size:11.5px;color:#9AA3AB;text-align:center;margin-top:14px;line-height:1.5">Чего-то не хватает? Оставь заявку — подскажем, где и как оформить документы быстрее и без переплат.</div>';
           html+='<button class="btn btn-gold" style="margin-top:10px" onclick="switchView(\'docapply\')">Помочь с документами</button>';
         } else {
-          html+='<div style="font-size:11.5px;color:#9AA3AB;text-align:center;margin-top:14px;line-height:1.5">Чего-то не хватает? В AMORE поможем собрать документы и довести до первого контракта.</div>';
-          html+='<button class="btn btn-gold" style="margin-top:10px" onclick="subscribe()">Помочь с документами</button>';
+          html+='<button class="btn" style="margin-top:14px" onclick="pathDocsLater()">Документы в работе — иду дальше →</button>';
+          html+='<div style="font-size:11.5px;color:#9AA3AB;text-align:center;margin-top:10px;line-height:1.5">Нет документа — нажми «Поможем оформить» под ним: там написано, где и как сделать самому. Чего-то не хватает? В AMORE поможем собрать документы и довести до первого контракта.</div>';
+          html+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">🔒 <span onclick="lockSheet(\'docs\')" style="text-decoration:underline">Помочь с документами</span> — для участников</div>';
         }
       }
       box.innerHTML=html;
     }
+    // Бесплатная справка по каждому документу: что это, где делать, сколько по времени (ориентиры)
+    var DOC_HOW = {
+      "Basic Safety Training": "STCW Basic Safety — 4 базовых курса безопасности (выживание, пожар, первая помощь, личная безопасность). Делается в учебно-тренажёрном центре: Одесса, Батуми, Гданьск, Клайпеда. 5–6 дней, ориентир 300–600 €. Признаётся в Норвегии, Дании, Британии и на яхтах.",
+      "4 базовых STCW": "Те же 4 курса безопасности STCW (выживание, пожар, первая помощь, личная безопасность). Учебный центр в Одессе, Батуми, Гданьске, Клайпеде — 5–6 дней, ориентир 300–600 €. Это стандарт для торгового флота и замывки.",
+      "Медкомиссия": "Медицинский сертификат моряка. Для Норвегии — только у врача из списка Sjøfartsdirektoratet (есть в Норвегии и в ряде стран ЕС), 1 день, ориентир 2 300–3 800 NOK. Для торгового флота — морская медкомиссия в своей стране.",
+      "Seaman's book": "Посвідчення особи моряка / мореходная книжка. Украина — через Морську адміністрацію (можно через Дію), госпошлина небольшая, 1–3 недели. Другие страны — своя морская администрация.",
+      "ENG1": "Британский медсертификат для яхт. Только у врача, одобренного MCA — есть в Британии, Антибе, Пальме, Польше. 30 минут, ориентир 100–130 £. Заменяет обычную медкомиссию на яхтах."
+    };
     window.docHelp=function(name){
-      if(isMember){ switchView('docapply'); }
-      else { lockSheet('docs'); }
+      if(isMember){ switchView('docapply'); return; }
+      var how=DOC_HOW[name]||'';
+      var h='<div class="grip"></div><div class="det-title">'+esc(name)+'</div>';
+      if(how) h+='<div style="font-size:13px;color:#CBD5DD;line-height:1.55;margin:8px 2px 12px">'+esc(how)+'</div>';
+      h+='<div style="font-size:12px;color:#9AA3AB;line-height:1.5;margin:0 2px 12px">Сделать можно самому — сроки и цены выше ориентировочные, уточняй в центре. Документы делаются параллельно с откликами: пока ищешь судно, бумаги оформляются.</div>';
+      h+='<button class="btn" onclick="closeModal();pathDocsLater()">Понял, оформлю сам — иду дальше</button>';
+      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:10px">🔒 <span onclick="lockSheet(\'docs\')" style="text-decoration:underline">Хочу, чтобы помогли оформить</span> — для участников</div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+    };
+    // «документы в работе» — шаг 2 не блокирует путь
+    window.pathDocsLater=function(){
+      PATH.data.docsInWork=1; pathSave(); hap('success');
+      popup('Отметил: документы в работе. Следующий шаг — резюме.');
+      setTimeout(function(){ openResume(); }, 600);
     };
 
     /* ---------- ПРОФИЛЬ ---------- */
@@ -1732,8 +1758,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       h+='<div class="det-title" style="text-align:center">'+title+'</div>';
       h+='<div style="text-align:center;font-size:13px;color:#9AA3AB;line-height:1.5;margin:8px 4px 18px">'+text+'</div>';
       var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
-      h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — 3 мес · '+PRICE_3M+'</button>';
-      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или '+PRICE_1M+'/мес · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+      h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
+      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или 3 месяца за '+PRICE_3M+' · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
     };
@@ -1898,9 +1924,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       html+='<div class="prof-tag">'+(isMember?'Участник сообщества AMORE':'Гостевой доступ')+'</div></div>';
       html+='<div class="plan-box"><div style="display:flex;align-items:center;gap:8px"><span style="color:#CBD5DD">★</span><span style="font-size:13px;font-weight:700">Участие в AMORE</span>';
       if(isMember)html+='<span class="badge hire" style="margin-left:auto">активна</span>';
-      html+='</div><div style="margin:12px 0 4px"><span class="plan-price">'+PRICE_3M+'</span> <span class="plan-per">/ 3 месяца</span> <span style="font-size:11px;color:#9AA3AB">· или '+PRICE_1M+'/мес</span></div>';
+      html+='</div><div style="margin:12px 0 4px"><span class="plan-price">'+PRICE_1M+'</span> <span class="plan-per">/ месяц</span> <span style="font-size:11px;color:#9AA3AB">· или 3 месяца за '+PRICE_3M+'</span></div>';
       if(isMember){html+='<div style="font-size:11.5px;color:#9AA3AB">Доступ открыт: вакансии, база, обучение и наставники.</div><button class="btn btn-announce" onclick="subscribe()">⚙️ Управлять подпиской</button>';}
-      else{html+='<div style="font-size:11.5px;color:#9AA3AB;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — 3 мес · '+PRICE_3M+'</button>';}
+      else{html+='<div style="font-size:11.5px;color:#9AA3AB;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';}
       html+='</div>';
       html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка <span class="hbadge" onclick="showHint(event,\'docs\')">?</span></div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#9AA3AB">›</span></div>';
       html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме <span class="hbadge" onclick="showHint(event,\'resume\')">?</span></div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#9AA3AB">›</span></div>';
@@ -2364,7 +2390,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             h+='<span style="flex:0 0 auto;font-size:11px;font-weight:800;color:'+col+';background:'+col+'1a;padding:5px 10px;border-radius:999px">'+esc(a.status)+'</span></div>';
           });
           if(!isMember){
-            h+='<div class="plan-box" style="margin-top:14px"><div style="font-size:13px;font-weight:800">Это твои бесплатные отклики 🎯</div><div style="font-size:12px;color:#9AA3AB;margin:6px 0 12px;line-height:1.5">С подпиской AMORE — до 15 откликов в день, вся база из 5 600 работодателей и резюме без водяного знака.</div><button class="btn btn-gold" onclick="lockSheet(\'applies\')">Открыть весь путь — 3 мес · 120€</button></div>';
+            h+='<div class="plan-box" style="margin-top:14px"><div style="font-size:13px;font-weight:800">Это твои бесплатные отклики 🎯</div><div style="font-size:12px;color:#9AA3AB;margin:6px 0 12px;line-height:1.5">С подпиской AMORE — до 15 откликов в день, вся база из 5 600 работодателей и резюме без водяного знака.</div><button class="btn btn-gold" onclick="lockSheet(\'applies\')">Открыть весь путь — 50€/мес</button></div>';
           }
           box.innerHTML=h;
         })
