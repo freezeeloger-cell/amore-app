@@ -135,6 +135,10 @@
     .prow-s { font-size: 11px; color: #9AA3AB; margin-top: 2px; font-weight: 500; }
     .doc { display: flex; align-items: center; gap: 13px; padding: 13px; border-radius: 13px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 9px; cursor: pointer; }
     .doc.done { background: rgba(120,200,160,.10); border-color: #BFE3D4; }
+    .pulse { font-size: 12px; color: #9AA3AB; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 8px 10px; margin: 10px 0 0; line-height: 1.45; }
+    .pulse b { color: #8CC0A6; }
+    .rv-q { background: rgba(255,255,255,.04); border-left: 3px solid #D8B25A; border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #CBD5DD; margin: 4px 0 12px; line-height: 1.45; }
+    .rv-q b { color: #fff; }
     .doc-chk { width: 24px; height: 24px; border-radius: 7px; border: 2px solid #C7D0D7; flex: 0 0 auto; display: grid; place-items: center; color: #fff; font-size: 13px; cursor:pointer; }
     .doc.done .doc-chk { background: #8CC0A6; border-color: #8CC0A6; }
     .doc-name { font-size: 13.5px; font-weight: 700; }
@@ -500,6 +504,8 @@
 
     <div class="view hidden" id="view-plan"><div id="plist"><div class="info">Загружаем обучение…</div></div></div>
 
+    <div class="view hidden" id="view-path"><div id="pathbox"><div class="info">Загружаем…</div></div></div>
+
     <div class="view hidden" id="view-contacts">
       <div class="sec-title"><span style="color:#CBD5DD">⚓</span> База работодателей <span class="hbadge" onclick="showHint(event,'base')">?</span> <span class="ccount" id="ccount">…</span></div>
       <div class="search"><span>🔍</span><input id="csearch" placeholder="Компания, тип, страна…" /></div>
@@ -629,7 +635,7 @@
         <div class="fn-oh">Твой короткий путь в море</div>
         <div class="fn-osub" id="fn-offerSub">Всё, что нужно для первого контракта — в одном месте.</div>
         <div class="fn-plan">
-          <div class="fn-ptop"><span style="font-size:26px">⚓</span><div><div class="fn-pname">AMORE</div><div style="font-size:11px;color:#9AA3AB;font-weight:600">сообщество для работы в море</div></div><div class="fn-price"><b>50€</b><span>в месяц</span></div></div>
+          <div class="fn-ptop"><span style="font-size:26px">⚓</span><div><div class="fn-pname">AMORE</div><div style="font-size:11px;color:#9AA3AB;font-weight:600">сообщество для работы в море</div></div><div class="fn-price"><b>120€</b><span>за 3 месяца</span></div></div>
           <div class="fn-feat"><span class="fn-fi">✓</span> База 5 600 работодателей Норвегии, Дании, Британии</div>
           <div class="fn-feat"><span class="fn-fi">✓</span> Отклики работодателям прямо из приложения</div>
           <div class="fn-feat"><span class="fn-fi">✓</span> Помощь с документами и резюме</div>
@@ -643,7 +649,7 @@
       </div>
       <div class="fn-foot">
         <button class="fn-btn fn-primary fn-primary-glow" onclick="fnStartFree()">Попробовать бесплатно →</button>
-        <div class="fn-osmall">Уже готов? <span onclick="fnSubscribe()">Открыть полный доступ — 50€/мес</span></div>
+        <div class="fn-osmall">Уже готов? <span onclick="fnSubscribe()">Открыть весь путь — 3 мес · 120€ (или 50€/мес)</span></div>
       </div>
     </div>
   </div>
@@ -660,6 +666,7 @@
   <script>
     var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
     var TRIBUTE_URL = "https://t.me/tribute/app?startapp=sUKo";
+    var PRICE_3M = "120€", PRICE_1M = "50€"; // 3 месяца — дефолт, месяц — второй вариант
     var TRIBUTE_DISCOUNT_URL = "https://t.me/tribute/app?startapp=sUKo_pc_CRABINTOP"; // -10% промокод CRABINTOP
     var PROMO_CODE = "CRABINTOP";
     // отметки выполнения задач гостя (для дорожки с наградой)
@@ -678,15 +685,15 @@
     }
     function isAndroid(){ try{ return tg && tg.platform==='android'; }catch(e){ return false; } }
     // Диалог "добавь на экран". На iOS/Android с новым Telegram — нативно; иначе — подсказка через меню.
-    window.homeScreenSheet=function(){
+    window.homeScreenSheet=function(forceManual){
       var sheet=document.getElementById('sheet');
       var body;
-      if(homeScreenSupported()){
+      if(homeScreenSupported() && !forceManual){
         body='<button class="btn btn-gold" style="margin-top:14px" onclick="hap(\'medium\');homeScreenAdd();closeModal()">Добавить на экран</button>';
       } else {
         // старый Telegram или платформа без поддержки: показываем ручной путь
         var how = isAndroid()
-          ? 'Нажми <b>⋮</b> в правом верхнем углу приложения → <b>«Добавить на главный экран»</b>. Если пункта нет — обнови Telegram в Google Play.'
+          ? 'Нажми <b>⋮</b> в правом верхнем углу приложения → <b>«Добавить на главный экран»</b>.<br><br>Если Telegram пишет «добавлено», а иконки нет — телефон блокирует ярлыки. Разреши: <b>Настройки → Приложения → Telegram → Разрешения → Ярлыки на главном экране</b> (Xiaomi, Huawei, часть Samsung). Если пункта в меню нет — обнови Telegram в Google Play.'
           : 'Нажми <b>⋯</b> в правом верхнем углу приложения → <b>«Добавить на экран»</b>. Если пункта нет — обнови Telegram.';
         body='<div style="font-size:13px;color:#EAF2E9;line-height:1.6;margin-top:12px;background:rgba(255,255,255,.06);border-radius:12px;padding:12px">'+how+'</div>'
             +'<button class="btn btn-gold" style="margin-top:14px" onclick="closeModal()">Понятно</button>';
@@ -696,15 +703,20 @@
         +'<div style="font-size:17px;font-weight:800;margin:10px 0 6px">Добавь AMORE на экран</div>'
         +'<div style="font-size:13px;color:#9AA3AB;line-height:1.55">Иконка на телефоне — открываешь как обычное приложение, без поиска в Telegram. Ответы работодателей и вакансии всегда под рукой.</div>'
         +body
+        +'<div id="hs-diag" style="font-size:10.5px;color:#6b7680;margin-top:10px">Telegram '+esc((tg&&tg.version)||'?')+' · '+esc((tg&&tg.platform)||'?')+' · метод: '+(homeScreenSupported()?'есть':'нет')+' · статус: …</div>'
         +'<div class="close" onclick="closeModal()">Не сейчас</div></div>';
       document.getElementById('modal').className='overlay';
+      try{ tg.checkHomeScreenStatus(function(st){ var d=document.getElementById('hs-diag'); if(d) d.textContent=d.textContent.replace('статус: …','статус: '+st); }); }catch(e){}
     };
     window.homeScreenAdd=function(){
       try{
         if(!homeScreenSupported()){ homeScreenSheet(); return; }
         // подтверждение по факту добавления (событие есть на iOS и Android 8.0+)
         try{ tg.onEvent && tg.onEvent('homeScreenAdded', function(){ hap('success'); try{ localStorage.setItem('amore_home_added','1'); }catch(e){} popup('✅ AMORE на экране телефона'); }); }catch(e){}
+        try{ tg.onEvent && tg.onEvent('homeScreenChecked', function(d){ console.log('homeScreenChecked', d); }); }catch(e){}
         tg.addToHomeScreen();
+        // если через 4 сек ни диалога, ни события — подсказываем ручной путь и права на ярлыки
+        setTimeout(function(){ var added=false; try{ added=localStorage.getItem('amore_home_added')==='1'; }catch(e){} if(!added && isAndroid()) homeScreenSheet(true); }, 4000);
       }catch(e){ console.log('home:',e); homeScreenSheet(); }
     };
     function homeScreenPrompt(){
@@ -804,8 +816,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     window.avFallback=function(img){ var d=img.parentNode; d.textContent=d.getAttribute('data-init'); };
 
     var NAV=['home','plan','vacancies','contacts','profile'];
-    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen','docapply','myapps'];
-    var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile',docapply:'profile',myapps:'profile'};
+    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen','docapply','myapps','path'];
+    var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile',docapply:'profile',myapps:'profile',path:'home'};
     var navHist=[];            // история переходов внутри апки
     var curV='home';
     function updateBackBtn(){
@@ -831,6 +843,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       else if(v==='contacts'){ renderChips(); renderContacts(); }
       if(v==='contacts'){ var wasBase=taskDone('base'); markTask('base'); if(!wasBase && !isMember) setTimeout(baseCongrats, 500); }
       if(v==='plan'){ planDir=null; if(LESSONS.length===0) loadLessons(); else renderPlan(); }
+      if(v==='path'){ renderPathView(); }
       if(v==='mentors') renderMentors();
       if(v==='reviews'){ if(REVIEWS.length===0) loadReviews(); else renderReviews(); }
       if(v==='profile') renderProfile();
@@ -981,7 +994,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     // клик по шагу 3: если отклики кончились (значит уже отправлял) — сразу спецпредложение, иначе в базу
     window.goStep3=function(){
       var rem=guestRemaining();
-      if((rem!=null && rem<=0) || taskDone('apply')){ rewardSheet(); return; }
+      if(rem!=null && rem<=0){ lockSheet('applies'); return; }
       switchView('contacts');
     };
     // карточка-поздравление после открытия базы (второй шаг), показываем 1 раз
@@ -1002,14 +1015,18 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var html='';
       html+=highlightsHTML();
       html+='<div class="hero"><div class="hero-name">⚓ AMORE</div>';
-      html+='<div class="hero-tag">Сообщество для работы в море</div>';
-      html+='<div class="hero-desc">Помогаем новичкам выйти в море с нуля, а опытным морякам — сменить направление и тип флота. Норвегия, Дания, Британия: краболовы и рыбаки, торговый флот, яхты, замывка трюмов.</div>';
+      html+='<div class="hero-tag">Путь до контракта: 5 шагов</div>';
+      html+='<div class="hero-desc">Инструмент для поиска работы в море: направление → документы → резюме → отклики работодателям → ментор. Норвегия, Дания, Британия, Средиземноморье.</div>';
+      html+=pulseHTML();
       html+='<div class="hero-row"><span onclick="switchView(\'contacts\')">⚓ База работодателей</span><span onclick="switchView(\'vacancies\')">⚡ Свежие вакансии</span></div>';
       html+='<div class="hero-row"><span onclick="switchView(\'plan\')">📚 Обучение с нуля</span><span onclick="switchView(\'mentors\')">👥 Наставники-практики</span></div></div>';
       if(!memberKnown){
         html+='<div class="skel skel-card"></div>';
       }
-      if(!isMember && memberKnown){
+      if(memberKnown){
+        html+=memberPathHTML();
+      }
+      if(false){
         var hasCv=false; try{ hasCv=!!(localStorage.getItem('amore_cv_b64')&&localStorage.getItem('amore_cv_name')); }catch(e){}
         var remApply=guestRemaining();
         var appliedBefore = taskDone('apply') || (remApply!=null && remApply<=0); // отклики кончились = когда-то отправлял
@@ -1033,7 +1050,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           html+='</div>';
         } else {
           html+='<div class="rw-teaser">🎁 Впереди: пройди все 3 шага и получи <b>личное спецпредложение</b> на подписку</div>';
-          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Оформить AMORE — 50€/мес</button>';
+          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Открыть весь путь — 3 мес · '+PRICE_3M+'</button>';
         }
         html+='</div>';
       }
@@ -1047,6 +1064,186 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       document.getElementById('homebox').innerHTML=html;
       renderVacInto('home-vac', 2);
     }
+
+    /* ---------- «МОЙ ПУТЬ» УЧАСТНИКА ---------- */
+    // Ссылки на ветки направлений в группе AMORE (t.me/c/<id>/<topic>). Пусто — ведём к ментору.
+    var PATH_THREADS = { "Рыболовные суда": "", "Замывка трюмов": "", "Яхты": "", "Торговый флот": "" };
+    var PATH_DIR2DOC = { "Рыболовные суда":"crab", "Замывка трюмов":"wash", "Яхты":"yacht", "Торговый флот":"merchant" };
+    var PATH_WHO = {
+      "Рыболовные суда": "Норвегия, Дания, Британия. Рыбные фабрики — самый реальный вход без опыта; краб — после фабрики или с опытом. Высокие деньги, тяжёлая работа, сезон.",
+      "Замывка трюмов": "Балкеры по всему миру, бригадой. Нужны 4 базовых STCW и книжка. Ментор устраивает напрямую — самый быстрый выход в море.",
+      "Яхты": "Средиземноморье, сезон март–октябрь. Английский обязателен, ENG1 вместо медкомиссии. Вход через доки и личное знакомство.",
+      "Торговый флот": "Контейнеровозы, балкеры, ro-ro. Долгий, но самый стабильный путь: кадет → матрос → офицер. Ментор ведёт лично."
+    };
+    var PATH = { direction:null, data:{}, hasCv:false, autopilot:false, apps:0, loaded:false };
+    var PULSE = null;
+    function pulseHTML(){
+      if(!PULSE) return '<div id="pulse-line"></div>';
+      if(!PULSE.letters24h && !PULSE.replies7d) return '<div id="pulse-line"></div>';
+      return '<div id="pulse-line" class="pulse">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> писем работодателям · ответов за неделю: <b>'+PULSE.replies7d+'</b></div>';
+    }
+    function pulseLoad(){
+      fetch(BACKEND_URL+'/pulse',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(function(r){return r.json();})
+        .then(function(d){ if(d&&d.ok){ PULSE=d; var el=document.getElementById('pulse-line'); if(el) el.outerHTML=pulseHTML(); } }).catch(function(){});
+    }
+    // Шторка «замок»: что откроется, отзыв, одна кнопка. Человек остаётся на шаге.
+    var LOCK_TEXTS = {
+      video:   { t:'Полное видео: документы, деньги, как искать', d:'15 минут по твоему направлению: какие документы реально нужны, сколько платят новичку, где брать контакты и как писать работодателю.' },
+      docs:    { t:'Помощь с документами', d:'Ментор по документам ведёт участников: что оформлять, где, в какой очерёдности и без переплат. Оставляешь заявку — он пишет тебе сам.' },
+      applies: { t:'Три отклика ушли. Дальше — 5 600 работодателей', d:'У участников: 15 откликов в день, авторассылка сама пишет работодателям каждое утро, ответы приходят прямо в бота с переводом.' },
+      mentor:  { t:'Личный чат с ментором и ветка направления', d:'Ментор твоего направления отвечает лично. В ветке — свежие вакансии, ответы и живые созвоны раз в неделю.' },
+      lessons: { t:'Полный курс по твоему направлению', d:'Уроки от людей, которые прошли этот путь: документы, контакты, как писать, что брать с собой.' },
+      generic: { t:'Доступно участникам AMORE', d:'' }
+    };
+    window.lockSheet=function(kind, extra){
+      var L=LOCK_TEXTS[kind]||LOCK_TEXTS.generic;
+      var h='<div class="grip"></div>';
+      h+='<div class="det-title">🔒 '+esc(L.t)+'</div>';
+      if(L.d||extra) h+='<div style="font-size:13px;color:#CBD5DD;line-height:1.5;margin:6px 2px 10px">'+esc(extra||L.d)+'</div>';
+      if(kind==='applies' && PULSE && PULSE.letters24h) h+='<div class="pulse" style="margin:0 0 10px">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> писем · ответов за неделю: <b>'+PULSE.replies7d+'</b></div>';
+      var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
+      h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — 3 мес · '+PRICE_3M+'</button>';
+      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или '+PRICE_1M+'/мес · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+      hap('select');
+    };
+    // короткий отзыв под замок — из загруженных, иначе из запасных
+    var FALLBACK_REVIEWS=[
+      {name:'Евгений, Норвегия', text:'«Вошёл в августе — в конце августа уже на рыбной фабрике»'},
+      {name:'Иван, Британия', text:'«Документы собрал за 3 недели, через месяц оффер на краболов»'}
+    ];
+    function pickReview(){
+      try{
+        var pool=(REVIEWS||[]).filter(function(r){ return r && r.text && String(r.text).length<160; }).map(function(r){ return {name:r.name||r.author||'Участник AMORE', text:String(r.text)}; });
+        if(!pool.length) pool=FALLBACK_REVIEWS;
+        return pool[Math.floor(Math.random()*pool.length)];
+      }catch(e){ return FALLBACK_REVIEWS[0]; }
+    }
+    var _pathT=null;
+    function pathSave(){
+      if(!tg||!tg.initData) return;
+      if(_pathT) clearTimeout(_pathT);
+      _pathT=setTimeout(function(){
+        fetch(BACKEND_URL+'/pathSave',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({initData:tg.initData, direction:PATH.direction, data:PATH.data})}).catch(function(){});
+      },600);
+    }
+    function pathLoad(cb){
+      if(!tg||!tg.initData){ PATH.loaded=true; if(cb)cb(); return; }
+      fetch(BACKEND_URL+'/pathGet',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
+        .then(function(r){return r.json();}).then(function(d){
+          if(d&&d.ok){
+            PATH.hasCv=!!d.hasCv; PATH.autopilot=!!d.autopilot; PATH.apps=d.apps||0;
+            if(d.path){ PATH.direction=d.path.direction||null; PATH.data=d.path.data||{}; }
+            // документы: сервер + локальные галочки
+            if(PATH.data.docs){ for(var k in PATH.data.docs){ if(PATH.data.docs[k]) docChecked[k]=true; } try{localStorage.setItem('amore_docs',JSON.stringify(docChecked));}catch(e){} }
+          }
+          PATH.loaded=true; if(cb)cb();
+        }).catch(function(){ PATH.loaded=true; if(cb)cb(); });
+    }
+    function pathSteps(){
+      var dir=PATH.direction, dk=dir?PATH_DIR2DOC[dir]:null;
+      var docsAll=false, docsN=0, docsT=0;
+      if(dk){ var dd=DOC_DIRS.filter(function(x){return x.key===dk;})[0]; if(dd){ docsT=dd.docs.length; dd.docs.forEach(function(_,i){ if(docChecked[dk+'-'+i]) docsN++; }); docsAll=docsN===docsT; } }
+      var hasCv=PATH.hasCv; try{ hasCv=hasCv||!!(localStorage.getItem('amore_cv_b64')&&localStorage.getItem('amore_cv_name')); }catch(e){}
+      return [
+        { done:!!dir, head:'Выбери направление', desc: dir?('Твоё: '+dir):'Посмотри 4 обзора по минуте и выбери, куда реальнее', badge:'шаг 1', go:"switchView('path')" },
+        { done:docsAll||!!PATH.data.docsInWork, head:'Документы', desc: dk?(docsAll?'Все документы на руках':(PATH.data.docsInWork?'В работе — заявка отправлена':'Отмечено '+docsN+' из '+docsT)):'Сначала выбери направление', badge:'шаг 2', go: dk?("openDocDir('"+dk+"');switchView('docs')"):"switchView('path')" },
+        { done:hasCv, head:'Резюме моряка', desc: hasCv?'Сохранено для откликов':'Собери за 2 минуты, на норвежском или английском', badge:'шаг 3', go:"openResume()" },
+        { done:PATH.autopilot||PATH.apps>0, head:'Отклики', desc: PATH.autopilot?'Авторассылка включена':(PATH.apps>0?('Отправлено откликов: '+PATH.apps):'Включи авторассылку или отправь первый отклик'), badge:'шаг 4', go:"switchView('contacts')" },
+        { done:!!PATH.data.mentorSeen, head:'Ментор и ветка направления', desc: dir?(isMember?'Задай вопрос ментору и читай ветку в группе':'Ментор твоего направления — кто он и как с ним связаться'):'Откроется после выбора направления', badge:'шаг 5', go:"pathMentor()" }
+      ];
+    }
+    function memberPathHTML(){
+      if(!PATH.loaded){ pathLoad(function(){ var hv=document.getElementById('view-home'); if(hv&&hv.className.indexOf('hidden')<0) renderHome(); }); return '<div class="skel skel-card"></div>'; }
+      var st=pathSteps(); var done=st.filter(function(x){return x.done;}).length; var pct=Math.round(done/st.length*100);
+      var next=st.filter(function(x){return !x.done;})[0];
+      var h='<div class="plan-box plan-hot">';
+      h+='<div class="gp-title">🧭 '+(isMember?'Мой путь в море':'Твой путь до контракта')+' <span class="plan-badge">'+(done===st.length?'пройден':'шаг '+(done+1)+' из '+st.length)+'</span></div>';
+      h+='<div class="gp-sub">'+(done===st.length?'Все шаги пройдены. Дальше — отклики каждый день и связь с ментором.':(isMember?'Иди по шагам сверху вниз — это самый короткий путь до контракта.':'Шаги 1–3 и первые 3 отклика — бесплатно. Начни, остальное откроешь, когда дойдёшь.'))+'</div>';
+      h+='<div class="tp-bar"><i style="width:'+pct+'%"></i></div><div class="tp-cnt">Выполнено '+done+' из '+st.length+'</div>';
+      st.forEach(function(x,i){ h+=gpStep(i+1, x.done, x.go, x.head, x.desc, x.badge); });
+      if(next) h+='<button class="btn btn-gold" style="margin-top:12px" onclick="'+next.go+'">Следующий шаг: '+next.head+' →</button>';
+      h+='</div>';
+      return h;
+    }
+    function renderPathView(){
+      var box=document.getElementById('pathbox');
+      if(LESSONS.length===0){
+        box.innerHTML='<div class="sec-title">🧭 Шаг 1 — выбери направление</div>'+skel('skel-row',4);
+        fetch(BACKEND_URL+'/lessons',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:''})})
+          .then(function(r){return r.json();}).then(function(d){ if(d.ok){ LESSONS=d.lessons||[]; } renderPathView2(); }).catch(function(){ renderPathView2(); });
+        return;
+      }
+      renderPathView2();
+    }
+    function renderPathView2(){
+      var box=document.getElementById('pathbox');
+      var watched=PATH.data.watched||{};
+      var h='<div class="back" onclick="goBack()">← На главную</div>';
+      h+='<div class="sec-title">🧭 Шаг 1 — выбери направление</div>';
+      h+='<div style="font-size:12.5px;color:#9AA3AB;margin:0 2px 14px;line-height:1.5">Посмотри минутный обзор по каждому направлению: кому подходит, какие деньги, сколько до выхода. Потом выбери то, куда тебе реальнее попасть — и весь путь дальше будет под него.</div>';
+      PLAN_DIRS.forEach(function(p){
+        var ls=LESSONS.filter(function(l){return l.direction===p.value;}).sort(function(a,b){return a.order-b.order;});
+        var ov=ls.filter(function(l){return l.order===0;})[0];
+        var base=ls.filter(function(l){return l.order>0;})[0];
+        var isCur=PATH.direction===p.value, w=!!watched[p.value];
+        h+='<div class="card" style="margin-bottom:12px;'+(isCur?'border:1px solid #D8B25A;':'')+'">';
+        h+='<div style="display:flex;gap:10px;align-items:center"><div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div><div style="flex:1"><div class="dirname">'+esc(p.label)+'</div><div class="dircount">'+(isCur?'✅ твоё направление':(w?'обзор посмотрен':'обзор · 1 мин'))+'</div></div></div>';
+        h+='<div style="font-size:12.5px;color:#CBD5DD;margin:10px 0;line-height:1.5">'+esc(PATH_WHO[p.value]||'')+'</div>';
+        if(ov && ov.videoId){
+          h+='<div class="lesson" onclick="pathPlay(\''+esc(p.value)+'\',\''+esc(ov.videoId)+'\',\''+esc(ov.title)+'\')"><div class="thumb" style="background-image:url(https://img.youtube.com/vi/'+ov.videoId+'/mqdefault.jpg)"><div class="play">▶</div></div>';
+          h+='<div style="flex:1"><div class="ltitle">'+esc(ov.title)+'</div><div class="ldur">▶ Обзор'+(ov.duration?' · '+esc(ov.duration):'')+(w?' · ✓':'')+'</div></div></div>';
+        }
+        if(base){
+          if(base.videoId){
+            h+='<div class="lesson" onclick="playVid(\''+esc(base.videoId)+'\',\''+esc(base.title)+'\')"><div class="thumb" style="background-image:url(https://img.youtube.com/vi/'+base.videoId+'/mqdefault.jpg)"><div class="play">▶</div></div>';
+            h+='<div style="flex:1"><div class="ltitle">'+esc(base.title)+'</div><div class="ldur">▶ Полное видео'+(base.duration?' · '+esc(base.duration):'')+'</div></div></div>';
+          } else {
+            h+='<div class="lesson" onclick="lockSheet(\'video\')"><div class="thumb" style="background:#1d232a"><span class="lk">🔒</span></div>';
+            h+='<div style="flex:1"><div class="ltitle">'+esc(base.title)+'</div><div class="ldur">🔒 Полное видео'+(base.duration?' · '+esc(base.duration):'')+' · для участников</div></div></div>';
+          }
+        }
+        if(!ov && !base){
+          h+='<div class="info" style="margin:0 0 10px">Видео по направлению скоро появится.</div>';
+        }
+        h+='<button class="btn '+(isCur?'':'btn-gold')+'" onclick="pathChoose(\''+esc(p.value)+'\')">'+(isCur?'Выбрано ✓':'Выбрать это направление')+'</button>';
+        h+='</div>';
+      });
+      box.innerHTML=h;
+    }
+    // переход на конкретный шаг пути (из бота, кнопка «Шаг n»)
+    window.goPathStep=function(n){
+      if(n===1){ if(isMember) switchView('path'); else switchView('plan'); return; }
+      if(n===2){ var dk=isMember&&PATH.direction?PATH_DIR2DOC[PATH.direction]:null; if(dk){ openDocDir(dk); } switchView('docs'); return; }
+      if(n===3){ openResume(); return; }
+      if(n===4){ switchView('contacts'); return; }
+      if(n===5){ if(isMember&&PATH.direction) pathMentor(); else switchView('mentors'); return; }
+    };
+    window.pathPlay=function(dir, vid, title){
+      PATH.data.watched=PATH.data.watched||{}; PATH.data.watched[dir]=1; pathSave();
+      playVid(vid, title); renderPathView2();
+    };
+    window.pathChoose=function(dir){
+      PATH.direction=dir; pathSave(); hap('success');
+      var dk=PATH_DIR2DOC[dir];
+      popup('Направление выбрано: '+dir);
+      setTimeout(function(){ if(dk){ openDocDir(dk); switchView('docs'); } else switchView('home'); }, 500);
+    };
+    window.pathMentor=function(){
+      if(!PATH.direction){ switchView('path'); return; }
+      if(!isMember){ PATH.data.mentorSeen=1; pathSave(); switchView('mentors'); return; }
+      PATH.data.mentorSeen=1; pathSave();
+      var link=PATH_THREADS[PATH.direction]||'';
+      if(!link){
+        var m=MENTORS.filter(function(x){ return (PATH.direction==='Рыболовные суда'&&x.tg==='crabnorway')||(PATH.direction==='Замывка трюмов'&&x.tg==='makarenko_88')||(PATH.direction==='Яхты'&&x.tg==='shifvmmgf')||(PATH.direction==='Торговый флот'&&x.tg==='cmnnnt'); })[0];
+        link=m?('https://t.me/'+m.tg):null;
+      }
+      renderHome();
+      if(link){ if(tg&&tg.openTelegramLink) tg.openTelegramLink(link); else window.open(link,'_blank'); }
+      else switchView('mentors');
+    };
 
     /* ---------- ВАКАНСИИ ---------- */
     function fallbackCopy(t){ try{ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta);}catch(e){} }
@@ -1171,13 +1368,13 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(planDir===null){
         var html='<div class="sec-title"><span style="color:#CBD5DD">📚</span> Обучение <span class="hbadge" onclick="showHint(event,\'plan\')">?</span></div>';
         PLAN_DIRS.forEach(function(p){
-          var n=LESSONS.filter(function(l){return l.direction===p.value;}).length;
+          var n=LESSONS.filter(function(l){return l.direction===p.value && l.order>0;}).length;
           html+='<div class="dircard" onclick="openDir(\''+p.value+'\')"><div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div>';
           html+='<div style="flex:1"><div class="dirname">'+esc(p.label)+'</div><div class="dircount">'+n+' уроков</div></div><span style="color:#9AA3AB">›</span></div>';
         });
         box.innerHTML=html; return;
       }
-      var ls=LESSONS.filter(function(l){return l.direction===planDir;}).sort(function(a,b){return a.order-b.order;});
+      var ls=LESSONS.filter(function(l){return l.direction===planDir && l.order>0;}).sort(function(a,b){return a.order-b.order;});
       var dirObj=PLAN_DIRS.filter(function(p){return p.value===planDir;})[0];
       var html='<div class="back" onclick="backToDirs()">← Назад</div><div class="sec-title">'+esc(dirObj?dirObj.label:planDir)+'</div>';
       if(!ls.length){box.innerHTML=html+'<div class="info">В этом направлении пока нет уроков.</div>';return;}
@@ -1198,22 +1395,26 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     };
     window.openLesson=function(i){
       var l=window.__lessons[i];
-      if(!l.videoId){paywall('Видео-уроки','Полный путь на судно с нуля по твоему направлению. Обучение доступно участникам AMORE.');return;}
+      if(!l.videoId){lockSheet('lessons');return;}
       playVid(l.videoId, l.title);
     };
 
     /* ---------- НАСТАВНИКИ ---------- */
     window.askMentor=function(tgUser){
-      if(!isMember){ paywall('Вопрос наставнику','Наставники-практики ответят лично по твоему флоту. Доступно участникам AMORE.'); return; }
+      if(!isMember){ lockSheet('mentor'); return; }
       var link='https://t.me/'+tgUser;
       if(tg&&tg.openTelegramLink){ tg.openTelegramLink(link); } else { window.open(link,'_blank'); }
     };
     function renderMentors(){
       var html='';
-      MENTORS.forEach(function(m){
+      var mine=null;
+      if(PATH.direction){ var tgMap={"Рыболовные суда":"crabnorway","Замывка трюмов":"makarenko_88","Яхты":"shifvmmgf","Торговый флот":"cmnnnt"}; mine=tgMap[PATH.direction]||null; }
+      var list=MENTORS.slice().sort(function(a,b){ return (a.tg===mine?-1:0)-(b.tg===mine?-1:0); });
+      if(mine && !isMember) html+='<div class="info" style="margin:0 0 10px">Твой ментор по направлению — первый в списке. Личный чат открывается участникам.</div>';
+      list.forEach(function(m){
         html+='<div class="mentor"><div class="m-av" data-init="'+m.init+'" style="background:'+m.grad+'"><img src="'+esc(m.photo)+'" style="width:100%;height:100%;object-fit:cover" onerror="avFallback(this)"></div>';
         html+='<div style="flex:1"><div class="m-name">'+esc(m.name)+' <span style="color:#0E7A5B">✓</span></div><div class="m-dir">'+esc(m.dir)+'</div><div class="m-bio">'+esc(m.bio)+'</div>';
-        html+='<div class="m-ask" onclick="askMentor(\''+esc(m.tg)+'\')">💬 Написать наставнику</div></div></div>';
+        html+='<div class="m-ask" onclick="askMentor(\''+esc(m.tg)+'\')">'+(isMember?'💬 Написать наставнику':'🔒 Написать наставнику')+'</div></div></div>';
       });
       document.getElementById('mlist').innerHTML=html;
     }
@@ -1264,7 +1465,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var docDir = null;
     window.openDocDir=function(key){docDir=key;renderDocs();window.scrollTo(0,0);};
     window.backDocDirs=function(){docDir=null;renderDocs();};
-    window.toggleDoc=function(i){var d=DOC_DIRS.filter(function(x){return x.key===docDir;})[0];var id=docDir+'-'+i;docChecked[id]=!docChecked[id];try{localStorage.setItem('amore_docs',JSON.stringify(docChecked));}catch(e){}renderDocs();};
+    window.toggleDoc=function(i){var d=DOC_DIRS.filter(function(x){return x.key===docDir;})[0];var id=docDir+'-'+i;docChecked[id]=!docChecked[id];try{localStorage.setItem('amore_docs',JSON.stringify(docChecked));}catch(e){}renderDocs();try{ if(isMember){ PATH.data.docs=docChecked; pathSave(); } }catch(e){}};
     function renderDocs(){
       var box=document.getElementById('docsbox');
       if(docDir===null){
@@ -1313,7 +1514,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     }
     window.docHelp=function(name){
       if(isMember){ switchView('docapply'); }
-      else { paywall('Поможем с документом', 'Нужен «'+name+'»? В AMORE подскажем, где и как его оформить быстрее и без переплат — и доведём до выхода в море.'); }
+      else { lockSheet('docs'); }
     };
 
     /* ---------- ПРОФИЛЬ ---------- */
@@ -1519,7 +1720,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       fnChatScroll();
     }
     window.fnSkip=function(){ fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; };
-    window.fnStartFree=function(){ fnMarkDone(); fnTrialStart(); document.getElementById('funnel').className='fn-overlay'; if(window.openResume)openResume(); };
+    window.fnStartFree=function(){ fnMarkDone(); fnTrialStart(); document.getElementById('funnel').className='fn-overlay'; setTimeout(function(){ switchView('path'); }, 200); };
     function fnTrialStart(){
       if(!tg||!tg.initData)return;
       try{ fetch(BACKEND_URL+'/trialStart',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})}).catch(function(){}); }catch(e){}
@@ -1530,9 +1731,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       h+='<div style="text-align:center;font-size:36px;margin-bottom:6px">🔒</div>';
       h+='<div class="det-title" style="text-align:center">'+title+'</div>';
       h+='<div style="text-align:center;font-size:13px;color:#9AA3AB;line-height:1.5;margin:8px 4px 18px">'+text+'</div>';
-      h+='<div class="plan-box" style="margin:0 0 8px"><div style="text-align:center;margin-bottom:6px"><span class="plan-price">50€</span> <span class="plan-per">/ месяц</span></div>';
-      h+='<button class="btn btn-gold" onclick="subscribe()">Оформить подписку</button></div>';
-      h+='<div class="close" onclick="closeModal()">Позже</div>';
+      var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
+      h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — 3 мес · '+PRICE_3M+'</button>';
+      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или '+PRICE_1M+'/мес · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
     };
@@ -1685,7 +1886,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var btn=document.getElementById('da-submit'); if(btn){ btn.textContent='Отправляю…'; btn.disabled=true; }
       fetch(BACKEND_URL+'/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg?tg.initData:'',name:da.name,phone:da.phone,citizenship:da.citizenship,certs:da.certs})})
         .then(function(r){return r.json();})
-        .then(function(d){ if(d.ok){ da.sent=true; renderDocApply(); } else { popup(d.error || 'Не получилось отправить. Попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} } })
+        .then(function(d){ if(d.ok){ da.sent=true; renderDocApply(); try{ if(isMember){ PATH.data.docsInWork=1; pathSave(); } }catch(e){} } else { popup(d.error || 'Не получилось отправить. Попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} } })
         .catch(function(){ popup('Сервер недоступен, попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} });
     };
     window.openResume=function(){
@@ -1697,9 +1898,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       html+='<div class="prof-tag">'+(isMember?'Участник сообщества AMORE':'Гостевой доступ')+'</div></div>';
       html+='<div class="plan-box"><div style="display:flex;align-items:center;gap:8px"><span style="color:#CBD5DD">★</span><span style="font-size:13px;font-weight:700">Участие в AMORE</span>';
       if(isMember)html+='<span class="badge hire" style="margin-left:auto">активна</span>';
-      html+='</div><div style="margin:12px 0 4px"><span class="plan-price">50€</span> <span class="plan-per">/ месяц</span></div>';
+      html+='</div><div style="margin:12px 0 4px"><span class="plan-price">'+PRICE_3M+'</span> <span class="plan-per">/ 3 месяца</span> <span style="font-size:11px;color:#9AA3AB">· или '+PRICE_1M+'/мес</span></div>';
       if(isMember){html+='<div style="font-size:11.5px;color:#9AA3AB">Доступ открыт: вакансии, база, обучение и наставники.</div><button class="btn btn-announce" onclick="subscribe()">⚙️ Управлять подпиской</button>';}
-      else{html+='<div style="font-size:11.5px;color:#9AA3AB;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть доступ — 50€/мес</button>';}
+      else{html+='<div style="font-size:11.5px;color:#9AA3AB;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — 3 мес · '+PRICE_3M+'</button>';}
       html+='</div>';
       html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка <span class="hbadge" onclick="showHint(event,\'docs\')">?</span></div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#9AA3AB">›</span></div>';
       html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме <span class="hbadge" onclick="showHint(event,\'resume\')">?</span></div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#9AA3AB">›</span></div>';
@@ -1897,7 +2098,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             if(d.guest && d.remaining!=null){ try{ localStorage.setItem('amore_guest_remaining', String(d.remaining)); }catch(e){} }
             // если гость этим откликом ЗАКРЫЛ весь путь — сразу показываем спецпредложение
             var hasCvNow=false; try{ hasCvNow=!!(localStorage.getItem('amore_cv_b64')&&localStorage.getItem('amore_cv_name')); }catch(e){}
-            var pathDone = !isMember && (hasCvNow||taskDone('cv')) && taskDone('base') && !wasApply;
+            var pathDone = false;
             if(pathDone){
               hap('success');
               var h='<div class="grip"></div><div class="rw-card" style="margin:0">';
@@ -1921,7 +2122,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           } else if(d.guestLimit){
             try{ localStorage.setItem('amore_guest_remaining','0'); }catch(e){}
             closeModal();
-            guestExhaustedPaywall();
+            lockSheet('applies');
           } else {
             popup(d.error || 'Не получилось отправить. Попробуй ещё раз.');
             btn.textContent='Отправить работодателю →'; btn.disabled=false;
@@ -2163,7 +2364,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             h+='<span style="flex:0 0 auto;font-size:11px;font-weight:800;color:'+col+';background:'+col+'1a;padding:5px 10px;border-radius:999px">'+esc(a.status)+'</span></div>';
           });
           if(!isMember){
-            h+='<div class="plan-box" style="margin-top:14px"><div style="font-size:13px;font-weight:800">Это твои бесплатные отклики 🎯</div><div style="font-size:12px;color:#9AA3AB;margin:6px 0 12px;line-height:1.5">С подпиской AMORE — до 15 откликов в день, вся база из 5 600 работодателей и резюме без водяного знака.</div><button class="btn btn-gold" onclick="subscribe()">Открыть полный доступ — 50€/мес</button></div>';
+            h+='<div class="plan-box" style="margin-top:14px"><div style="font-size:13px;font-weight:800">Это твои бесплатные отклики 🎯</div><div style="font-size:12px;color:#9AA3AB;margin:6px 0 12px;line-height:1.5">С подпиской AMORE — до 15 откликов в день, вся база из 5 600 работодателей и резюме без водяного знака.</div><button class="btn btn-gold" onclick="lockSheet(\'applies\')">Открыть весь путь — 3 мес · 120€</button></div>';
           }
           box.innerHTML=h;
         })
@@ -2219,6 +2420,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         var sp=(tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||'';
         if(sp==='story_reply') setTimeout(function(){ shareStory('reply','Мне ответил работодатель! Ищу работу в море через AMORE'); }, 900);
         if(sp==='story_offer') setTimeout(function(){ shareStory('offer','Получил оффер на судно! Спасибо AMORE'); }, 900);
+        if(sp==='path') window.__openPath=true;
+        // из бота: кнопка «Шаг n» → ?go=stepN
+        try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm) window.__goStep=parseInt(gm[1],10); }catch(e){}
       }catch(e){}
       if(tg.BackButton){ try{ tg.BackButton.onClick(function(){ goBack(); }); }catch(e){} }
       try{ if(tg.requestFullscreen) tg.requestFullscreen(); }catch(e){}
@@ -2244,7 +2448,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           try{ localStorage.setItem('amore_last_member', (d.ok&&d.member)?'1':'0'); }catch(e){}
         })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
-        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); updateSplashBtn(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); });
+        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); updateSplashBtn(); pulseLoad(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); if(window.__openPath&&isMember){ window.__openPath=false; setTimeout(function(){ switchView('path'); }, 400); }
+          if(window.__goStep){ var gs=window.__goStep; window.__goStep=0; setTimeout(function(){ goPathStep(gs); }, 500); } });
     })();
   </script>
 </body>
