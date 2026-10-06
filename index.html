@@ -1083,7 +1083,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var PATH_THREADS = { "Рыболовные суда": "", "Замывка трюмов": "", "Яхты": "", "Торговый флот": "" };
     var PATH_DIR2DOC = { "Рыболовные суда":"crab", "Замывка трюмов":"wash", "Яхты":"yacht", "Торговый флот":"merchant" };
     var PATH_WHO = {
-      "Рыболовные суда": "Норвегия, Дания, Британия. Рыбные фабрики — самый реальный вход без опыта; краб — после фабрики или с опытом. Высокие деньги, тяжёлая работа, сезон.",
+      "Рыболовные суда": "Норвегия, Дания, Британия — для Украины и ЕС; для РФ, РБ и СНГ — краб в России, рыбаки в Африке. Фабрика — самый реальный вход без опыта; краб — после фабрики или с опытом. Высокие деньги, тяжёлая работа, сезон.",
       "Замывка трюмов": "Балкеры по всему миру, бригадой. Нужны 4 базовых STCW и книжка. Ментор устраивает напрямую — самый быстрый выход в море.",
       "Яхты": "Средиземноморье, сезон март–октябрь. Английский обязателен, ENG1 вместо медкомиссии. Вход через доки и личное знакомство.",
       "Торговый флот": "Контейнеровозы, балкеры, ro-ro. Долгий, но самый стабильный путь: кадет → матрос → офицер. Ментор ведёт лично."
@@ -1092,8 +1092,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var PULSE = null;
     function pulseHTML(){
       if(!PULSE) return '<div id="pulse-line"></div>';
-      if(!PULSE.letters24h && !PULSE.replies7d) return '<div id="pulse-line"></div>';
-      return '<div id="pulse-line" class="pulse">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> писем работодателям · ответов за неделю: <b>'+PULSE.replies7d+'</b></div>';
+      if(!PULSE.letters24h) return '<div id="pulse-line"></div>';
+      return '<div id="pulse-line" class="pulse">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> откликов работодателям</div>';
     }
     function pulseLoad(){
       fetch(BACKEND_URL+'/pulse',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(function(r){return r.json();})
@@ -1113,7 +1113,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var h='<div class="grip"></div>';
       h+='<div class="det-title">🔒 '+esc(L.t)+'</div>';
       if(L.d||extra) h+='<div style="font-size:13px;color:#CBD5DD;line-height:1.5;margin:6px 2px 10px">'+esc(extra||L.d)+'</div>';
-      if(kind==='applies' && PULSE && PULSE.letters24h) h+='<div class="pulse" style="margin:0 0 10px">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> писем · ответов за неделю: <b>'+PULSE.replies7d+'</b></div>';
+      if(kind==='applies' && PULSE && PULSE.letters24h) h+='<div class="pulse" style="margin:0 0 10px">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> откликов работодателям</div>';
       var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
       h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
       h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или 3 месяца за '+PRICE_3M+' · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
