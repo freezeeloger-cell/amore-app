@@ -682,6 +682,21 @@
     var PRICE_3M = "120€", PRICE_1M = "50€"; // 3 месяца — дефолт, месяц — второй вариант
     var TRIBUTE_DISCOUNT_URL = "https://t.me/tribute/app?startapp=sUKo_pc_CRABINTOP"; // -10% промокод CRABINTOP
     var PROMO_CODE = "CRABINTOP";
+    // Пришёл из бота ментора (кнопка с ?src=yacht / ?src=washing) → оплата идёт по подписке этого ментора.
+    // Метка запоминается на устройстве: если человек вернётся в приложение позже, он останется за ментором.
+    var MENTOR_TRIBUTE = {
+      yacht:   "https://t.me/tribute/app?startapp=s121b",  // Никита, яхтинг
+      washing: "https://t.me/tribute/app?startapp=s18v0"   // Влад, замывка
+    };
+    (function(){
+      try{
+        var src=''; try{ src=new URLSearchParams(location.search).get('src')||''; }catch(e){}
+        var saved=''; try{ saved=localStorage.getItem('amore_src')||''; }catch(e){}
+        if(!MENTOR_TRIBUTE.hasOwnProperty(saved)) saved='';
+        if(!saved && MENTOR_TRIBUTE.hasOwnProperty(src)){ saved=src; try{ localStorage.setItem('amore_src',src); }catch(e){} }
+        if(saved){ TRIBUTE_URL=MENTOR_TRIBUTE[saved]; TRIBUTE_DISCOUNT_URL=MENTOR_TRIBUTE[saved]; window.__amoreSrc=saved; }
+      }catch(e){}
+    })();
     // отметки выполнения задач гостя (для дорожки с наградой)
     function taskDone(k){ try{ return localStorage.getItem('amore_task_'+k)==='1'; }catch(e){ return false; } }
     /* ---------- НАТИВНЫЕ ФИШКИ TELEGRAM ---------- */
