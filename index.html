@@ -794,6 +794,16 @@
 var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var tg = window.Telegram ? window.Telegram.WebApp : null;
     var isMember = false, isAdmin = false, hasMass = false, uName = "моряк";
+    /* ---------- АНАЛИТИКА: каждое ключевое действие уходит на бэкенд (/event), бот считает воронку командой /funnel ---------- */
+    var _lastLock = '';   // какой «замок» человек видел последним — чтобы знать, что привело к нажатию «оплатить»
+    function track(ev, p){
+      try{
+        if(!tg||!tg.initData) return;
+        var body=JSON.stringify({initData:tg.initData, ev:ev, p:p||null, src:(window.__amoreSrc||''), m:isMember?1:0});
+        fetch(BACKEND_URL+'/event',{method:'POST',headers:{'Content-Type':'application/json'},body:body,keepalive:true}).catch(function(){});
+      }catch(e){}
+    }
+    var HAS_PROMO = !window.__amoreSrc;   // скидка по промокоду действует только на общей подписке, не на подписках менторов
     var memberKnown = false; // пока не проверили доступ — не показываем гостевые блоки (чтобы не мигали участнику)
 
     var FLAG = { "Норвегия": "🇳🇴", "Дания": "🇩🇰", "Британия": "🇬🇧" };
@@ -861,6 +871,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(v!==curV){ navHist.push(curV); }   // запоминаем, откуда пришли
         if(navHist.length>40) navHist.shift();
       }
+      if(v!==curV) track('view',{v:v});
       curV=v;
       ALLV.forEach(function(n){var el=document.getElementById('view-'+n);if(el)el.className='view'+(v===n?'':' hidden');});
       var act = NAV.indexOf(v)>=0 ? v : (PARENT[v]||'home');
@@ -1007,6 +1018,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         '<div class="gp-c"><div class="gp-h">'+head+' '+bd+'</div><div class="gp-d">'+desc+'</div></div><span class="gp-arr">›</span></div>';
     }
     window.claimDiscount=function(){
+      track('pay_click',{from:_lastLock||curV, promo:1});
       if(tg&&tg.openTelegramLink){ tg.openTelegramLink(TRIBUTE_DISCOUNT_URL); } else { window.open(TRIBUTE_DISCOUNT_URL,'_blank'); }
     };
     // общая карточка спецпредложения (используется и в дорожке, и после отклика)
@@ -1034,7 +1046,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var h='<div class="grip"></div><div style="text-align:center;padding:20px 10px">';
       h+='<div style="font-size:46px">🎉</div>';
       h+='<div style="font-size:18px;font-weight:800;margin:10px 0 8px">Отлично, база открыта!</div>';
-      h+='<div style="font-size:13.5px;color:#9AA3AB;line-height:1.6">Остался <b style="color:#EAF2E9">последний шаг</b> — отправь отклик работодателю прямо из базы. После этого откроется твоё <b style="color:#8CC0A6">спецпредложение</b> на подписку 🎁</div>';
+      h+='<div style="font-size:13.5px;color:#9AA3AB;line-height:1.6">Остался <b style="color:#EAF2E9">последний шаг</b> — отправь отклик работодателю прямо из базы. '+(HAS_PROMO?'После этого откроется твоё <b style="color:#8CC0A6">спецпредложение</b> на подписку 🎁':'Первые 3 отклика бесплатно — посмотри, как отвечают работодатели.')+'</div>';
       h+='<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal()">Отправить отклик →</button></div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
@@ -1124,14 +1136,22 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       generic: { t:'Доступно участникам AMORE', d:'' }
     };
     window.lockSheet=function(kind, extra){
+      _lastLock='lock_'+kind; track('lock_show',{kind:kind});
       var L=LOCK_TEXTS[kind]||LOCK_TEXTS.generic;
       var h='<div class="grip"></div>';
       h+='<div class="det-title">🔒 '+esc(L.t)+'</div>';
       if(L.d||extra) h+='<div style="font-size:13px;color:#CBD5DD;line-height:1.5;margin:6px 2px 10px">'+esc(extra||L.d)+'</div>';
       if(kind==='applies' && PULSE && PULSE.letters24h) h+='<div class="pulse" style="margin:0 0 10px">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> откликов работодателям</div>';
       var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
-      h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
-      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или 3 месяца за '+PRICE_3M+' · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+      if(kind==='applies' && HAS_PROMO){
+        // обещанное спецпредложение: гость отправил все бесплатные отклики
+        h+='<div class="rw-code" style="margin:10px 0 0">🎁 Твоё спецпредложение: −10% по промокоду <b>'+PROMO_CODE+'</b></div>';
+        h+='<button class="btn btn-gold" style="margin-top:10px" onclick="claimDiscount()">Забрать скидку и открыть весь путь →</button>';
+        h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+      } else {
+        h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
+        h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или 3 месяца за '+PRICE_3M+' · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+      }
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
       hap('select');
@@ -1193,6 +1213,16 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       h+='<div class="tp-bar"><i style="width:'+pct+'%"></i></div><div class="tp-cnt">Выполнено '+done+' из '+st.length+'</div>';
       st.forEach(function(x,i){ h+=gpStep(i+1, x.done, x.go, x.head, x.desc, x.badge); });
       if(next) h+='<button class="btn btn-gold" style="margin-top:12px" onclick="'+next.go+'">Следующий шаг: '+next.head+' →</button>';
+      if(!next && !isMember){
+        // гость прошёл весь бесплатный путь — не оставляем в тупике
+        if(HAS_PROMO){
+          h+='<div class="rw-code" style="margin-top:12px">🎁 Ты прошёл все шаги — вот твоё спецпредложение: −10% по промокоду <b>'+PROMO_CODE+'</b></div>';
+          h+='<button class="btn btn-gold" style="margin-top:10px" onclick="_lastLock=\'path_done\';claimDiscount()">Забрать скидку и открыть весь путь →</button>';
+        } else {
+          h+='<button class="btn btn-gold" style="margin-top:12px" onclick="_lastLock=\'path_done\';subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
+        }
+        h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца</div>';
+      }
       h+='</div>';
       return h;
     }
@@ -1241,16 +1271,28 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       box.innerHTML=h;
     }
     window.pathPlay=function(dir, vid, title){
+      track('path_video',{dir:dir});
       PATH.data.watched=PATH.data.watched||{}; PATH.data.watched[dir]=1; pathSave();
       playVid(vid, title); renderPathView2();
     };
     window.pathChoose=function(dir){
+      track('path_choose',{dir:dir});
       PATH.direction=dir; pathSave(); hap('success');
       var dk=PATH_DIR2DOC[dir];
       popup('Направление выбрано: '+dir);
       setTimeout(function(){ if(dk){ openDocDir(dk); switchView('docs'); } else switchView('home'); }, 500);
     };
+    // Переход на конкретный шаг пути: кнопки «Шаг N» в напоминаниях ботов открывают приложение с ?go=stepN
+    window.goPathStep=function(n){
+      track('step_go',{n:n});
+      var run=function(){
+        var x=pathSteps()[n-1];
+        try{ if(x && x.go){ (new Function(x.go))(); } else { switchView('path'); } }catch(e){ switchView('home'); }
+      };
+      if(PATH.loaded) run(); else pathLoad(run);
+    };
     window.pathMentor=function(){
+      track('path_mentor');
       if(!PATH.direction){ switchView('path'); return; }
       if(!isMember){ PATH.data.mentorSeen=1; pathSave(); switchView('mentors'); return; }
       PATH.data.mentorSeen=1; pathSave();
@@ -1560,8 +1602,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
 
     /* ---------- ПРОФИЛЬ ---------- */
     function updateSplashBtn(){ try{ var b=document.getElementById('sp-btn'); if(!b)return; var passed = (localStorage.getItem('amore_funnel_v')==='1'); b.textContent = (passed||isMember) ? 'Войти →' : 'Продолжить →'; }catch(e){} }
-    window.closeSplash=function(){ var s=document.getElementById('splash'); if(s) s.className='splash hide'; if(typeof fnShouldRun==='function' && !isMember && fnShouldRun()){ setTimeout(showFunnel, 300); } };
-    window.subscribe=function(){ if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_URL);} else {window.open(TRIBUTE_URL,'_blank');} };
+    window.closeSplash=function(){ var s=document.getElementById('splash'); if(s && s.className.indexOf('hide')>=0) return; if(s) s.className='splash hide'; try{ localStorage.setItem('amore_seen','1'); }catch(e){} track('splash_close'); if(typeof fnShouldRun==='function' && !isMember && !window.__deepLink && fnShouldRun()){ setTimeout(showFunnel, 300); } };
+    window.subscribe=function(){ track('pay_click',{from:_lastLock||curV}); if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_URL);} else {window.open(TRIBUTE_URL,'_blank');} };
 
     /* ---------- ПОДСКАЗКИ «?» ---------- */
     var HINTS = {
@@ -1630,7 +1672,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var fnState={}, fnLeadSent=false;
     function fnShouldRun(){ try{ return localStorage.getItem('amore_funnel_v')!==FUNNEL_VERSION; }catch(e){ return false; } }
     function fnMarkDone(){ try{ localStorage.setItem('amore_funnel_v',FUNNEL_VERSION); }catch(e){} }
-    function showFunnel(){ fnState={}; fnLeadSent=false; ['fn-g1','fn-g2','fn-g3'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.width='0';}); fnGo('intro'); document.getElementById('funnel').className='fn-overlay on'; }
+    function showFunnel(){ track('fn_show'); fnState={}; fnLeadSent=false; ['fn-g1','fn-g2','fn-g3'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.width='0';}); fnGo('intro'); document.getElementById('funnel').className='fn-overlay on'; }
     function maybeStartFunnel(){ if(!isMember && fnShouldRun()){ setTimeout(showFunnel, 650); } }
     window.fnGo=function(id){
       document.querySelectorAll('#funnel .fn-screen').forEach(function(s){s.className='fn-screen';});
@@ -1642,7 +1684,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     };
     function fnFill(id,pct){var e=document.getElementById(id);if(e)e.style.width=pct+'%';}
     window.fnPick=function(key,val,el){
-      fnState[key]=val;
+      fnState[key]=val; track('fn_pick',{k:key,v:val});
       var box=el.parentNode; box.querySelectorAll('.fn-opt').forEach(function(o){o.className='fn-opt';}); el.className='fn-opt fn-sel';
       setTimeout(function(){
         if(key==='citizenship')fnGo('q2');
@@ -1681,6 +1723,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       steps.forEach(function(s,i){ h+='<div class="fn-prow" style="animation-delay:'+(i*0.09)+'s"><div class="fn-pn">'+(i+1)+'</div><div><div class="fn-ph">'+s[0]+'</div><div class="fn-pd">'+s[1]+'</div></div></div>'; });
       h+='</div>';
       document.getElementById('fn-resultBox').innerHTML=h;
+      track('fn_result',{dir:fnState.direction||'',goal:fnState.goal||'',ready:fnState.ready||''});
       document.getElementById('fn-offerSub').textContent='Под твоё направление — '+dir.n+'. Всё для первого контракта в одном месте.';
       fnGo('result');
     }
@@ -1760,14 +1803,15 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       });
       fnChatScroll();
     }
-    window.fnSkip=function(){ fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; };
-    window.fnStartFree=function(){ fnMarkDone(); fnTrialStart(); document.getElementById('funnel').className='fn-overlay'; setTimeout(function(){ switchView('path'); }, 200); };
+    window.fnSkip=function(){ track('fn_skip'); fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; };
+    window.fnStartFree=function(){ track('fn_free'); fnMarkDone(); fnTrialStart(); document.getElementById('funnel').className='fn-overlay'; setTimeout(function(){ switchView('path'); }, 200); };
     function fnTrialStart(){
       if(!tg||!tg.initData)return;
       try{ fetch(BACKEND_URL+'/trialStart',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})}).catch(function(){}); }catch(e){}
     }
-    window.fnSubscribe=function(){ fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; subscribe(); };
+    window.fnSubscribe=function(){ _lastLock='funnel_offer'; fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; subscribe(); };
     window.paywall=function(title, text){
+      _lastLock='paywall'; track('lock_show',{kind:'paywall',t:String(title||'').slice(0,60)});
       var h='<div class="grip"></div>';
       h+='<div style="text-align:center;font-size:36px;margin-bottom:6px">🔒</div>';
       h+='<div class="det-title" style="text-align:center">'+title+'</div>';
@@ -1931,6 +1975,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         .catch(function(){ popup('Сервер недоступен, попробуй ещё раз.'); if(btn){btn.textContent='Подать заявку';btn.disabled=false;} });
     };
     window.openResume=function(){
+      track('cv_open');
       window.location.href='resume.html?m='+(isMember?'1':'0');
     };
     function renderProfile(){
@@ -2087,7 +2132,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function guestExhaustedPaywall(){ paywall('Бесплатные отклики закончились','Ты использовал все 3 бесплатных отклика — круто, что попробовал! Оформи подписку AMORE: отклики без ограничений (15 в день), вся база из 5600 работодателей и прямые контакты.'); }
     window.openApply=function(){
       var c=window.__curContact; if(!c||(!c.email && c.vacId==null))return;
-      if(!isMember){ var rem=guestRemaining(); if(rem!=null && rem<=0){ guestExhaustedPaywall(); return; } }
+      if(!isMember){ var rem=guestRemaining(); if(rem!=null && rem<=0){ lockSheet('applies'); return; } }
       applyState=loadApply();
       renderApply();
       document.getElementById('modal').className='overlay';
@@ -2139,12 +2184,14 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             if(d.guest && d.remaining!=null){ try{ localStorage.setItem('amore_guest_remaining', String(d.remaining)); }catch(e){} }
             // если гость этим откликом ЗАКРЫЛ весь путь — сразу показываем спецпредложение
             var hasCvNow=false; try{ hasCvNow=!!(localStorage.getItem('amore_cv_b64')&&localStorage.getItem('amore_cv_name')); }catch(e){}
-            var pathDone = false;
+            track('apply_sent',{guest:d.guest?1:0, rem:(d.remaining!=null?d.remaining:null)});
+            // гость отправил последний бесплатный отклик — выдаём обещанное спецпредложение
+            var pathDone = !!(HAS_PROMO && d.guest && d.remaining!=null && d.remaining<=0);
             if(pathDone){
-              hap('success');
+              hap('success'); _lastLock='reward'; track('reward_show');
               var h='<div class="grip"></div><div class="rw-card" style="margin:0">';
-              h+='<div class="rw-h">🎉 Готово! Ты прошёл все шаги — вот твоё спецпредложение</div>';
-              h+='<div class="rw-code">Промокод: <b>'+PROMO_CODE+'</b> · только для тебя</div>';
+              h+='<div class="rw-h">✅ Письмо отправлено. Все 3 бесплатных отклика ушли работодателям — вот твоё спецпредложение</div>';
+              h+='<div class="rw-code">−10% по промокоду <b>'+PROMO_CODE+'</b> · только для тебя</div>';
               h+='<div class="rw-list">Что откроется в AMORE:<br>• Вся база 5600+ работодателей с контактами<br>• Безлимит откликов + авторассылка<br>• Обучение и личные наставники<br>• Все вакансии с прямыми контактами</div>';
               h+='<button class="btn btn-gold" style="margin-top:12px" onclick="claimDiscount()">Забрать спецпредложение →</button>';
               h+='<div class="close" onclick="closeModal()">Позже</div></div>';
@@ -2180,8 +2227,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     };
     var mass = { running:false, cancel:false };
     var massSent = null; // множество уже отправленных адресов (по этому пользователю)
-    window.subscribeMass=function(){ if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_MASS_URL);} else {window.open(TRIBUTE_MASS_URL,'_blank');} };
+    window.subscribeMass=function(){ track('mass_click'); if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_MASS_URL);} else {window.open(TRIBUTE_MASS_URL,'_blank');} };
     window.massPaywall=function(){
+      track('lock_show',{kind:'mass'});
       var h='<div class="grip"></div><div class="det-title">🚀 Автоматическая рассылка</div>';
       h+='<div class="det-sub">Отдельная подписка для участников AMORE</div>';
       h+='<div class="ml-note">Подключи авторассылку — и не отправляй резюме вручную. Ты запускаешь один раз, а рассылка сама идёт по базе работодателей и складывает статусы в «Мои отклики». До 15 писем в день.</div>';
@@ -2463,7 +2511,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(sp==='story_offer') setTimeout(function(){ shareStory('offer','Получил оффер на судно! Спасибо AMORE'); }, 900);
         if(sp==='path') window.__openPath=true;
         // из бота: кнопка «Шаг n» → ?go=stepN
-        try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm) window.__goStep=parseInt(gm[1],10); }catch(e){}
+        try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm){ window.__goStep=parseInt(gm[1],10); window.__deepLink=true; } }catch(e){}
       }catch(e){}
       if(tg.BackButton){ try{ tg.BackButton.onClick(function(){ goBack(); }); }catch(e){} }
       try{ if(tg.requestFullscreen) tg.requestFullscreen(); }catch(e){}
@@ -2489,7 +2537,14 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           try{ localStorage.setItem('amore_last_member', (d.ok&&d.member)?'1':'0'); }catch(e){}
         })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
-        .finally(function(){ memberKnown=true; renderHome(); loadVacancies(); updateSplashBtn(); pulseLoad(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); if(window.__openPath&&isMember){ window.__openPath=false; setTimeout(function(){ switchView('path'); }, 400); }
+        .finally(function(){ memberKnown=true;
+          try{
+            var _sp=(tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||''; var _seen=false; try{ _seen=localStorage.getItem('amore_seen')==='1'; }catch(e){}
+            track('app_open',{sp:_sp, go:(window.__goStep||0), ret:_seen?1:0});
+            // заставку показываем только при первом заходе; вернувшимся и пришедшим по кнопке из бота — сразу приложение
+            if(_seen || window.__deepLink || _sp==='path') setTimeout(function(){ closeSplash(); }, 500);
+          }catch(e){}
+          renderHome(); loadVacancies(); updateSplashBtn(); pulseLoad(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); if(window.__openPath&&isMember){ window.__openPath=false; setTimeout(function(){ switchView('path'); }, 400); }
           if(window.__goStep){ var gs=window.__goStep; window.__goStep=0; setTimeout(function(){ goPathStep(gs); }, 500); } });
     })();
   </script>
