@@ -480,6 +480,18 @@
     .stv-nav{position:absolute;inset:0;display:flex;z-index:3}
     .stv-nav .z{height:100%}
     .stv-nav .zl{flex:0 0 32%} .stv-nav .zr{flex:1}
+      .ib-dot { display:inline-block; min-width:18px; padding:1px 6px; border-radius:999px; background:#C2410C; color:#fff; font-size:11px; font-weight:800; text-align:center; margin-left:4px; }
+    .ib-row { display:flex; gap:10px; align-items:flex-start; cursor:pointer; }
+    .ib-name { font-size:13.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ib-snip { font-size:12px; color:#9AA3AB; margin-top:3px; line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .ib-msg { max-width:92%; padding:11px 13px; border-radius:14px; margin-bottom:10px; font-size:13px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+    .ib-in { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.10); margin-right:auto; }
+    .ib-out { background:rgba(14,92,138,.28); border:1px solid rgba(120,170,200,.25); margin-left:auto; }
+    .ib-meta { font-size:10.5px; color:#9AA3AB; margin-bottom:5px; white-space:normal; }
+    .ib-tr { margin-top:9px; padding-top:9px; border-top:1px dashed rgba(255,255,255,.18); color:#DCE6EC; }
+    .ib-link { display:inline-block; margin-top:8px; font-size:12px; font-weight:700; color:#8EC5E4; cursor:pointer; white-space:normal; }
+    .ib-ta { width:100%; box-sizing:border-box; min-height:84px; padding:11px; border-radius:12px; border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.25); color:#EEF1F4; font-family:'Manrope',sans-serif; font-size:13px; line-height:1.5; resize:vertical; }
+    .ib-blur { filter:blur(5px); user-select:none; pointer-events:none; }
   </style>
 </head>
 <body>
@@ -565,6 +577,7 @@
       <div class="sec-title"><span style="color:#CBD5DD">📨</span> Мои отклики</div>
       <div id="myappsbox"></div>
     </div>
+    <div class="view hidden" id="view-inbox"><div id="inboxbox"></div></div>
   </div>
 
   <div class="nav">
@@ -854,15 +867,16 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     window.avFallback=function(img){ var d=img.parentNode; d.textContent=d.getAttribute('data-init'); };
 
     var NAV=['home','plan','vacancies','contacts','profile'];
-    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen','docapply','myapps','path'];
-    var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile',docapply:'profile',myapps:'profile',path:'home'};
+    var ALLV=['home','plan','vacancies','contacts','mentors','reviews','profile','docs','mailgen','docapply','myapps','path','inbox'];
+    var PARENT={mentors:'home',reviews:'home',docs:'profile',mailgen:'profile',docapply:'profile',myapps:'profile',path:'home',inbox:'home'};
     var navHist=[];            // история переходов внутри апки
     var curV='home';
     function updateBackBtn(){
       if(!tg||!tg.BackButton)return;
-      try{ if(navHist.length>0) tg.BackButton.show(); else tg.BackButton.hide(); }catch(e){}
+      try{ if(navHist.length>0 || (curV==='inbox' && inboxCur!==null)) tg.BackButton.show(); else tg.BackButton.hide(); }catch(e){}
     }
     window.goBack=function(){
+      if(curV==='inbox' && inboxCur!==null){ inboxCur=null; renderInbox(); updateBackBtn(); return; }
       if(navHist.length>0){ var prev=navHist.pop(); switchView(prev, true); }
     };
     function switchView(v, isBack){
@@ -890,6 +904,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(v==='mailgen') renderMailGen();
       if(v==='docapply') renderDocApply();
       if(v==='myapps') renderMyApps();
+      if(v==='inbox'){ inboxCur=null; renderInbox(true); }
       window.scrollTo(0,0);
     }
 
@@ -1060,6 +1075,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       html+=pulseHTML();
       html+='<div class="hero-row"><span onclick="switchView(\'contacts\')">⚓ База работодателей</span><span onclick="switchView(\'vacancies\')">⚡ Свежие вакансии</span></div>';
       html+='<div class="hero-row"><span onclick="switchView(\'plan\')">📚 Обучение с нуля</span><span onclick="switchView(\'mentors\')">👥 Наставники-практики</span></div></div>';
+      html+=inboxHomeHTML();
       if(!memberKnown){
         html+='<div class="skel skel-card"></div>';
       }
@@ -1133,6 +1149,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       applies: { t:'Три отклика ушли. Дальше — 5 600 работодателей', d:'У участников: 15 откликов в день, авторассылка сама пишет работодателям каждое утро, ответы приходят прямо в бота с переводом.' },
       mentor:  { t:'Личный чат с ментором и ветка направления', d:'Ментор твоего направления отвечает лично. В ветке — свежие вакансии, ответы и живые созвоны раз в неделю.' },
       lessons: { t:'Полный курс по твоему направлению', d:'Уроки от людей, которые прошли этот путь: документы, контакты, как писать, что брать с собой.' },
+      reply:   { t:'Тебе ответил работодатель', d:'Письмо уже ждёт тебя. Участники читают ответы с переводом на русский и отвечают работодателю прямо из приложения — помощник составит письмо на английском или норвежском.' },
       generic: { t:'Доступно участникам AMORE', d:'' }
     };
     window.lockSheet=function(kind, extra){
@@ -1993,6 +2010,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(isAdmin){ html+='<div class="prow" onclick="openDigest()"><div class="prow-ico">📢</div><div style="flex:1"><div class="prow-t">Сводка вакансий за сегодня</div><div class="prow-s">Разослать всем: сколько добавили и куда</div></div><span style="color:#9AA3AB">›</span></div>'; }
       html+='<div class="prow" onclick="switchView(\'docapply\')"><div class="prow-ico">🛠️</div><div style="flex:1"><div class="prow-t">Сделать документы</div><div class="prow-s">Оставь заявку — поможем оформить сертификаты</div></div><span style="color:#9AA3AB">›</span></div>';
       html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">📧</div><div style="flex:1"><div class="prow-t">Письмо для рассылки <span class="hbadge" onclick="showHint(event,\'mail\')">?</span></div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div><span style="color:#9AA3AB">›</span></div>';
+      html+='<div class="prow" onclick="switchView(\'inbox\')"><div class="prow-ico">📩</div><div style="flex:1"><div class="prow-t">Ответы работодателей'+(INBOX.unread?' <span class="ib-dot">'+INBOX.unread+'</span>':'')+'</div><div class="prow-s">Письма с переводом и помощь с ответом</div></div><span style="color:#9AA3AB">›</span></div>';
       html+='<div class="prow" onclick="switchView(\'myapps\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики <span class="hbadge" onclick="showHint(event,\'myapps\')">?</span></div><div class="prow-s">Статусы отправленных писем</div></div><span style="color:#9AA3AB">›</span></div>';
       if(tg){ html+='<div class="prow" onclick="hap(\'medium\');homeScreenAdd()"><div class="prow-ico">📲</div><div style="flex:1"><div class="prow-t">Добавить AMORE на экран</div><div class="prow-s">Иконка на телефоне — как обычное приложение</div></div><span style="color:#9AA3AB">›</span></div>'; }
       if(tg&&tg.shareToStory){ html+='<div class="prow" onclick="shareStory(\'app\',\'Ищу работу в море через AMORE — база 5000+ работодателей и ответы капитанов прямо в телефоне\')"><div class="prow-ico">📣</div><div style="flex:1"><div class="prow-t">Рассказать в сторис</div><div class="prow-s">Поделиться AMORE с друзьями-моряками</div></div><span style="color:#9AA3AB">›</span></div>'; }
@@ -2430,6 +2448,163 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(val).then(function(){popup(msg);},function(){fallbackCopy(val);popup(msg);}); return; } }catch(e){}
       fallbackCopy(val); popup(msg);
     }
+
+    /* ---------- ОТВЕТЫ РАБОТОДАТЕЛЕЙ ---------- */
+    var INBOX={loaded:false, locked:false, live:0, auto:0, unread:0, threads:[]};
+    var inboxTab='live', inboxCur=null, IB_DRAFT={}, _ibBusy=false;
+    function ibPost(path, body, cb){
+      body=body||{}; body.initData=tg?tg.initData:'';
+      fetch(BACKEND_URL+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+        .then(function(r){return r.json();}).then(function(d){ cb(d||{ok:false}); }).catch(function(){ cb({ok:false, error:'Нет связи с сервером. Попробуй ещё раз.'}); });
+    }
+    function inboxLoad(cb){
+      if(!tg||!tg.initData){ if(cb)cb(); return; }
+      ibPost('/myInbox',{},function(d){
+        if(d.ok){ INBOX={loaded:true, locked:!!d.locked, live:d.live||0, auto:d.auto||0, unread:d.unread||0, last:d.last||null, threads:d.threads||[]}; }
+        else { INBOX.error=d.error||'Не удалось загрузить ответы.'; }
+        if(cb)cb();
+      });
+    }
+    function ibDate(ts){ try{ var d=new Date(ts); if(isNaN(d)) return ''; var p=function(n){return (n<10?'0':'')+n;}; return p(d.getDate())+'.'+p(d.getMonth()+1)+' '+p(d.getHours())+':'+p(d.getMinutes()); }catch(e){ return ''; } }
+    function ibPlural(n,a,b,c){ var m=n%100, k=n%10; if(m>10&&m<20) return c; if(k===1) return a; if(k>=2&&k<=4) return b; return c; }
+    function inboxHomeHTML(){
+      if(!INBOX.loaded || !INBOX.live) return '';
+      var t = INBOX.unread ? ('Новых ответов: '+INBOX.unread) : (INBOX.live+' '+ibPlural(INBOX.live,'работодатель ответил','работодателя ответили','работодателей ответили'));
+      return '<div class="card" style="margin-top:12px;cursor:pointer;display:flex;align-items:center;gap:12px;border-color:rgba(142,197,228,.45)" onclick="switchView(\'inbox\')"><div style="font-size:26px">📩</div><div style="flex:1"><div style="font-size:14px;font-weight:800">Ответы работодателей'+(INBOX.unread?' <span class="ib-dot">'+INBOX.unread+'</span>':'')+'</div><div style="font-size:12px;color:#9AA3AB;margin-top:2px">'+esc(t)+(INBOX.locked?' · открыть':' · перевод и помощь с ответом')+'</div></div><span style="color:#9AA3AB">›</span></div>';
+    }
+    function ibThreads(){ return INBOX.threads.filter(function(t){ return inboxTab==='auto' ? t.auto : !t.auto; }); }
+    window.inboxSetTab=function(t){ inboxTab=t; inboxCur=null; hap('select'); renderInbox(); };
+    function renderInbox(reload){
+      var box=document.getElementById('inboxbox'); if(!box) return;
+      var head='<div class="back" onclick="goBack()">← Назад</div><div class="sec-title"><span style="color:#CBD5DD">📩</span> Ответы работодателей</div>';
+      if(reload){
+        if(!INBOX.loaded) box.innerHTML=head+skel('skel-row',4);
+        inboxLoad(function(){ track('inbox_open',{locked:INBOX.locked?1:0, live:INBOX.live, auto:INBOX.auto}); if(curV==='inbox'){ renderInbox(); if(INBOX.locked && INBOX.live>0) setTimeout(function(){ if(curV==='inbox') lockSheet('reply'); }, 600); } });
+        if(!INBOX.loaded) return;
+      }
+      if(!INBOX.loaded){ box.innerHTML=head+'<div class="info">'+esc(INBOX.error||'Загружаем…')+'</div>'; return; }
+      var h=head;
+      if(INBOX.locked){ box.innerHTML=h+inboxLockedHTML(); return; }
+      if(inboxCur!==null){ box.innerHTML=inboxThreadHTML(); updateBackBtn(); return; }
+      h+='<div style="display:flex;gap:8px;margin:0 0 12px"><div class="chip'+(inboxTab==='live'?' on':'')+'" onclick="inboxSetTab(\'live\')">Ответы · '+INBOX.live+'</div><div class="chip'+(inboxTab==='auto'?' on':'')+'" onclick="inboxSetTab(\'auto\')">Автоответы · '+INBOX.auto+'</div></div>';
+      if(inboxTab==='auto') h+='<div style="font-size:12px;color:#9AA3AB;margin:0 2px 12px;line-height:1.5">Автоответ — это «в отпуске» или «не в офисе». Значит, письмо дошло, человек прочитает позже. Отвечать на него не нужно.</div>';
+      else h+='<div style="font-size:12px;color:#9AA3AB;margin:0 2px 12px;line-height:1.5">Здесь письма, которые работодатели написали тебе сами. Открой письмо — переведу и помогу ответить.</div>';
+      var list=ibThreads(); INBOX._list=list;
+      if(!list.length){
+        h+='<div class="info" style="padding:30px 16px"><div style="font-size:34px">'+(inboxTab==='auto'?'📭':'⏳')+'</div><div style="margin-top:8px">'+(inboxTab==='auto'?'Автоответов пока нет.':'Живых ответов пока нет.<br>Работодатели отвечают в среднем через несколько дней — чем больше откликов, тем выше шанс.')+'</div></div>';
+        if(inboxTab==='live') h+='<button class="btn btn-gold" onclick="switchView(\'contacts\')">Отправить отклики →</button>';
+      }
+      list.forEach(function(t,i){
+        var last=null; for(var k=t.messages.length-1;k>=0;k--){ if(t.messages[k].dir==='in'){ last=t.messages[k]; break; } }
+        var answered = t.messages.length && t.messages[t.messages.length-1].dir==='out';
+        h+='<div class="card ib-row" onclick="inboxOpen('+i+')"><div style="font-size:20px">'+(t.auto?'📬':(t.unread?'🔵':'✉️'))+'</div><div style="flex:1;min-width:0">';
+        h+='<div style="display:flex;gap:8px;align-items:baseline"><div class="ib-name" style="flex:1">'+esc(t.name||t.employer)+'</div><div style="font-size:10.5px;color:#9AA3AB;flex:0 0 auto">'+esc(ibDate(t.last))+'</div></div>';
+        if(t.name) h+='<div style="font-size:11px;color:#9AA3AB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(t.employer)+'</div>';
+        h+='<div class="ib-snip">'+esc(last?String(last.body||last.subject||'').slice(0,160):'')+'</div>';
+        if(!t.auto) h+='<div style="font-size:11px;font-weight:800;margin-top:6px;color:'+(answered?'#5FB58F':'#E0A458')+'">'+(answered?'✓ Ты ответил':(t.unread?'Новое — ждёт ответа':'Ждёт твоего ответа'))+'</div>';
+        h+='</div></div>';
+      });
+      box.innerHTML=h;
+    }
+    function inboxLockedHTML(){
+      var h='';
+      if(INBOX.live>0){
+        h+='<div class="plan-box" style="margin-top:4px"><div style="font-size:17px;font-weight:800;line-height:1.35">📩 '+INBOX.live+' '+ibPlural(INBOX.live,'работодатель ответил','работодателя ответили','работодателей ответили')+' на твой отклик</div>';
+        if(INBOX.last) h+='<div style="font-size:12px;color:#9AA3AB;margin-top:4px">Последнее письмо: '+esc(ibDate(INBOX.last))+'</div>';
+        h+='<div class="ib-msg ib-in ib-blur" style="margin:14px 0 4px;max-width:100%">Hello, thank you for your application. We have looked at your CV and would like to ask you a few questions about your experience and availability. Please let us know when you can start.</div>';
+        h+='<div style="font-size:12.5px;color:#CBD5DD;line-height:1.5;margin:10px 0 2px">Письмо уже здесь. С подпиской AMORE ты прочитаешь его с переводом на русский и ответишь прямо из приложения — помощник составит письмо на языке работодателя.</div>';
+        h+='<button class="btn btn-gold" onclick="lockSheet(\'reply\')">Открыть письмо →</button>';
+        h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца</div></div>';
+        if(INBOX.auto>0) h+='<div style="font-size:12px;color:#9AA3AB;margin:0 2px;line-height:1.5">Ещё '+INBOX.auto+' '+ibPlural(INBOX.auto,'автоответ','автоответа','автоответов')+' («в отпуске / не в офисе») — эти письма дошли, человек прочитает позже.</div>';
+      } else if(INBOX.auto>0){
+        h+='<div class="info" style="padding:26px 16px"><div style="font-size:34px">📬</div><div style="margin-top:8px">Автоответов: '+INBOX.auto+' — «в отпуске» или «не в офисе».<br>Значит, твои письма дошли. Живых ответов пока нет.</div></div>';
+      } else {
+        h+='<div class="info" style="padding:30px 16px"><div style="font-size:34px">⏳</div><div style="margin-top:8px">Ответов пока нет.<br>Как только работодатель ответит на твой отклик — письмо появится здесь, а в бота придёт уведомление.</div></div>';
+        h+='<button class="btn btn-gold" onclick="switchView(\'contacts\')">К базе работодателей →</button>';
+      }
+      return h;
+    }
+    function ibReplyTarget(t){ var m=null; t.messages.forEach(function(x){ if(x.dir==='in' && !x.auto) m=x; }); if(!m) t.messages.forEach(function(x){ if(x.dir==='in') m=x; }); return m; }
+    function inboxThreadHTML(){
+      var t=INBOX._list[inboxCur]; if(!t){ inboxCur=null; return ''; }
+      var h='<div class="back" onclick="goBack()">← Все ответы</div>';
+      h+='<div style="margin:0 2px 14px"><div style="font-size:16px;font-weight:800">'+esc(t.name||t.employer)+'</div>'+(t.name?'<div style="font-size:12px;color:#9AA3AB;margin-top:2px">'+esc(t.employer)+'</div>':'')+'</div>';
+      t.messages.forEach(function(m,k){
+        if(m.dir==='out'){
+          h+='<div class="ib-msg ib-out"><div class="ib-meta">Ты · '+esc(ibDate(m.ts))+'</div>'+esc(String(m.body||'').slice(0,4000))+'</div>';
+        } else {
+          h+='<div class="ib-msg ib-in"><div class="ib-meta">'+(m.auto?'Автоответ':'Работодатель')+' · '+esc(ibDate(m.ts))+(m.subject?' · '+esc(m.subject):'')+(m.att?' · 📎 есть вложение':'')+'</div>'+esc(m.body||'(текст пустой — возможно, только вложение)');
+          if(m.tr) h+='<div class="ib-tr"><div class="ib-meta">🌐 Перевод</div>'+esc(m.tr)+'</div>';
+          else h+='<div><span class="ib-link" id="ibtr'+k+'" onclick="inboxTranslate('+k+')">🌐 Перевести на русский</span></div>';
+          h+='</div>';
+        }
+      });
+      if(t.auto){ h+='<div style="font-size:12px;color:#9AA3AB;line-height:1.5;margin:4px 2px">Это автоответ: письмо дошло, отвечать не нужно. Когда человек вернётся и напишет сам — ответ появится во вкладке «Ответы».</div>'; return h; }
+      var d=IB_DRAFT[t.employer]||{};
+      h+='<div class="plan-box" style="margin-top:8px"><div style="font-size:14px;font-weight:800">✍️ Ответить работодателю</div>';
+      if(!d.show){
+        h+='<div style="font-size:12px;color:#9AA3AB;margin:6px 0 10px;line-height:1.5">Напиши по-русски своими словами, что хочешь ответить. Помощник составит письмо на языке работодателя, ты проверишь и отправишь.</div>';
+        h+='<textarea class="ib-ta" id="ibWish" placeholder="Например: да, мне интересно, готов выйти с 10 ноября, документы пришлю" oninput="ibKeep(\'wish\',this.value)">'+esc(d.wish||'')+'</textarea>';
+        h+='<button class="btn btn-gold" id="ibDraftBtn" onclick="inboxDraft()">Составить письмо</button>';
+        h+='<div style="text-align:center"><span class="ib-link" onclick="inboxManual()">Напишу сам, без помощника</span></div>';
+      } else {
+        if(d.comment) h+='<div style="font-size:12.5px;color:#CBD5DD;margin:8px 0 10px;line-height:1.5">💬 '+esc(d.comment)+'</div>';
+        else h+='<div style="font-size:12px;color:#9AA3AB;margin:6px 0 10px;line-height:1.5">Пиши на языке работодателя — английском или норвежском.</div>';
+        h+='<textarea class="ib-ta" id="ibLetter" style="min-height:190px" oninput="ibKeep(\'letter\',this.value)">'+esc(d.letter||'')+'</textarea>';
+        h+='<div style="font-size:11.5px;color:#9AA3AB;margin-top:6px;line-height:1.45">Проверь текст. Если есть слова в [квадратных скобках] — впиши туда свои данные.</div>';
+        h+='<button class="btn btn-gold" id="ibSendBtn" onclick="inboxSend()">📤 Отправить работодателю</button>';
+        h+='<div style="text-align:center"><span class="ib-link" onclick="inboxRedo()">← Переделать с помощником</span></div>';
+      }
+      h+='</div>';
+      return h;
+    }
+    window.ibKeep=function(k,v){ var t=INBOX._list[inboxCur]; if(!t) return; (IB_DRAFT[t.employer]=IB_DRAFT[t.employer]||{})[k]=v; };
+    window.inboxOpen=function(i){
+      var t=INBOX._list[i]; if(!t) return;
+      inboxCur=i; hap('select'); track('inbox_thread',{auto:t.auto?1:0});
+      if(t.unread){ if(!t.auto) INBOX.unread=Math.max(0,INBOX.unread-1); t.unread=0; ibPost('/inboxRead',{employer:t.employer},function(){}); }
+      renderInbox(); window.scrollTo(0,0);
+    };
+    window.inboxTranslate=function(k){
+      var t=INBOX._list[inboxCur]; if(!t) return; var m=t.messages[k]; if(!m||m._busy) return;
+      m._busy=true; var el=document.getElementById('ibtr'+k); if(el) el.textContent='Перевожу…';
+      track('inbox_tr');
+      ibPost('/inboxTranslate',{id:m.id},function(d){
+        m._busy=false;
+        if(d.ok){ m.tr=d.text; if(curV==='inbox'&&INBOX._list[inboxCur]===t){ var y=window.scrollY; renderInbox(); window.scrollTo(0,y); } }
+        else { if(el) el.textContent='🌐 Перевести на русский'; if(d.locked) lockSheet('reply'); else popup(d.error||'Не получилось перевести.'); }
+      });
+    };
+    window.inboxDraft=function(){
+      var t=INBOX._list[inboxCur]; if(!t||_ibBusy) return; var m=ibReplyTarget(t); if(!m) return;
+      var d=IB_DRAFT[t.employer]=IB_DRAFT[t.employer]||{};
+      _ibBusy=true; var b=document.getElementById('ibDraftBtn'); if(b){ b.textContent='Составляю письмо…'; b.disabled=true; }
+      track('inbox_draft');
+      ibPost('/inboxDraft',{id:m.id, instruction:d.wish||''},function(r){
+        _ibBusy=false;
+        if(r.ok){ d.comment=r.comment||''; d.letter=r.letter||''; d.show=true; hap('success'); }
+        else { if(r.locked){ lockSheet('reply'); } else popup(r.error||'Не получилось составить ответ.'); }
+        if(curV==='inbox'&&INBOX._list[inboxCur]===t) renderInbox();
+      });
+    };
+    window.inboxManual=function(){ var t=INBOX._list[inboxCur]; if(!t) return; var d=IB_DRAFT[t.employer]=IB_DRAFT[t.employer]||{}; d.show=true; d.comment=''; d.letter=d.letter||''; renderInbox(); };
+    window.inboxRedo=function(){ var t=INBOX._list[inboxCur]; if(!t) return; var d=IB_DRAFT[t.employer]=IB_DRAFT[t.employer]||{}; d.show=false; renderInbox(); };
+    window.inboxSend=function(){
+      var t=INBOX._list[inboxCur]; if(!t||_ibBusy) return; var m=ibReplyTarget(t); if(!m) return;
+      var d=IB_DRAFT[t.employer]||{}; var text=String(d.letter||'').trim();
+      if(text.length<5){ popup('Письмо пустое.'); return; }
+      var go=function(){
+        _ibBusy=true; var b=document.getElementById('ibSendBtn'); if(b){ b.textContent='Отправляю…'; b.disabled=true; }
+        ibPost('/inboxSend',{id:m.id, text:text},function(r){
+          _ibBusy=false;
+          if(r.ok){ track('inbox_send'); hap('success'); t.messages.push({dir:'out', body:text, ts:new Date().toISOString()}); delete IB_DRAFT[t.employer]; popup('Отправлено. Ответ работодателя придёт сюда же, а в бота — уведомление.'); }
+          else { if(r.locked) lockSheet('reply'); else popup(r.error||'Не получилось отправить.'); }
+          if(curV==='inbox'&&INBOX._list[inboxCur]===t) renderInbox();
+        });
+      };
+      if(tg&&tg.showConfirm){ try{ tg.showConfirm('Отправить это письмо работодателю?', function(ok){ if(ok) go(); }); return; }catch(e){} }
+      go();
+    };
     /* ---------- МОИ ОТКЛИКИ (статусы из Brevo) ---------- */
     function renderMyApps(){
       var box=document.getElementById('myappsbox');
@@ -2510,6 +2685,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(sp==='story_reply') setTimeout(function(){ shareStory('reply','Мне ответил работодатель! Ищу работу в море через AMORE'); }, 900);
         if(sp==='story_offer') setTimeout(function(){ shareStory('offer','Получил оффер на судно! Спасибо AMORE'); }, 900);
         if(sp==='path') window.__openPath=true;
+        if(sp==='inbox'||sp==='inbox_auto'){ window.__goInbox=(sp==='inbox_auto'?'auto':'live'); window.__deepLink=true; }
+        try{ if(new URLSearchParams(location.search).get('go')==='inbox'){ window.__goInbox='live'; window.__deepLink=true; } }catch(e){}
         // из бота: кнопка «Шаг n» → ?go=stepN
         try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm){ window.__goStep=parseInt(gm[1],10); window.__deepLink=true; } }catch(e){}
       }catch(e){}
@@ -2545,6 +2722,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             if(_seen || window.__deepLink || _sp==='path') setTimeout(function(){ closeSplash(); }, 500);
           }catch(e){}
           renderHome(); loadVacancies(); updateSplashBtn(); pulseLoad(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); if(window.__openPath&&isMember){ window.__openPath=false; setTimeout(function(){ switchView('path'); }, 400); }
+          if(window.__goInbox){ inboxTab=window.__goInbox; window.__goInbox=null; setTimeout(function(){ switchView('inbox'); }, 500); } else { setTimeout(function(){ inboxLoad(function(){ if(curV==='home') renderHome(); }); }, 1200); }
           if(window.__goStep){ var gs=window.__goStep; window.__goStep=0; setTimeout(function(){ goPathStep(gs); }, 500); } });
     })();
   </script>
