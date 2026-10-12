@@ -2139,7 +2139,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             body:'Hei,\n\nMitt navn er ___. Jeg ønsker å søke en stilling om bord på deres fartøy. Jeg har erfaring til sjøs og har nødvendige sertifikater (STCW grunnleggende sikkerhetskurs, helseattest).\n\nCV er vedlagt. Jeg kan begynne og vil gjerne høre om ledige stillinger.\n\nMed vennlig hilsen,\n___' }
     };
     function loadApply(){
-      try{ var s=localStorage.getItem('amore_apply'); if(s)return JSON.parse(s); }catch(e){}
+      try{ var s=localStorage.getItem('amore_apply'); if(s){ var o=JSON.parse(s); ['en','no'].forEach(function(L){ if(o[L]){ o[L].subj=fillName(o[L].subj); o[L].body=fillName(o[L].body); } }); return o; } }catch(e){}
       var base={ lang:'en', en:Object.assign({},APPLY_DEFAULTS.en), no:Object.assign({},APPLY_DEFAULTS.no) };
       try{ var mgs=localStorage.getItem('amore_mg'); if(mgs){ var mg=JSON.parse(mgs); if(mg&&mg.generated){ var L=mg.lang||'en'; base.lang=L; base[L]={subj:mg.generated.subj||base[L].subj, body:mg.generated.body||base[L].body}; } } }catch(e){}
       return base;
@@ -2243,6 +2243,21 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       no:{ subj:'Søknad om stilling om bord — {company}',
         body:'Hei,\n\nMitt navn er ___ og jeg ønsker å søke en stilling om bord på fartøyet deres ved {company}. Jeg har erfaring til sjøs og har nødvendige sertifikater (STCW/BST, helseattest). CV er vedlagt.\n\nJeg kan mønstre på kort varsel. Takk for tiden deres.\n\nMed vennlig hilsen' }
     };
+    // Имя человека для письма: из резюме → из Telegram. Пустое «___» в письме — главная причина «текст другой».
+    function userDisplayName(){
+      try{ var d=JSON.parse(localStorage.getItem('amore_cv_data')||'{}'); if(d&&d.name&&String(d.name).trim()) return String(d.name).trim(); }catch(e){}
+      try{ var u=tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user; if(u){ return [u.first_name,u.last_name].filter(Boolean).join(' ').trim(); } }catch(e){}
+      return '';
+    }
+    function fillName(txt){ var n=userDisplayName(); if(!n) return txt; return String(txt||'').replace(/_{2,}/g, n); }
+    // Шаблон для рассылки/автопилота: то же письмо, что человек собрал в «Собрать письмо» (или правил при отклике), с именем
+    function massTemplate(lang){
+      var a=loadApply(); var L=lang||a.lang||'en'; var t=(a[L]&&a[L].body)?a[L]:(MASS_TPL[L]||MASS_TPL.en);
+      var subj=String(t.subj||MASS_TPL[L].subj), body=String(t.body||MASS_TPL[L].body);
+      if(subj.indexOf('{company}')<0) subj=subj+' — {company}';
+      return { subj:fillName(subj), body:fillName(body) };
+    }
+    function hasBlank(txt){ return /_{2,}/.test(String(txt||'')); }
     var mass = { running:false, cancel:false };
     var massSent = null; // множество уже отправленных адресов (по этому пользователю)
     window.subscribeMass=function(){ track('mass_click'); if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_MASS_URL);} else {window.open(TRIBUTE_MASS_URL,'_blank');} };
@@ -2320,7 +2335,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var cvB64='', cvName='';
       try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
       var reply=''; try{ reply=localStorage.getItem('amore_reply_email')||''; }catch(e){}
-      var lang=(loadApply().lang)||'en'; var tpl=MASS_TPL[lang]||MASS_TPL.en;
+      var lang=(loadApply().lang)||'en'; var tpl=massTemplate(lang);
       var h='<div class="grip"></div><div class="det-title">🚀 Массовая рассылка резюме</div>';
       h+='<div class="det-sub">Осталось '+list.length+' работодателей — очередь продолжится с места, где встала</div>';
       if(!cvB64||!cvName){
@@ -2363,13 +2378,14 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var body=(document.getElementById('mass-body')||{}).value; body=(body||'').trim();
       if(!reply || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(reply)){ popup('Впиши свою почту — на неё придут ответы работодателей.'); return; }
       if(!subj || !body){ popup('Заполни тему и текст письма.'); return; }
+      if(hasBlank(subj)||hasBlank(body)){ popup('В письме осталось пустое место «___» — впиши туда своё имя, иначе каждое утро будет уходить письмо без имени.'); return; }
       var cvB64='', cvName='';
       try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
       if(!cvB64||!cvName){ popup('Сначала сохрани резюме для откликов.'); return; }
       saveReplyEmail(reply);
       var box=document.getElementById('ap-box'); if(box){ box.className='ap-box'; box.innerHTML='<div class="ap-spin-mini"></div> Включаю автопилот…'; }
       fetch(BACKEND_URL+'/autopilotOn',{method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({initData:tg?tg.initData:'', replyTo:reply, subject:subj, body:body, lang:(loadApply().lang)||'en', cvBase64:cvB64, cvName:cvName})})
+        body:JSON.stringify({initData:tg?tg.initData:'', replyTo:reply, replyName:userDisplayName(), subject:subj, body:body, lang:(loadApply().lang)||'en', cvBase64:cvB64, cvName:cvName})})
         .then(function(r){return r.json();}).then(function(d){
           if(d&&d.ok){
             var sheet=document.getElementById('sheet');
@@ -2394,6 +2410,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var bodyT=(document.getElementById('mass-body').value||'').trim();
       if(!reply || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(reply)){ popup('Впиши свою почту правильно — на неё придут ответы работодателей.'); return; }
       if(!subjT || !bodyT){ popup('Заполни тему и текст письма.'); return; }
+      if(hasBlank(subjT)||hasBlank(bodyT)){ popup('В письме осталось пустое место «___» — впиши туда своё имя, иначе работодатель получит письмо без имени.'); return; }
       saveReplyEmail(reply);
       var cvB64='', cvName='';
       try{ cvB64=localStorage.getItem('amore_cv_b64')||''; cvName=localStorage.getItem('amore_cv_name')||''; }catch(e){}
