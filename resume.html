@@ -2,58 +2,64 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<script>(function(){try{var d=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.setAttribute("data-theme",d?"dark":"light");}catch(e){}})();</script>
 <title>AMORE — Резюме</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <script src="html-to-image.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap');
+  :root{ --bg:#F3F4F6; --card:#FFFFFF; --fg:#0B0D12; --fg2:#5B6472; --fg3:#9AA2AE; --line:rgba(10,14,20,.07); --soft:rgba(10,14,20,.045); --soft-2:rgba(10,14,20,.08); --acc:#0B0D12; --accfg:#fff; --ok:#13A06B; --ok-soft:rgba(19,160,107,.12); --hot:#E5484D; --sh:0 1px 0 var(--line), 0 12px 32px -20px rgba(10,14,20,.28); --nav-bg:rgba(255,255,255,.78); }
+  :root[data-theme="dark"]{ --bg:#0A0B0E; --card:#15171C; --fg:#F4F5F7; --fg2:#A3AAB6; --fg3:#6C7380; --line:rgba(255,255,255,.07); --soft:rgba(255,255,255,.055); --soft-2:rgba(255,255,255,.10); --acc:#F4F5F7; --accfg:#0B0D12; --ok:#3DCC8C; --ok-soft:rgba(61,204,140,.14); --hot:#FF6B6E; --sh:0 1px 0 var(--line); --nav-bg:rgba(28,30,36,.82); }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Manrope', sans-serif; background: #060708; background-image: radial-gradient(125% 70% at 50% -6%, #171A1F 0%, #0C0E11 44%, #050506 100%); background-attachment: fixed; color: #EEF1F4; -webkit-font-smoothing: antialiased; }
-  .wrap { max-width: 480px; margin: 0 auto; padding: 18px 16px 120px; }
+  html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+  body { font-family: 'Manrope', -apple-system, system-ui, sans-serif; background: var(--bg); color: var(--fg); -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 480px; margin: 0 auto; padding: 14px 16px calc(120px + env(safe-area-inset-bottom,0px)); }
   .top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .back { font-size: 13px; font-weight: 700; color: #CBD5DD; text-decoration: none; }
-  h1 { font-size: 19px; font-weight: 800; margin: 4px 0 2px; }
-  .lead { font-size: 12.5px; color: #9AA3AB; font-weight: 500; line-height: 1.5; margin-bottom: 16px; }
+  .back { font-size: 13.5px; font-weight: 700; color: var(--fg2); text-decoration: none; }
+  h1 { font-size: 26px; font-weight: 800; letter-spacing: -.8px; margin: 6px 0 4px; line-height: 1.05; }
+  .lead { font-size: 13px; color: var(--fg2); font-weight: 500; line-height: 1.5; margin-bottom: 16px; }
 
-  .seg { display: flex; background: rgba(255,255,255,.06); border-radius: 11px; padding: 4px; margin-bottom: 16px; }
-  .seg button { flex: 1; border: none; background: transparent; padding: 9px; border-radius: 8px; font-family: 'Manrope'; font-size: 13px; font-weight: 700; color: #9AA3AB; cursor: pointer; }
-  .seg button.on { background: rgba(255,255,255,.12); color: #EEF1F4; box-shadow: 0 1px 3px rgba(14,34,51,.1); }
+  .seg { display: flex; background: var(--soft); border-radius: 14px; padding: 4px; margin-bottom: 14px; }
+  .seg button { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 11px; font-family: 'Manrope'; font-size: 13px; font-weight: 700; color: var(--fg2); cursor: pointer; }
+  .seg button.on { background: var(--card); color: var(--fg); box-shadow: var(--sh); }
 
-  .group { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); border-radius: 16px; padding: 15px; margin-bottom: 13px; }
-  .group h2 { font-size: 13px; font-weight: 800; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
-  label { display: block; font-size: 11px; font-weight: 700; color: #9AA3AB; margin: 9px 0 4px; }
-  input, textarea { width: 100%; border: 1px solid rgba(255,255,255,.12); border-radius: 10px; padding: 10px 12px; font-family: 'Manrope'; font-size: 13.5px; color: #EEF1F4; outline: none; background: rgba(255,255,255,.06); }
-  input:focus, textarea:focus { border-color: #8CC0A6; }
+  .group { background: var(--card); border: 0; border-radius: 20px; padding: 16px; margin-bottom: 10px; box-shadow: var(--sh); }
+  .group h2 { font-size: 14px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; letter-spacing: -.1px; }
+  label { display: block; font-size: 11.5px; font-weight: 700; color: var(--fg3); margin: 10px 0 5px; }
+  input, textarea { width: 100%; border: 0; border-radius: 14px; padding: 12px 14px; font-family: 'Manrope'; font-size: 16px; color: var(--fg); outline: none; background: var(--soft); }
+  input:focus, textarea:focus { box-shadow: 0 0 0 2px var(--acc) inset; }
   .ph-wrap { display: flex; align-items: center; gap: 14px; }
-  .ph-prev { width: 64px; height: 64px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,.14); flex: 0 0 auto; background: rgba(255,255,255,.06); }
-  .ph-btn { font-size: 12.5px; font-weight: 700; color: #8CC0A6; cursor: pointer; }
+  .ph-prev { width: 64px; height: 64px; border-radius: 22px; object-fit: cover; border: 0; flex: 0 0 auto; background: var(--soft); }
+  .ph-btn { font-size: 13.5px; font-weight: 700; color: var(--fg); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
 
   .rowline { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
   .rowline input { flex: 1; }
   .stars { display: flex; gap: 2px; }
-  .stars span { font-size: 18px; color: #55606a; cursor: pointer; }
-  .stars span.f { color: #E8A317; }
-  .del { flex: 0 0 auto; width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); color: #E0864F; font-size: 16px; cursor: pointer; }
-  .additem { width: 100%; padding: 9px; border: 1px dashed rgba(140,192,166,.4); border-radius: 10px; background: rgba(140,192,166,.10); color: #8CC0A6; font-family: 'Manrope'; font-size: 12.5px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .stars span { font-size: 18px; color: var(--soft-2); cursor: pointer; }
+  .stars span.f { color: var(--fg); }
+  .del { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px; border: 0; background: var(--soft); color: var(--hot); font-size: 16px; cursor: pointer; }
+  .additem { width: 100%; padding: 12px; border: 1px dashed var(--soft-2); border-radius: 14px; background: transparent; color: var(--fg); font-family: 'Manrope'; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 4px; }
   .prd { display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-bottom:4px; }
-  .prd-lbl { font-size:11px; font-weight:700; color:#9AA3AB; }
-  .prd select { flex:1; min-width:64px; border:1px solid rgba(255,255,255,.12); border-radius:9px; padding:8px 6px; font-family:'Manrope'; font-size:12.5px; color:#EEF1F4; background:rgba(255,255,255,.06); outline:none; }
-  .exp-card { border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 11px; margin-bottom: 9px; background: rgba(255,255,255,.03); }
+  .prd-lbl { font-size:11px; font-weight:700; color:var(--fg3); }
+  .prd select { flex:1; min-width:64px; border:0; border-radius:10px; padding:9px 6px; font-family:'Manrope'; font-size:16px; color:var(--fg); background:var(--soft); outline:none; }
+  .exp-card { border: 0; border-radius: 14px; padding: 12px; margin-bottom: 9px; background: var(--soft); }
 
-  .preview-label { font-size: 12px; font-weight: 800; color: #9AA3AB; margin: 18px 2px 10px; text-transform: uppercase; letter-spacing: .05em; }
-  .stage { overflow: hidden; border-radius: 12px; border: 1px solid rgba(255,255,255,.10); background: #14181d; position: relative; }
+  .preview-label { font-size: 12px; font-weight: 700; color: var(--fg3); margin: 20px 4px 10px; text-transform: uppercase; letter-spacing: .06em; }
+  .stage { overflow: hidden; border-radius: 16px; border: 0; background: #fff; position: relative; box-shadow: var(--sh); }
   #wmark { position:absolute; inset:0; pointer-events:none; z-index:5; overflow:hidden; }
   #wmark .wm-fill { position:absolute; top:-60%; left:-60%; width:220%; height:220%; transform:rotate(-30deg); font-weight:800; font-size:58px; line-height:2.4; letter-spacing:8px; word-spacing:22px; color:rgba(120,140,160,.40); overflow:hidden; white-space:normal; }
   .scaler { transform-origin: top left; position: relative; }
 
-  .bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; gap: 10px; padding: 12px 16px 18px; background: rgba(10,12,14,.92); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,.10); }
-  .bar button { flex: 1; padding: 13px; border: none; border-radius: 12px; font-family: 'Manrope'; font-size: 13.5px; font-weight: 800; cursor: pointer; }
-  .b-pdf { background: #0E5C8A; color: #fff; }
-  .b-png { background: rgba(255,255,255,.08); color: #EEF1F4; border: 1px solid rgba(255,255,255,.12); }
+  .bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; gap: 10px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom,0px)); background: var(--nav-bg); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border-top: 1px solid var(--line); }
+  .bar button { flex: 1; min-height: 52px; padding: 0 14px; border: none; border-radius: 999px; font-family: 'Manrope'; font-size: 14px; font-weight: 800; cursor: pointer; transition: transform .12s; }
+  .bar button:active { transform: scale(.98); }
+  .b-pdf { background: var(--acc); color: var(--accfg); }
+  .b-png { background: var(--soft); color: var(--fg); border: 0; }
 
-  .hint { font-size: 11px; color: #9AA3AB; text-align: center; margin-top: 10px; line-height: 1.5; }
+  .hint { font-size: 11.5px; color: var(--fg3); text-align: center; margin-top: 10px; line-height: 1.5; }
 
   /* ===== РЕЗЮМЕ (А4) ===== */
   #cv-paper { width: 794px; min-height: 1123px; background: #fff; display: flex; font-family: 'Manrope', sans-serif; color: #2A3D4C; }
@@ -144,13 +150,13 @@
     <div class="hint">На телефоне самый надёжный способ сохранить — скачать PNG, затем зажать картинку и «Сохранить в фото». PDF лучше всего качается на компьютере.</div>
   </div>
 
-  <div id="cv-current" style="display:none;font-size:12.5px;color:#8CC0A6;background:rgba(140,192,166,.10);border:1px solid rgba(140,192,166,.3);border-radius:10px;padding:9px 12px;margin:0 0 8px;line-height:1.45"></div>
+  <div id="cv-current" style="display:none;font-size:12.5px;color:var(--ok);background:var(--ok-soft);border:1px solid rgba(140,192,166,.3);border-radius:10px;padding:9px 12px;margin:0 0 8px;line-height:1.45"></div>
   <div class="bar" style="flex-direction:column; gap:8px">
     <button class="b-pdf" style="width:100%" onclick="saveForApply()">💾 Сохранить это резюме для откликов</button>
     <div style="text-align:center;font-size:12px;color:#8A94A0;margin:2px 0">— или —</div>
-    <button class="b-pdf" style="width:100%;background:rgba(255,255,255,.06)" onclick="document.getElementById('own-cv-input').click()">📎 Загрузить своё резюме (PDF или фото)</button>
+    <button class="b-png" style="width:100%" onclick="document.getElementById('own-cv-input').click()">📎 Загрузить своё резюме (PDF или фото)</button>
     <input type="file" id="own-cv-input" accept="application/pdf,image/*" style="display:none">
-    <div id="own-cv-status" style="display:none;font-size:12px;text-align:center;color:#8CC0A6"></div>
+    <div id="own-cv-status" style="display:none;font-size:12px;text-align:center;color:var(--ok)"></div>
     <div id="dlrow" style="display:flex; gap:10px; width:100%">
       <button class="b-png" style="flex:1" onclick="download('png')">Скачать фото</button>
       <button class="b-png" style="flex:1" onclick="download('pdf')">Скачать PDF</button>
@@ -159,7 +165,7 @@
 
 <script>
   var tg = window.Telegram ? window.Telegram.WebApp : null;
-  if (tg) { tg.ready(); tg.expand(); }
+  if (tg) { tg.ready(); try{ var _d=tg.colorScheme==='dark'; document.documentElement.setAttribute('data-theme',_d?'dark':'light'); var _c=_d?'#0A0B0E':'#F3F4F6'; if(tg.setHeaderColor) tg.setHeaderColor(_c); if(tg.setBackgroundColor) tg.setBackgroundColor(_c); }catch(e){} tg.expand(); }
   var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
   // нативная кнопка «назад» Telegram — чтобы не закрывать всю апку
   if (tg && tg.BackButton) {
@@ -363,13 +369,13 @@
   (function(){
     var css='#cv-busy{display:none;position:fixed;inset:0;z-index:9998;background:rgba(8,14,18,.72);align-items:center;justify-content:center}'
     +'.cv-busy-card{background:#10222E;color:#EAF2F7;padding:22px 26px;border-radius:16px;font:600 15px sans-serif;display:flex;flex-direction:column;align-items:center;gap:12px}'
-    +'.cv-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:#CBD5DD;animation:cvspin .8s linear infinite}'
+    +'.cv-spin{width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.2);border-top-color:var(--fg2);animation:cvspin .8s linear infinite}'
     +'@keyframes cvspin{to{transform:rotate(360deg)}}'
     +'#cv-imgov{display:none;position:fixed;inset:0;z-index:9999;background:rgba(8,14,18,.96);overflow:auto;padding:16px;justify-content:center}'
     +'.cv-imgov-in{max-width:520px;width:100%;display:flex;flex-direction:column;gap:12px;align-items:center}'
     +'.cv-imgov-hint{color:#EAF2F7;font:600 14px sans-serif;text-align:center;background:rgba(255,255,255,.08);padding:10px 14px;border-radius:12px}'
     +'#cv-imgov img{width:100%;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,.5)}'
-    +'#cv-imgov button{background:#CBD5DD;color:#0B1418;border:0;padding:12px 20px;border-radius:12px;font:700 15px sans-serif;cursor:pointer}';
+    +'#cv-imgov button{background:var(--fg2);color:#0B1418;border:0;padding:12px 20px;border-radius:12px;font:700 15px sans-serif;cursor:pointer}';
     var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
     var b=document.createElement('div'); b.id='cv-busy';
     b.innerHTML='<div class="cv-busy-card"><div class="cv-spin"></div><div>Собираю резюме…</div></div>';
@@ -394,11 +400,18 @@
     var fail=function(e){ scaler.style.transform=prev; fitScale(); hideBusy(); console.log('capture:',e); alert('Не получилось собрать резюме. Попробуй ещё раз — а если повторится, закрой и открой резюме заново.'); };
     // ждём, пока шрифт Manrope точно загрузится — иначе буквы могут разъехаться
     var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-    ready.then(function(){
+    // фото: 1) cacheBust ломал data:-ссылки (дописывал ?t= к base64 — картинка пропадала), поэтому выключен;
+    // 2) ждём декодирования картинок; 3) на iOS/Safari первый рендер часто идёт без картинок — рендерим дважды и берём второй.
+    var imgs=Array.prototype.slice.call(paper.querySelectorAll('img'));
+    var decoded=Promise.all(imgs.map(function(im){ try{ return (im.decode?im.decode():Promise.resolve()).catch(function(){}); }catch(e){ return Promise.resolve(); } }));
+    var opts={ pixelRatio:2, backgroundColor:'#ffffff', width:794, height:paper.scrollHeight, cacheBust:false };
+    var isSafari=/iP(hone|ad|od)|Macintosh/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent);
+    Promise.all([ready, decoded]).then(function(){
       setTimeout(function(){
-        htmlToImage.toCanvas(paper, { pixelRatio:2, backgroundColor:'#ffffff', width:794, height:paper.scrollHeight, cacheBust:true })
-          .then(done).catch(fail);
-      }, 40);
+        var first=htmlToImage.toCanvas(paper, opts);
+        var p=isSafari ? first.then(function(){ return htmlToImage.toCanvas(paper, opts); }) : first;
+        p.then(done).catch(fail);
+      }, 60);
     });
   }
   window.download=function(type){

@@ -2,467 +2,514 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F3F4F6" />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0A0B0E" />
+  <meta name="color-scheme" content="light dark" />
+  <script>(function(){try{var d=window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.setAttribute("data-theme",d?"dark":"light");}catch(e){}})();</script>
   <title>AMORE</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&display=swap');
+    /* ===== СИСТЕМА: светлая по умолчанию, тёмная под тему Telegram ===== */
+    :root{
+      --bg:#F3F4F6; --card:#FFFFFF; --card-2:#F7F8FA; --fg:#0B0D12; --fg2:#5B6472; --fg3:#9AA2AE;
+      --line:rgba(10,14,20,.07); --soft:rgba(10,14,20,.045); --soft-2:rgba(10,14,20,.08);
+      --acc:#0B0D12; --accfg:#FFFFFF; --ok:#13A06B; --ok-soft:rgba(19,160,107,.12); --hot:#E5484D; --hot-soft:rgba(229,72,77,.12);
+      --sh:0 1px 0 var(--line), 0 12px 32px -20px rgba(10,14,20,.28);
+      --sh-lg:0 1px 0 var(--line), 0 24px 60px -24px rgba(10,14,20,.45);
+      --nav-bg:rgba(255,255,255,.74); --dim:rgba(10,12,16,.42);
+      --r:24px; --r-md:20px; --r-sm:14px;
+      --ease:cubic-bezier(.2,.8,.2,1); --spring:cubic-bezier(.32,1.25,.5,1);
+      --safe-top:0px;
+    }
+    :root[data-theme="dark"]{
+      --bg:#0A0B0E; --card:#15171C; --card-2:#1B1E24; --fg:#F4F5F7; --fg2:#A3AAB6; --fg3:#6C7380;
+      --line:rgba(255,255,255,.07); --soft:rgba(255,255,255,.055); --soft-2:rgba(255,255,255,.10);
+      --acc:#F4F5F7; --accfg:#0B0D12; --ok:#3DCC8C; --ok-soft:rgba(61,204,140,.14); --hot:#FF6B6E; --hot-soft:rgba(255,107,110,.14);
+      --sh:0 1px 0 var(--line); --sh-lg:0 1px 0 var(--line), 0 24px 60px -24px rgba(0,0,0,.7);
+      --nav-bg:rgba(28,30,36,.78); --dim:rgba(0,0,0,.55);
+    }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { min-height: 100%; font-family: 'Manrope', -apple-system, sans-serif; -webkit-font-smoothing: antialiased; color: #EEF1F4; background: #060708; background-image: radial-gradient(125% 70% at 50% -6%, #171A1F 0%, #0C0E11 44%, #050506 100%); background-attachment: fixed; }
-    .app { max-width: 480px; margin: 0 auto; padding: calc(18px + var(--safe-top, 0px)) 16px 92px; }
-    .head { display: flex; align-items: center; gap: 12px; }
-    .logo { width: 42px; height: 42px; border-radius: 13px; flex: 0 0 auto; display: grid; place-items: center; font-weight: 800; font-size: 21px; color: #fff; background: #37474F; }
-    .greet { font-size: 16px; font-weight: 800; line-height: 1.2; letter-spacing: -.2px; }
-    .greet .name { color: #CBD5DD; }
-    .subt { font-size: 11px; color: #9AA3AB; margin-top: 2px; font-weight: 500; }
-    .status { display: inline-flex; align-items: center; gap: 6px; margin: 14px 0 6px; font-size: 12px; font-weight: 700; padding: 7px 13px; border-radius: 10px; }
-    .status.member { color: #8CC0A6; background: rgba(120,200,160,.14); }
-    .status.guest { color: #C6D0D8; background: rgba(255,255,255,.09); }
-    .status.load { color: #C6D0D8; background: rgba(255,255,255,.09); }
+    html { -webkit-tap-highlight-color: transparent; -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
+    html, body { min-height: 100%; font-family: 'Manrope', -apple-system, system-ui, sans-serif; -webkit-font-smoothing: antialiased; color: var(--fg); background: var(--bg); }
+    button, [role=button], .btn, .chip, .nav-item, .gp-step, .prow, .ccard, .dircard, .lesson, .doc, .fn-opt, .hero-row span, .cp-btn, .tour-next, .hl, .pd-chip, .pd-head, .pd-select, .price-tile, .tile { touch-action: manipulation; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+    input, textarea, select { font-size: 16px; font-family: 'Manrope', sans-serif; }
+    svg.i { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: 0 0 auto; }
+    .app { position:relative; z-index:1; max-width: 480px; margin: 0 auto; padding: calc(10px + var(--safe-top, 0px)) 16px calc(104px + env(safe-area-inset-bottom, 0px)); }
 
-    .sec-title { font-size: 13px; font-weight: 800; display: flex; align-items: center; gap: 8px; margin: 18px 2px 12px; color:#EEF1F4; }
-    .see { margin-left: auto; font-size: 11px; font-weight: 700; color: #CBD5DD; cursor: pointer; }
-    .ccount { margin-left: auto; font-size: 11px; font-weight: 700; color: #CBD5DD; background: rgba(210,225,240,.12); padding: 3px 9px; border-radius: 999px; }
+    /* шапка */
+    .head { display: flex; align-items: center; gap: 12px; padding: 6px 2px 0; }
+    .logo { width: 40px; height: 40px; border-radius: 14px; flex: 0 0 auto; display: grid; place-items: center; font-weight: 800; font-size: 16px; color: var(--fg); background: var(--card); box-shadow: var(--sh); order: 2; margin-left: auto; }
+    .greet { font-size: 26px; font-weight: 800; line-height: 1.05; letter-spacing: -.8px; }
+    .greet .name { color: var(--fg); }
+    .subt { font-size: 13px; color: var(--fg2); margin-top: 4px; font-weight: 500; }
+    .status { display: inline-flex; align-items: center; gap: 6px; margin: 12px 0 4px; font-size: 11.5px; font-weight: 700; padding: 7px 11px; border-radius: 999px; background: var(--card); color: var(--fg2); box-shadow: var(--sh); }
+    .status.member { color: var(--ok); }
+    .status.guest, .status.load { color: var(--fg2); }
 
-    .card { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); border-radius: 16px; padding: 14px; margin-bottom: 11px; }
-    .card, .ccard, .dircard, .lesson, .mentor, .review, .prow, .doc, .sal-card, .group-mg, .search { box-shadow: 0 1px 2px rgba(14,34,51,.05); }
+    .sec-title { font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 8px; margin: 22px 4px 10px; color: var(--fg3); letter-spacing: .06em; text-transform: uppercase; }
+    .sec-title > span:not([class]) { display: none; }  /* эмодзи-иконки заголовков — убраны */
+    .see { margin-left: auto; font-size: 12px; font-weight: 700; color: var(--fg2); cursor: pointer; text-transform: none; letter-spacing: 0; }
+    .ccount { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--fg2); background: var(--soft); padding: 3px 9px; border-radius: 999px; letter-spacing: 0; }
+
+    /* карточки */
+    .card { background: var(--card); border: 0; border-radius: var(--r-md); padding: 16px; margin-bottom: 10px; box-shadow: var(--sh); }
     .card-top { display: flex; align-items: flex-start; gap: 8px; }
-    .role { font-size: 14.5px; font-weight: 700; line-height: 1.25; flex: 1; }
-    .badge { font-size: 9px; font-weight: 800; padding: 4px 8px; border-radius: 999px; text-transform: uppercase; letter-spacing: .04em; flex: 0 0 auto; background: rgba(224,110,80,.16); color: #E0864F; }
-    .badge.hire { background: rgba(120,200,160,.14); color: #8CC0A6; }
-    .meta { font-size: 11.5px; color: #9AA3AB; margin-top: 6px; font-weight: 500; }
-    .row { display: flex; align-items: center; gap: 14px; margin-top: 11px; flex-wrap: wrap; }
-    .pay { font-size: 16px; font-weight: 800; color: #CBD5DD; }
-    .when { font-size: 11.5px; color: #9AA3AB; font-weight: 500; }
-    .btn { width: 100%; margin-top: 12px; padding: 11px; border: none; border-radius: 11px; font-family: 'Manrope'; font-size: 13px; font-weight: 700; cursor: pointer; }
-    .btn-gold { background: #37474F; color: #fff; }
-    .btn-lock { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.10); color: #9AA3AB; }
+    .role { font-size: 15px; font-weight: 700; line-height: 1.25; flex: 1; letter-spacing: -.2px; }
+    .badge { font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 999px; letter-spacing: .02em; flex: 0 0 auto; background: var(--hot-soft); color: var(--hot); }
+    .badge.hire { background: var(--ok-soft); color: var(--ok); }
+    .meta { font-size: 12px; color: var(--fg2); margin-top: 6px; font-weight: 500; }
+    .row { display: flex; align-items: center; gap: 14px; margin-top: 10px; flex-wrap: wrap; }
+    .pay { font-size: 17px; font-weight: 800; color: var(--fg); font-variant-numeric: tabular-nums; letter-spacing: -.3px; }
+    .when { font-size: 12px; color: var(--fg2); font-weight: 500; }
+    .vac-date { font-size: 11.5px; color: var(--fg3); margin: 6px 0 2px; font-weight: 600; }
 
-    .search { display: flex; align-items: center; gap: 9px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); border-radius: 12px; padding: 10px 13px; }
-    .search input { flex: 1; background: transparent; border: none; outline: none; color: #EEF1F4; font-family: 'Manrope'; font-size: 13.5px; font-weight: 500; }
-    .search input::placeholder { color: #6E7882; }
+    /* кнопки */
+    .btn { width: 100%; margin-top: 12px; padding: 0 18px; min-height: 54px; border: none; border-radius: 999px; font-family: 'Manrope'; font-size: 15px; font-weight: 700; letter-spacing: -.1px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .12s var(--ease), background .2s ease, opacity .2s ease; }
+    .btn:active { transform: scale(.98); }
+    .btn-gold { background: var(--acc); color: var(--accfg); }
+    .btn-lock { background: var(--soft); color: var(--fg2); }
+    .btn-announce { margin-top:8px; background: var(--soft); color: var(--fg); }
+    .btn .arr { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.14); display: grid; place-items: center; margin-right: -12px; margin-left: auto; }
+    :root[data-theme="dark"] .btn .arr { background: rgba(0,0,0,.12); }
+    .btn .arr svg.i { width: 18px; height: 18px; stroke-width: 1.8; }
+    .btn-lock .arr { background: var(--soft-2); }
+    @media (hover: hover) and (pointer: fine) { .btn-gold:hover { opacity: .92; } .prow:hover, .gp-step:hover, .ccard:hover, .dircard:hover, .lesson:hover, .doc:hover { background: var(--card-2); } }
+
+    /* поиск, чипы */
+    .search { display: flex; align-items: center; gap: 9px; background: var(--card); border: 0; border-radius: 16px; padding: 12px 14px; box-shadow: var(--sh); }
+    .search input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--fg); font-family: 'Manrope'; font-size: 16px; font-weight: 500; }
+    .search input::placeholder { color: var(--fg3); }
     .chips { display: flex; gap: 7px; overflow-x: auto; margin-top: 10px; padding-bottom: 2px; scrollbar-width: none; }
     .chips::-webkit-scrollbar { display: none; }
-    .chip { flex: 0 0 auto; padding: 7px 13px; border-radius: 999px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; border: 1px solid rgba(255,255,255,.10); color: #9AA3AB; background: rgba(255,255,255,.05); }
-    .chip.on { background: #37474F; color: #fff; border-color: transparent; font-weight: 700; }
-    .found { font-size: 11px; color: #9AA3AB; margin: 12px 2px; font-weight: 500; }
-    .found b { color: #EEF1F4; }
+    .chip { flex: 0 0 auto; padding: 8px 13px; border-radius: 999px; font-size: 12.5px; font-weight: 600; cursor: pointer; white-space: nowrap; border: 0; color: var(--fg2); background: var(--card); box-shadow: var(--sh); transition: background .18s ease, color .18s ease, transform .1s ease; }
+    .chip:active { transform: scale(.95); }
+    .chip.on { background: var(--acc); color: var(--accfg); font-weight: 700; }
+    .chip.hire-chip { color: var(--ok); }
+    .chip.hire-chip.on { background: var(--ok); color: #fff; }
+    .found { font-size: 11.5px; color: var(--fg3); margin: 12px 4px; font-weight: 600; }
+    .found b { color: var(--fg); }
 
-    .ccard { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 9px; cursor: pointer; }
-    .cname { font-size: 13px; font-weight: 700; display: flex; align-items: center; gap: 7px; }
-    .cmeta { font-size: 11px; color: #9AA3AB; margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-weight: 500; }
-    .avail { display: inline-flex; gap: 5px; color: #8CC0A6; }
-    .masked { color: #6E7882; }
-    .more { width: 100%; padding: 11px; margin-top: 4px; border: 1px dashed #9CC0D6; border-radius: 12px; background: rgba(210,225,240,.09); color: #37474F; font-family: 'Manrope'; font-size: 12.5px; font-weight: 700; cursor: pointer; }
-    .c-hire { border-color: #BFE3D4; background: rgba(120,200,160,.10); }
-    .chip.hire-chip { border-color: #BFE3D4; color:#8CC0A6; }
-    .chip.hire-chip.on { background: #8CC0A6; color:#fff; border-color:transparent; }
+    /* списки */
+    .ccard { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: var(--r-sm); background: var(--card); border: 0; margin-bottom: 8px; cursor: pointer; box-shadow: var(--sh); }
+    .cname { font-size: 13.5px; font-weight: 700; display: flex; align-items: center; gap: 7px; }
+    .cmeta { font-size: 11.5px; color: var(--fg2); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-weight: 500; }
+    .avail { display: inline-flex; gap: 5px; color: var(--ok); }
+    .masked { color: var(--fg3); }
+    .more { width: 100%; padding: 14px; margin-top: 4px; border: 1px dashed var(--soft-2); border-radius: 16px; background: transparent; color: var(--fg); font-family: 'Manrope'; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .c-hire { box-shadow: 0 0 0 1.5px var(--ok) inset, var(--sh); }
 
-    .dircard { display: flex; align-items: center; gap: 13px; padding: 16px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 11px; cursor: pointer; }
-    .dirico { width: 46px; height: 46px; border-radius: 14px; flex: 0 0 auto; display: grid; place-items: center; font-size: 22px; color: #fff; }
-    .dirname { font-size: 15px; font-weight: 700; }
-    .dircount { font-size: 11.5px; color: #37474F; font-weight: 700; margin-top: 3px; }
-    .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: #37474F; margin: 6px 0 14px; cursor: pointer; }
+    .dircard { display: flex; align-items: center; gap: 13px; padding: 14px 16px; border-radius: var(--r-md); background: var(--card); border: 0; margin-bottom: 10px; cursor: pointer; box-shadow: var(--sh); }
+    .dirico { width: 42px; height: 42px; border-radius: 13px; flex: 0 0 auto; display: grid; place-items: center; font-size: 20px; color: var(--fg); background: var(--soft) !important; }
+    .dirname { font-size: 15px; font-weight: 700; letter-spacing: -.2px; }
+    .dircount { font-size: 12px; color: var(--fg2); font-weight: 600; margin-top: 3px; }
+    .back { display: inline-flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 700; color: var(--fg2); margin: 6px 0 12px; cursor: pointer; }
 
-    .lesson { display: flex; gap: 12px; align-items: center; padding: 11px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 9px; cursor: pointer; }
-    .thumb { width: 92px; height: 58px; border-radius: 10px; flex: 0 0 auto; background: #DCE6EC; position: relative; display: grid; place-items: center; overflow: hidden; background-size: cover; background-position: center; }
-    .thumb .play { width: 28px; height: 28px; border-radius: 50%; background: rgba(14,34,51,.55); display: grid; place-items: center; color: #fff; font-size: 12px; }
+    .lesson { display: flex; gap: 12px; align-items: center; padding: 10px; border-radius: var(--r-sm); background: var(--card); border: 0; margin-bottom: 8px; cursor: pointer; box-shadow: var(--sh); }
+    .thumb { width: 96px; height: 60px; border-radius: 12px; flex: 0 0 auto; background: #1B222B; position: relative; display: grid; place-items: center; overflow: hidden; background-size: cover; background-position: center; }
+    .thumb .play { width: 30px; height: 30px; border-radius: 50%; background: rgba(255,255,255,.92); display: grid; place-items: center; color: #0B0D12; font-size: 11px; }
     .thumb .lk { position: absolute; top: 5px; right: 5px; font-size: 12px; }
-    .ltitle { font-size: 13px; font-weight: 700; line-height: 1.3; }
-    .ldur { font-size: 11px; color: #9AA3AB; margin-top: 5px; font-weight: 500; }
+    .ltitle { font-size: 13.5px; font-weight: 700; line-height: 1.3; }
+    .ldur { font-size: 11.5px; color: var(--fg3); margin-top: 4px; font-weight: 600; }
 
-    .mentor { display: flex; gap: 13px; padding: 15px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 11px; }
-    .m-av { width: 56px; height: 56px; border-radius: 15px; flex: 0 0 auto; display: grid; place-items: center; font-weight: 800; font-size: 17px; color: #fff; overflow: hidden; }
+    .mentor { display: flex; gap: 13px; padding: 15px; border-radius: var(--r-md); background: var(--card); border: 0; margin-bottom: 10px; box-shadow: var(--sh); }
+    .m-av { width: 56px; height: 56px; border-radius: 18px; flex: 0 0 auto; display: grid; place-items: center; font-weight: 800; font-size: 17px; color: var(--fg); background: var(--soft); overflow: hidden; }
     .m-av img { object-position: center center; }
     .m-name { font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 6px; }
-    .m-dir { font-size: 10.5px; color: #37474F; font-weight: 700; margin-top: 2px; text-transform: uppercase; letter-spacing: .05em; }
-    .m-bio { font-size: 12px; color: #9AA3AB; margin-top: 7px; line-height: 1.45; font-weight: 500; }
-    .m-ask { margin-top: 10px; font-size: 12px; color: #8CC0A6; font-weight: 700; cursor: pointer; }
+    .m-dir { font-size: 11px; color: var(--fg3); font-weight: 700; margin-top: 2px; letter-spacing: .04em; text-transform: uppercase; }
+    .m-bio { font-size: 12.5px; color: var(--fg2); margin-top: 7px; line-height: 1.45; font-weight: 500; }
+    .m-ask { margin-top: 10px; font-size: 13px; color: var(--fg); font-weight: 700; cursor: pointer; }
 
-    .review { padding: 15px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 11px; }
-    .rv-text { font-size: 13px; line-height: 1.55; color: #2A3D4C; font-weight: 500; }
+    .review { padding: 15px; border-radius: var(--r-md); background: var(--card); border: 0; margin-bottom: 10px; box-shadow: var(--sh); }
+    .rv-text { font-size: 13.5px; line-height: 1.55; color: var(--fg); font-weight: 500; }
     .rv-who { display: flex; align-items: center; gap: 9px; margin-top: 12px; }
-    .rv-av { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #fff; background: #37474F; flex: 0 0 auto; }
+    .rv-av { width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: var(--fg); background: var(--soft); flex: 0 0 auto; }
     .rv-name { font-size: 12.5px; font-weight: 700; }
-    .rv-dir { font-size: 10.5px; color: #9AA3AB; font-weight: 500; }
-    .rv-stars { color: #E8A317; font-size: 12px; margin-bottom: 8px; }
-    .rv-thumb { width:100%; aspect-ratio:16/9; border-radius:12px; background:#DCE6EC center/cover no-repeat; position:relative; display:grid; place-items:center; cursor:pointer; margin-top:4px; }
-    .rv-thumb .play { width:46px; height:46px; border-radius:50%; background:rgba(14,34,51,.6); display:grid; place-items:center; color:#fff; font-size:18px; }
-    .rv-shot { width:100%; border-radius:12px; overflow:hidden; margin-top:4px; cursor:pointer; border:1px solid rgba(255,255,255,.10); background:#F0F3F5; }
+    .rv-dir { font-size: 11px; color: var(--fg3); font-weight: 500; }
+    .rv-stars { color: var(--fg); font-size: 12px; margin-bottom: 8px; letter-spacing: 1px; }
+    .rv-thumb { width:100%; aspect-ratio:16/9; border-radius:14px; background:#1B222B center/cover no-repeat; position:relative; display:grid; place-items:center; cursor:pointer; margin-top:4px; }
+    .rv-thumb .play { width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,.92); display:grid; place-items:center; color:#0B0D12; font-size:18px; }
+    .rv-shot { width:100%; border-radius:14px; overflow:hidden; margin-top:4px; cursor:pointer; background:var(--soft); }
     .rv-shot img { width:100%; display:block; max-height:320px; object-fit:cover; object-position:top; }
-    .rv-shot-hint { font-size:10.5px; color:#9AA3AB; text-align:center; padding:6px; font-weight:500; }
-    .rv-foot { font-size:13px; font-weight:800; color:#EEF1F4; margin-top:12px; }
-    .rv-dir-i { color:#9AA3AB; font-weight:500; }
-    .rv-link { display:inline-block; margin-top:10px; font-size:12.5px; color:#37474F; font-weight:700; text-decoration:none; }
+    .rv-shot-hint { font-size:11px; color:var(--fg3); text-align:center; padding:6px; font-weight:500; }
+    .rv-foot { font-size:13px; font-weight:800; color:var(--fg); margin-top:12px; }
+    .rv-dir-i { color:var(--fg3); font-weight:500; }
+    .rv-link { display:inline-block; margin-top:10px; font-size:13px; color:var(--fg); font-weight:700; text-decoration:underline; text-underline-offset:3px; }
 
+    /* профиль */
     .prof-head { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 18px 0 6px; }
-    .prof-av { width: 72px; height: 72px; border-radius: 22px; display: grid; place-items: center; font-weight: 800; font-size: 26px; color: #fff; background: #37474F; margin-bottom: 12px; }
-    .prof-name { font-size: 18px; font-weight: 800; }
-    .prof-tag { font-size: 11.5px; color: #9AA3AB; margin-top: 3px; font-weight: 500; }
-    .plan-box { margin: 16px 0; padding: 17px; border-radius: 18px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); }
-    .plan-hot { border:1.5px solid rgba(140,192,166,.55); background:linear-gradient(160deg,rgba(140,192,166,.12),rgba(255,255,255,.04)); animation:planGlow 2.6s ease-in-out infinite; }
-    @keyframes planGlow{0%,100%{box-shadow:0 0 0 0 rgba(140,192,166,0)}50%{box-shadow:0 0 22px 0 rgba(140,192,166,.28)}}
-    .plan-badge{ font-size:12px;font-weight:900;color:#0B1418;background:#8CC0A6;padding:2px 9px;border-radius:999px;vertical-align:middle;margin-left:4px; }
-    .gp-title { font-size: 15px; font-weight: 800; color: #EEF1F4; }
-    .gp-sub { font-size: 12px; color: #9AA3AB; margin: 4px 0 12px; }
-    .gp-step { display: flex; align-items: center; gap: 11px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); border-radius: 13px; padding: 11px 12px; margin-bottom: 8px; cursor: pointer; }
-    .gp-step:active { transform: scale(0.99); }
-    .gp-last { border-color: rgba(226,196,137,.35); background: rgba(226,196,137,.10); }
-    .gp-n { width: 26px; height: 26px; flex: 0 0 26px; border-radius: 50%; background: #37474F; color: #fff; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; }
-    .gp-last .gp-n { background: #E0864F; }
-    .gp-n-done { background:#8CC0A6 !important; color:#0B1418 !important; }
-    .gp-step-done { border-color:rgba(140,192,166,.35); background:rgba(140,192,166,.08); }
-    .gp-free-done { color:#0B1418 !important; background:#8CC0A6 !important; }
-    .tp-bar{height:8px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin:4px 0 6px}
-    .tp-bar>i{display:block;height:100%;background:linear-gradient(90deg,#7FA8C0,#8CC0A6);width:0;transition:width .5s ease}
-    .tp-cnt{font-size:11.5px;color:#9AA3AB;margin-bottom:10px}
-    .rw-teaser{margin-top:10px;font-size:12.5px;color:#C9D3B8;background:rgba(140,192,166,.10);border:1px solid rgba(140,192,166,.28);border-radius:12px;padding:11px 13px;line-height:1.45}
-    .rw-card{margin-top:12px;padding:15px;border-radius:16px;background:linear-gradient(135deg,rgba(140,192,166,.20),rgba(120,180,150,.06));border:1.5px solid rgba(140,192,166,.5);animation:fnFreeIn .5s ease}
-    .rw-h{font-size:15px;font-weight:800;color:#EAF2E9}
-    .rw-code{margin-top:8px;font-size:13.5px;color:#EAF2E9;background:rgba(0,0,0,.25);border:1px dashed rgba(140,192,166,.6);border-radius:10px;padding:8px 12px;text-align:center}
-    .rw-code b{color:#8CC0A6;letter-spacing:.5px}
-    .rw-list{margin-top:10px;font-size:12px;color:#B9C6BC;line-height:1.7}
+    .prof-av { width: 76px; height: 76px; border-radius: 26px; display: grid; place-items: center; font-weight: 800; font-size: 28px; color: var(--fg); background: var(--card); box-shadow: var(--sh); margin-bottom: 12px; }
+    .prof-name { font-size: 20px; font-weight: 800; letter-spacing: -.4px; }
+    .prof-tag { font-size: 12px; color: var(--fg2); margin-top: 3px; font-weight: 600; }
+    .plan-box { margin: 14px 0; padding: 18px; border-radius: var(--r); background: var(--card); border: 0; box-shadow: var(--sh); position: relative; }
+    .plan-hot { box-shadow: var(--sh-lg); }
+    .plan-badge { font-size: 11px; font-weight: 700; color: var(--fg3); background: transparent; padding: 0; margin-left: auto; font-variant-numeric: tabular-nums; }
+    .gp-title { font-size: 18px; font-weight: 800; color: var(--fg); letter-spacing: -.4px; line-height: 1.2; display: flex; align-items: center; gap: 8px; }
+    .gp-sub { font-size: 12.5px; color: var(--fg2); margin: 6px 0 12px; line-height: 1.45; }
+    .gp-step { display: flex; align-items: center; gap: 14px; background: transparent; border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 13px 0; margin: 0; cursor: pointer; transition: background .2s ease; }
+    .gp-step:first-of-type { border-top: 0; }
+    .gp-step:active { transform: none; opacity: .7; }
+    .gp-last { background: transparent; }
+    .gp-n { width: 38px; height: 38px; flex: 0 0 38px; border-radius: 12px; background: var(--soft); color: var(--fg); font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; border: 0; }
+    .gp-last .gp-n { background: var(--acc); color: var(--accfg); }
+    .gp-n-done { background: var(--ok) !important; color: #fff !important; }
+    .gp-step-done { }
+    .gp-free-done { color: var(--fg3) !important; background: transparent !important; }
     .gp-c { flex: 1; min-width: 0; }
-    .gp-h { font-size: 12.5px; font-weight: 800; color: #EEF1F4; }
-    .gp-d { font-size: 11px; color: #9AA3AB; margin-top: 1px; }
-    .gp-free { font-size: 9px; font-weight: 800; color: #8CC0A6; background: rgba(120,200,160,.14); padding: 2px 6px; border-radius: 20px; vertical-align: middle; }
-    .gp-arr { color: #6E7882; font-size: 18px; }
-    .plan-price { font-size: 28px; font-weight: 800; color: #EEF1F4; }
-    .plan-per { font-size: 12px; color: #9AA3AB; font-weight: 600; }
-    .prow { display: flex; align-items: center; gap: 12px; padding: 14px; border-radius: 13px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 9px; cursor: pointer; }
-    .prow-ico { width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: rgba(255,255,255,.06); flex: 0 0 auto; font-size: 18px; }
-    .prow-t { font-size: 13.5px; font-weight: 700; }
-    .prow-s { font-size: 11px; color: #9AA3AB; margin-top: 2px; font-weight: 500; }
-    .doc { display: flex; align-items: center; gap: 13px; padding: 13px; border-radius: 13px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 9px; cursor: pointer; }
-    .doc.done { background: rgba(120,200,160,.10); border-color: #BFE3D4; }
-    .pd-card { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.09); border-radius: 16px; padding: 12px; margin-bottom: 10px; }
-    .pd-cur { border-color: #D8B25A; background: rgba(216,178,90,.06); }
-    .pd-head { display: flex; gap: 10px; align-items: center; cursor: pointer; }
-    .pd-sub { font-size: 12px; color: #9AA3AB; margin-top: 2px; line-height: 1.35; }
-    .pd-pick { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #3a424b; display: grid; place-items: center; font-size: 13px; color: #111; flex: 0 0 auto; }
-    .pd-cur .pd-pick { background: #D8B25A; border-color: #D8B25A; }
-    .pd-row { display: flex; gap: 8px; margin-top: 10px; }
-    .pd-chip { flex: 1; height: 64px; border-radius: 12px; background: #1d232a center/cover no-repeat; position: relative; overflow: hidden; cursor: pointer; }
-    .pd-chip-in { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.15), rgba(0,0,0,.75)); display: flex; flex-direction: column; justify-content: flex-end; padding: 7px 9px; }
+    .gp-h { font-size: 14.5px; font-weight: 700; color: var(--fg); letter-spacing: -.2px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .gp-d { font-size: 12px; color: var(--fg2); margin-top: 2px; line-height: 1.35; }
+    .gp-free { font-size: 10.5px; font-weight: 700; color: var(--fg3); background: transparent; padding: 0; border-radius: 0; vertical-align: middle; }
+    .gp-arr { color: var(--fg3); font-size: 18px; display: grid; place-items: center; }
+    .gp-arr svg.i { width: 16px; height: 16px; }
+    .tp-bar { height: 6px; border-radius: 999px; background: var(--soft); overflow: hidden; margin: 12px 0 6px; }
+    .tp-bar>i { display: block; height: 100%; background: var(--acc); border-radius: 999px; transform-origin: left; animation: barGrow .9s var(--ease) both; }
+    .tp-cnt { font-size: 11.5px; color: var(--fg3); margin-bottom: 4px; font-variant-numeric: tabular-nums; font-weight: 600; }
+    .rw-teaser { margin-top: 10px; font-size: 12.5px; color: var(--fg2); background: var(--soft); border-radius: 14px; padding: 11px 13px; line-height: 1.45; }
+    .rw-card { margin-top: 12px; padding: 15px; border-radius: var(--r-md); background: var(--ok-soft); animation: cardIn .5s var(--ease); }
+    .rw-h { font-size: 15px; font-weight: 800; color: var(--fg); }
+    .rw-code { margin-top: 8px; font-size: 13.5px; color: var(--fg); background: var(--card); border: 1px dashed var(--soft-2); border-radius: 12px; padding: 9px 12px; text-align: center; }
+    .rw-code b { color: var(--ok); letter-spacing: .5px; }
+    .rw-list { margin-top: 10px; font-size: 12.5px; color: var(--fg2); line-height: 1.7; }
+    .plan-price { font-size: 30px; font-weight: 800; color: var(--fg); letter-spacing: -.8px; font-variant-numeric: tabular-nums; }
+    .plan-per { font-size: 12.5px; color: var(--fg2); font-weight: 600; }
+    .prow { display: flex; align-items: center; gap: 12px; padding: 13px 14px; border-radius: var(--r-sm); background: var(--card); border: 0; margin-bottom: 8px; cursor: pointer; box-shadow: var(--sh); }
+    .prow-ico { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; background: var(--soft); flex: 0 0 auto; font-size: 17px; color: var(--fg); }
+    .prow-t { font-size: 14px; font-weight: 700; letter-spacing: -.1px; }
+    .prow-s { font-size: 11.5px; color: var(--fg2); margin-top: 2px; font-weight: 500; }
+    .doc { display: flex; align-items: center; gap: 13px; padding: 13px 14px; border-radius: var(--r-sm); background: var(--card); border: 0; margin-bottom: 8px; cursor: pointer; box-shadow: var(--sh); }
+    .doc.done { background: var(--ok-soft); }
+    .pd-card { background: var(--card); border: 0; border-radius: var(--r-md); padding: 14px; margin-bottom: 10px; box-shadow: var(--sh); }
+    .pd-cur { box-shadow: 0 0 0 2px var(--acc) inset, var(--sh); }
+    .pd-head { display: flex; gap: 12px; align-items: center; cursor: pointer; }
+    .pd-sub { font-size: 12px; color: var(--fg2); margin-top: 2px; line-height: 1.35; }
+    .pd-pick { width: 24px; height: 24px; border-radius: 50%; border: 1.5px solid var(--soft-2); display: grid; place-items: center; font-size: 12px; color: var(--accfg); flex: 0 0 auto; }
+    .pd-cur .pd-pick { background: var(--acc); border-color: var(--acc); }
+    .pd-row { display: flex; gap: 8px; margin-top: 12px; }
+    .pd-chip { flex: 1; height: 72px; border-radius: 14px; background: #1B222B center/cover no-repeat; position: relative; overflow: hidden; cursor: pointer; }
+    .pd-chip-in { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.05), rgba(0,0,0,.72)); display: flex; flex-direction: column; justify-content: flex-end; padding: 8px 10px; }
     .pd-chip-in span { font-size: 13px; font-weight: 800; color: #fff; }
-    .pd-chip-in small { font-size: 10.5px; color: #CBD5DD; }
-    .pd-lock .pd-chip-in { background: rgba(0,0,0,.35); }
-    .pd-select { margin-top: 10px; text-align: center; font-size: 13px; font-weight: 700; color: #D8B25A; padding: 8px; border: 1px solid rgba(216,178,90,.35); border-radius: 10px; cursor: pointer; }
-    .pulse { font-size: 12px; color: #9AA3AB; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; padding: 8px 10px; margin: 10px 0 0; line-height: 1.45; }
-    .pulse b { color: #8CC0A6; }
-    .rv-q { background: rgba(255,255,255,.04); border-left: 3px solid #D8B25A; border-radius: 8px; padding: 8px 10px; font-size: 12px; color: #CBD5DD; margin: 4px 0 12px; line-height: 1.45; }
-    .rv-q b { color: #fff; }
-    .doc-chk { width: 24px; height: 24px; border-radius: 7px; border: 2px solid #C7D0D7; flex: 0 0 auto; display: grid; place-items: center; color: #fff; font-size: 13px; cursor:pointer; }
-    .doc.done .doc-chk { background: #8CC0A6; border-color: #8CC0A6; }
-    .doc-name { font-size: 13.5px; font-weight: 700; }
-    .doc.done .doc-name { color: #9AA3AB; text-decoration: line-through; }
-    .doc-sub { font-size: 11px; color: #9AA3AB; margin-top: 2px; font-weight: 500; }
-    .doc-help { font-size:11px; color:#37474F; font-weight:700; margin-top:6px; cursor:pointer; }
-    .prog { height: 7px; border-radius: 99px; background: #E4E9ED; overflow: hidden; margin: 8px 0 4px; }
-    .prog-bar { height: 100%; background: #37474F; border-radius: 99px; transition: width .3s; }
+    .pd-chip-in small { font-size: 10.5px; color: rgba(255,255,255,.75); }
+    .pd-lock { background: var(--soft); }
+    .pd-lock .pd-chip-in { background: transparent; }
+    .pd-lock .pd-chip-in span { color: var(--fg); }
+    .pd-lock .pd-chip-in small { color: var(--fg3); }
+    .pd-select { margin-top: 12px; text-align: center; font-size: 14px; font-weight: 700; color: var(--fg); padding: 12px; border: 1px solid var(--soft-2); border-radius: 999px; cursor: pointer; }
+    .pulse { font-size: 12px; color: var(--fg2); background: var(--soft); border: 0; border-radius: 12px; padding: 9px 12px 9px 28px; margin: 0 0 12px; line-height: 1.45; position: relative; font-weight: 500; }
+    .pulse b { color: var(--fg); font-variant-numeric: tabular-nums; }
+    .pulse::before { content: ''; position: absolute; left: 12px; top: 14px; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 rgba(19,160,107,.5); animation: fnPulse 2.2s ease-out infinite; }
+    .rv-q { background: var(--soft); border-left: 0; border-radius: 14px; padding: 11px 13px; font-size: 13px; color: var(--fg2); margin: 4px 0 12px; line-height: 1.45; }
+    .rv-q b { color: var(--fg); }
+    .doc-chk { width: 24px; height: 24px; border-radius: 8px; border: 1.5px solid var(--soft-2); flex: 0 0 auto; display: grid; place-items: center; color: #fff; font-size: 13px; cursor: pointer; }
+    .doc.done .doc-chk { background: var(--ok); border-color: var(--ok); }
+    .doc-name { font-size: 14px; font-weight: 700; }
+    .doc.done .doc-name { color: var(--fg2); text-decoration: line-through; }
+    .doc-sub { font-size: 11.5px; color: var(--fg2); margin-top: 2px; font-weight: 500; }
+    .doc-help { font-size: 12px; color: var(--fg); font-weight: 700; margin-top: 6px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+    .prog { height: 6px; border-radius: 99px; background: var(--soft); overflow: hidden; margin: 8px 0 4px; }
+    .prog-bar { height: 100%; background: var(--acc); border-radius: 99px; transition: width .3s; }
 
-    .info { text-align: center; color: #9AA3AB; font-size: 13px; padding: 30px 16px; line-height: 1.6; font-weight: 500; }
+    .info { text-align: center; color: var(--fg3); font-size: 13px; padding: 30px 16px; line-height: 1.6; font-weight: 500; }
     .view.hidden { display: none; }
 
-    .nav { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; background: rgba(10,12,14,0.92); backdrop-filter: blur(12px); border-top: 1px solid rgba(255,255,255,.10); padding: 9px 4px 13px; z-index: 40; }
-    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; color: #6E7882; font-size: 9.5px; font-weight: 700; }
-    .nav-item.on { color: #37474F; }
-    .nav-item .nav-ico { padding: 3px 13px; border-radius: 999px; }
-    .nav-item.on .nav-ico { background: rgba(210,225,240,.12); }
-    .nav-ico { font-size: 19px; line-height: 1; }
+    /* плавающее меню */
+    .nav { position: fixed; bottom: calc(14px + env(safe-area-inset-bottom, 0px)); left: 14px; right: 14px; max-width: 452px; margin: 0 auto; height: 64px; display: flex; align-items: center; justify-content: space-around; padding: 0 6px; border-radius: 999px; background: var(--nav-bg); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 0 var(--line), 0 18px 40px -16px rgba(10,14,20,.4); z-index: 40; }
+    :root[data-theme="dark"] .nav { box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 18px 40px -16px rgba(0,0,0,.8); }
+    .nav-item { width: 50px; height: 50px; border-radius: 50%; display: grid; place-items: center; cursor: pointer; color: var(--fg3); font-size: 0; position: relative; transition: color .2s ease, background .2s var(--spring); }
+    .nav-item.on { color: var(--accfg); background: var(--acc); }
+    .nav-item .nav-ico { display: grid; place-items: center; transition: transform .2s var(--spring); }
+    .nav-item.on .nav-ico { animation: navPop .35s var(--spring); }
+    .nav-item svg.i { width: 22px; height: 22px; stroke-width: 1.5; }
+    .nav-dot { position: absolute; top: 6px; right: 6px; min-width: 16px; height: 16px; border-radius: 8px; background: var(--hot); color: #fff; font-size: 10px; font-weight: 800; display: grid; place-items: center; padding: 0 4px; }
 
-    .overlay { position: fixed; inset: 0; background: rgba(14,34,51,.45); backdrop-filter: blur(3px); z-index: 50; display: flex; align-items: flex-end; }
+    /* шторки */
+    .overlay { position: fixed; inset: 0; background: var(--dim); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); z-index: 50; display: flex; align-items: flex-end; }
     .overlay.hidden { display: none; }
-    .sheet { width: 100%; max-width: 480px; margin: 0 auto; background: rgba(255,255,255,.05); border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px 18px 28px; max-height: 88vh; overflow-y: auto; }
-    .grip { width: 40px; height: 4px; border-radius: 99px; background: #D2DAE0; margin: 0 auto 16px; }
-    .det-row { display: flex; align-items: center; gap: 11px; padding: 12px; border-radius: 12px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); margin-bottom: 9px; }
+    .sheet { width: 100%; max-width: 480px; margin: 0 auto; background: var(--card); border-top-left-radius: 30px; border-top-right-radius: 30px; padding: 12px 20px calc(26px + env(safe-area-inset-bottom,0px)); max-height: 88dvh; overflow-y: auto; overscroll-behavior: contain; box-shadow: var(--sh-lg); }
+    .grip { width: 36px; height: 4px; border-radius: 99px; background: var(--soft-2); margin: 0 auto 18px; }
+    .det-row { display: flex; align-items: center; gap: 11px; padding: 12px 14px; border-radius: 14px; background: var(--soft); border: 0; margin-bottom: 8px; }
     .det-ico { font-size: 18px; }
-    .det-k { font-size: 10.5px; color: #9AA3AB; font-weight: 600; }
-    .det-v { font-size: 13px; font-weight: 700; margin-top: 1px; word-break: break-all; }
-    .det-title { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
-    .det-sub { font-size: 12px; color: #9AA3AB; margin-bottom: 16px; font-weight: 500; }
-    .player { position: relative; width: 100%; padding-top: 56.25%; border-radius: 12px; overflow: hidden; margin-bottom: 8px; }
+    .det-k { font-size: 11px; color: var(--fg3); font-weight: 600; }
+    .det-v { font-size: 13.5px; font-weight: 700; margin-top: 1px; word-break: break-all; }
+    .det-title { font-size: 21px; font-weight: 800; margin-bottom: 4px; letter-spacing: -.5px; line-height: 1.15; }
+    .det-sub { font-size: 13px; color: var(--fg2); margin-bottom: 16px; font-weight: 500; line-height: 1.45; }
+    .player { position: relative; width: 100%; padding-top: 56.25%; border-radius: 16px; overflow: hidden; margin-bottom: 8px; background: #000; }
     .player iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-    .close { text-align: center; font-size: 12.5px; color: #9AA3AB; margin-top: 12px; cursor: pointer; font-weight: 600; }
+    .close { text-align: center; font-size: 13px; color: var(--fg3); margin-top: 12px; cursor: pointer; font-weight: 600; padding: 6px; }
+    .feat-list { display: flex; flex-direction: column; gap: 10px; margin: 14px 0 4px; }
+    .feat { display: flex; gap: 12px; align-items: center; font-size: 14px; font-weight: 600; color: var(--fg); }
+    .feat .fi { width: 32px; height: 32px; border-radius: 10px; background: var(--soft); display: grid; place-items: center; flex: 0 0 auto; }
+    .feat .fi svg.i { width: 17px; height: 17px; }
+    .price-row { display: flex; gap: 10px; margin-top: 14px; }
+    .price-tile { flex: 1; position: relative; padding: 14px; border-radius: 18px; background: var(--soft); text-align: left; cursor: pointer; transition: transform .12s var(--ease); min-height: 86px; }
+    .price-tile:active { transform: scale(.97); }
+    .price-tile b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -.8px; color: var(--fg); font-variant-numeric: tabular-nums; }
+    .price-tile span { display: block; font-size: 12.5px; color: var(--fg2); font-weight: 600; margin-top: 2px; }
+    .price-tile small { display: block; font-size: 10.5px; color: var(--fg3); margin-top: 6px; }
+    .price-tile.hot { background: var(--acc); }
+    .price-tile.hot b { color: var(--accfg); }
+    .price-tile.hot span, .price-tile.hot small { color: var(--accfg); opacity: .75; }
+    .price-tile i { position: absolute; top: 12px; right: 12px; font-style: normal; font-size: 10px; font-weight: 800; white-space: nowrap; color: #fff; background: var(--ok); padding: 3px 8px; border-radius: 999px; }
+    .price-later { text-align: center; font-size: 13px; color: var(--fg3); margin-top: 10px; cursor: pointer; padding: 8px; font-weight: 600; }
 
-    .hero { padding: 18px; border-radius: 20px; background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.025)); border: 1px solid rgba(255,255,255,.10); box-shadow: 0 1px 0 rgba(255,255,255,.10) inset, margin-bottom: 14px; box-shadow: 0 1px 2px rgba(14,34,51,.05); }
-    .hero-name { font-weight:800; font-size:24px; color:#EEF1F4; letter-spacing:-.5px; }
-    .hero-tag { font-size:13px; font-weight:700; color:#EEF1F4; margin-top:2px; }
-    .hero-desc { font-size:12.5px; color:#9AA3AB; line-height:1.55; margin-top:10px; font-weight:500; }
-    .hero-row { display:flex; gap:8px; margin-top:8px; font-size:11px; color:#DCE4EA; font-weight:700; }
-    .hero-row span { flex:1; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); border-radius:9px; padding:7px 9px; text-align:center; cursor:pointer; }
-    .hero-row span:active { transform:scale(.97); background:rgba(255,255,255,.11); }
+    /* главная: живая строка, бенто, быстрые ссылки */
+    .live { display: inline-block; font-size: 11.5px; font-weight: 700; color: var(--fg2); background: var(--card); box-shadow: var(--sh); padding: 8px 12px 8px 26px; border-radius: 999px; margin: 14px 0 0; position: relative; line-height: 1.3; }
+    .live::before { content: ''; position: absolute; left: 11px; top: 11px; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+    .live b { color: var(--fg); font-variant-numeric: tabular-nums; }
+    .bento { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0 0; }
+    .tile { background: var(--card); border-radius: var(--r-md); padding: 14px; box-shadow: var(--sh); position: relative; cursor: pointer; transition: transform .12s var(--ease); }
+    .tile:active { transform: scale(.98); }
+    .tile.wide { grid-column: 1 / 3; display: flex; align-items: center; gap: 12px; }
+    .tile .ti { width: 34px; height: 34px; border-radius: 11px; background: var(--soft); display: grid; place-items: center; margin-bottom: 16px; color: var(--fg); }
+    .tile.wide .ti { margin: 0; flex: 0 0 auto; }
+    .tile .ti svg.i { width: 18px; height: 18px; }
+    .tile .n { display: block; font-size: 24px; font-weight: 800; letter-spacing: -.7px; font-variant-numeric: tabular-nums; line-height: 1; }
+    .tile small { display: block; font-size: 11.5px; color: var(--fg2); margin-top: 4px; font-weight: 500; }
+    .tile .b { display: block; font-size: 14px; font-weight: 700; letter-spacing: -.1px; }
+    .tile .dot { position: absolute; top: 12px; right: 12px; min-width: 20px; height: 20px; border-radius: 10px; background: var(--hot); color: #fff; font-size: 11px; font-weight: 800; display: grid; place-items: center; padding: 0 6px; }
+    .quick { margin: 10px 0 0; }
+    .hero { padding: 18px; border-radius: var(--r); background: var(--card); box-shadow: var(--sh); margin-bottom: 14px; }
+    .hero-name { font-weight:800; font-size:24px; color:var(--fg); letter-spacing:-.5px; }
+    .hero-tag { font-size:13px; font-weight:700; color:var(--fg); margin-top:2px; }
+    .hero-desc { font-size:12.5px; color:var(--fg2); line-height:1.55; margin-top:10px; font-weight:500; }
+    .hero-row { display:flex; gap:8px; margin-top:8px; font-size:12px; color:var(--fg); font-weight:700; }
+    .hero-row span { flex:1; background:var(--card); box-shadow:var(--sh); border-radius:14px; padding:12px 10px; text-align:center; cursor:pointer; transition: transform .12s var(--ease); }
+    .hero-row span:active { transform:scale(.97); }
 
-    .cp-btn { flex:0 0 auto; margin-left:6px; padding:8px 11px; border-radius:10px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.10); color:#EEF1F4; font-size:14px; text-decoration:none; cursor:pointer; display:inline-grid; place-items:center; }
-    .cp-btn:active { background:#D9E6EF; }
-    .btn-announce { margin-top:8px; background:rgba(210,225,240,.12); border:1px solid #BCD4E2; color:#37474F; }
-    .btn-announce:active { background:#D0E2EE; }
+    .cp-btn { flex:0 0 auto; margin-left:6px; padding:8px 11px; border-radius:12px; background:var(--soft); border:0; color:var(--fg); font-size:14px; text-decoration:none; cursor:pointer; display:inline-grid; place-items:center; transition: transform .1s ease, background .2s ease; }
+    .cp-btn:active { background:var(--soft-2); transform:scale(.9); }
 
-    .imgview { position:fixed; inset:0; background:rgba(14,34,51,.92); z-index:60; display:none; align-items:center; justify-content:center; padding:16px; }
+    .imgview { position:fixed; inset:0; background:rgba(0,0,0,.92); z-index:60; display:none; align-items:center; justify-content:center; padding:16px; }
     .imgview.on { display:flex; }
-    .imgview img { max-width:100%; max-height:90vh; border-radius:10px; }
-    .imgview .x { position:absolute; top:16px; right:18px; font-size:26px; color:#fff; cursor:pointer; }
-
+    .imgview img { max-width:100%; max-height:90vh; border-radius:12px; }
+    .imgview .x { position:absolute; top:calc(16px + var(--safe-top)); right:18px; font-size:26px; color:#fff; cursor:pointer; }
     audio { width:100%; }
 
-    /* --- микро-анимации --- */
-    .btn { transition: transform .12s ease, box-shadow .25s ease, filter .2s ease; }
-    .btn:active { transform: scale(.97); }
-    .btn-gold { box-shadow: 0 6px 18px rgba(14,92,138,.20); }
-    .btn-gold:active { box-shadow: 0 3px 10px rgba(14,92,138,.28); }
-    .plan-box .btn-gold { position: relative; overflow: hidden; }
-    .plan-box .btn-gold::after { content:''; position:absolute; top:0; left:-70%; width:45%; height:100%;
-      background: linear-gradient(100deg, transparent, rgba(255,255,255,.45), transparent); transform: skewX(-20deg);
-      animation: sheen 3.6s ease-in-out infinite; }
-    @keyframes sheen { 0% { left:-70%; } 40%,100% { left:160%; } }
-    .ccard,.dircard,.lesson,.prow,.doc,.rv-thumb,.rv-shot { transition: transform .12s ease, background .2s ease; }
+    /* --- анимации --- */
+    .ccard,.dircard,.lesson,.prow,.doc,.rv-thumb,.rv-shot,.pd-head { transition: transform .12s var(--ease), background .2s ease; }
     .ccard:active,.dircard:active,.lesson:active,.prow:active,.doc:active,.rv-thumb:active,.rv-shot:active { transform: scale(.985); }
-    .cp-btn { transition: transform .1s ease, background .2s ease; }
-    .cp-btn:active { transform: scale(.9); }
-    .nav-item .nav-ico { transition: transform .18s ease; }
-    .nav-item.on .nav-ico { transform: translateY(-2px) scale(1.08); }
-    .view:not(.hidden) { animation: viewIn .32s ease both; }
+    .view:not(.hidden) { animation: viewIn .32s var(--ease) both; }
     @keyframes viewIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform:none; } }
+    .card,.ccard,.dircard,.lesson,.mentor,.review,.prow,.doc,.pd-card,.sal-card,.plan-box,.tile,.group-mg { animation: cardIn .42s var(--ease) both; }
+    .card:nth-child(2),.ccard:nth-child(2),.prow:nth-child(2),.doc:nth-child(2),.pd-card:nth-child(2),.lesson:nth-child(2),.mentor:nth-child(2),.review:nth-child(2),.sal-card:nth-child(2),.tile:nth-child(2){animation-delay:.05s}
+    .card:nth-child(3),.ccard:nth-child(3),.prow:nth-child(3),.doc:nth-child(3),.pd-card:nth-child(3),.lesson:nth-child(3),.mentor:nth-child(3),.review:nth-child(3),.sal-card:nth-child(3),.tile:nth-child(3){animation-delay:.10s}
+    .card:nth-child(4),.ccard:nth-child(4),.prow:nth-child(4),.doc:nth-child(4),.pd-card:nth-child(4),.lesson:nth-child(4),.mentor:nth-child(4),.review:nth-child(4),.sal-card:nth-child(4){animation-delay:.15s}
+    .card:nth-child(5),.ccard:nth-child(5),.prow:nth-child(5),.doc:nth-child(5),.pd-card:nth-child(5),.lesson:nth-child(5),.mentor:nth-child(5),.review:nth-child(5){animation-delay:.20s}
+    .card:nth-child(n+6),.ccard:nth-child(n+6),.prow:nth-child(n+6),.doc:nth-child(n+6),.lesson:nth-child(n+6){animation-delay:.25s}
+    @keyframes cardIn { from { opacity:0; transform: translateY(10px) scale(.985); } to { opacity:1; transform:none; } }
+    @keyframes barGrow { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+    .gp-n-done { animation: popIn .45s var(--spring) both; }
+    @keyframes popIn { from { transform: scale(.4); opacity:0; } to { transform:none; opacity:1; } }
+    @keyframes navPop { 0% { transform: scale(1); } 60% { transform: scale(1.18); } 100% { transform: scale(1); } }
     .overlay:not(.hidden) { animation: ovFade .2s ease; }
-    .overlay:not(.hidden) .sheet { animation: sheetUp .3s cubic-bezier(.2,.8,.2,1); }
+    .overlay:not(.hidden) .sheet { animation: sheetUp .42s var(--spring); }
     @keyframes ovFade { from { opacity:0; } to { opacity:1; } }
     @keyframes sheetUp { from { transform: translateY(100%); } to { transform: none; } }
     .imgview.on img { animation: viewIn .25s ease both; }
     @media (prefers-reduced-motion: reduce) { *, *::after, *::before { animation: none !important; transition: none !important; } }
 
-    /* --- скелетоны загрузки --- */
-    .skel { border-radius: 16px; background: #E8ECEF; border: 1px solid rgba(255,255,255,.10); margin-bottom: 11px; position: relative; overflow: hidden; }
-    .skel::after { content:''; position:absolute; inset:0; transform: translateX(-100%);
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.7), transparent); animation: shimmer 1.3s infinite; }
+    /* --- скелетоны --- */
+    .skel { border-radius: var(--r-md); background: var(--card); margin-bottom: 10px; position: relative; overflow: hidden; box-shadow: var(--sh); }
+    .skel::after { content:''; position:absolute; inset:0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, var(--soft), transparent); animation: shimmer 1.3s infinite; }
     @keyframes shimmer { 100% { transform: translateX(100%); } }
-    .skel-card { height: 116px; }
+    .skel-card { height: 200px; }
     .skel-row { height: 64px; }
 
-    .totop { position: fixed; right: 16px; bottom: 78px; width: 44px; height: 44px; border-radius: 50%; display: none; place-items: center; z-index: 40;
-      background: #37474F; color:#fff; font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: 0 6px 18px rgba(14,34,51,.2); }
+    .totop { position: fixed; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom,0px)); width: 44px; height: 44px; border-radius: 50%; display: none; place-items: center; z-index: 40; background: var(--card); color: var(--fg); font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: var(--sh-lg); }
     .totop:active { transform: scale(.92); }
-    .seg-mail { display:flex; background:#E8ECEF; border-radius:10px; padding:4px; margin:14px 0 6px; }
-    .seg-mail button { flex:1; border:none; background:transparent; padding:8px; border-radius:7px; font-family:'Manrope'; font-size:12.5px; font-weight:700; color:#9AA3AB; cursor:pointer; }
-    .seg-mail button.on { background:rgba(255,255,255,.05); color:#37474F; box-shadow:0 1px 3px rgba(14,34,51,.1); }
-    .ml-lbl { display:block; font-size:11px; font-weight:700; color:#9AA3AB; margin:10px 0 4px; }
-    .ml-in, .ml-ta { width:100%; border:1px solid rgba(255,255,255,.10); border-radius:10px; padding:10px 12px; font-family:'Manrope'; font-size:13.5px; color:#EEF1F4; outline:none; background:rgba(255,255,255,.06); }
-    .ml-in:focus, .ml-ta:focus { border-color:#37474F; }
+    .seg-mail { display:flex; background:var(--soft); border-radius:14px; padding:4px; margin:14px 0 6px; }
+    .seg-mail button { flex:1; border:none; background:transparent; padding:9px; border-radius:11px; font-family:'Manrope'; font-size:13px; font-weight:700; color:var(--fg2); cursor:pointer; }
+    .seg-mail button.on { background:var(--card); color:var(--fg); box-shadow:var(--sh); }
+    .ml-lbl { display:block; font-size:11.5px; font-weight:700; color:var(--fg3); margin:12px 0 5px; }
+    .ml-in, .ml-ta { width:100%; border:0; border-radius:14px; padding:12px 14px; font-family:'Manrope'; font-size:16px; color:var(--fg); outline:none; background:var(--soft); }
+    .ml-in:focus, .ml-ta:focus { box-shadow: 0 0 0 2px var(--acc) inset; }
     .ml-ta { resize:vertical; line-height:1.5; }
-    .ml-note { font-size:11px; color:#9AA3AB; background:rgba(226,196,137,.12); border:1px solid rgba(226,196,137,.26); border-radius:10px; padding:10px; margin:12px 0; line-height:1.5; }
-    .attach-ok { display:flex; align-items:center; gap:8px; background:rgba(120,200,160,.10); border:1px solid #BFE3D4; border-radius:11px; padding:11px 13px; margin:10px 0 4px; font-size:12.5px; font-weight:700; color:#8CC0A6; }
+    .ml-note { font-size:12px; color:var(--fg2); background:var(--soft); border:0; border-radius:14px; padding:11px 13px; margin:12px 0; line-height:1.5; }
+    .attach-ok { display:flex; align-items:center; gap:8px; background:var(--ok-soft); border:0; border-radius:14px; padding:11px 13px; margin:10px 0 4px; font-size:13px; font-weight:700; color:var(--ok); }
     .ml-copyrow { display:flex; gap:8px; margin-bottom:4px; }
-    .vac-date { font-size:11px; color:#9AA3AB; margin:6px 0 2px; font-weight:600; }
-    .sal-wrap { display:flex; flex-direction:column; gap:9px; }
-    .sal-card { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:13px 15px; position:relative; overflow:hidden; }
-    .sal-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background:linear-gradient(#37474F,#8CC0A6); }
-    .sal-top { display:flex; align-items:center; gap:8px; margin-bottom:6px; }
-    .sal-ic { font-size:18px; }
-    .sal-name { font-size:13.5px; font-weight:800; }
-    .sal-hot { margin-left:auto; font-size:9px; font-weight:800; text-transform:uppercase; color:#E0864F; background:#FCE8DE; padding:3px 8px; border-radius:999px; letter-spacing:.5px; }
-    .sal-pay { font-size:21px; font-weight:800; color:#8CC0A6; letter-spacing:-.5px; }
-    .sal-per { font-size:12px; font-weight:600; color:#9AA3AB; }
-    .sal-c { font-size:11.5px; color:#9AA3AB; margin-top:3px; font-weight:600; }
-    .sal-note { font-size:11px; color:#9AA3AB; line-height:1.5; margin:10px 2px 0; }
-    .ml-cp { flex:1; padding:11px 6px; border:1px solid rgba(255,255,255,.10); border-radius:11px; background:rgba(255,255,255,.06); color:#EEF1F4; font-family:'Manrope'; font-size:12.5px; font-weight:700; cursor:pointer; }
-    .ml-cp:active { background:#D9E6EF; transform:scale(.96); }
-    .group-mg { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:14px; margin-bottom:11px; }
-    .mg-q { font-size:13px; font-weight:800; margin-bottom:10px; }
+    .sal-wrap { display:flex; flex-direction:column; gap:8px; }
+    .sal-card { background:var(--card); border:0; border-radius:var(--r-sm); padding:13px 15px; position:relative; overflow:hidden; box-shadow:var(--sh); }
+    .sal-top { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+    .sal-ic { font-size:16px; width:30px; height:30px; border-radius:9px; background:var(--soft); display:grid; place-items:center; }
+    .sal-name { font-size:14px; font-weight:700; }
+    .sal-hot { margin-left:auto; font-size:10px; font-weight:800; color:var(--ok); background:var(--ok-soft); padding:3px 8px; border-radius:999px; }
+    .sal-pay { font-size:21px; font-weight:800; color:var(--fg); letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
+    .sal-per { font-size:12px; font-weight:600; color:var(--fg2); }
+    .sal-c { font-size:11.5px; color:var(--fg2); margin-top:2px; font-weight:600; }
+    .sal-note { font-size:11.5px; color:var(--fg3); line-height:1.5; margin:10px 4px 0; }
+    .ml-cp { flex:1; padding:12px 6px; border:0; border-radius:12px; background:var(--soft); color:var(--fg); font-family:'Manrope'; font-size:12.5px; font-weight:700; cursor:pointer; }
+    .ml-cp:active { background:var(--soft-2); transform:scale(.96); }
+    .group-mg { background:var(--card); border:0; border-radius:var(--r-md); padding:14px; margin-bottom:10px; box-shadow:var(--sh); }
+    .mg-q { font-size:13.5px; font-weight:800; margin-bottom:10px; }
     .mg-opts { display:flex; flex-wrap:wrap; gap:8px; }
-    .mg-opt { padding:9px 13px; border-radius:10px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.06); color:#EEF1F4; font-size:12.5px; font-weight:600; cursor:pointer; }
-    .mg-opt.on { background:#37474F; color:#fff; border-color:transparent; }
+    .mg-opt { padding:9px 13px; border-radius:12px; border:0; background:var(--soft); color:var(--fg); font-size:12.5px; font-weight:600; cursor:pointer; }
+    .mg-opt.on { background:var(--acc); color:var(--accfg); }
     .mg-result { margin-top:16px; padding-top:6px; }
-    /* --- значок «?» подсказки --- */
-    .hbadge { display:inline-grid; place-items:center; width:17px; height:17px; border-radius:50%; background:rgba(210,225,240,.12); color:#37474F; font-size:11px; font-weight:800; cursor:pointer; margin-left:6px; vertical-align:middle; flex:0 0 auto; user-select:none; }
+    .hbadge { display:inline-grid; place-items:center; width:17px; height:17px; border-radius:50%; background:var(--soft); color:var(--fg2); font-size:11px; font-weight:800; cursor:pointer; margin-left:6px; vertical-align:middle; flex:0 0 auto; user-select:none; }
     .hbadge:active { transform:scale(.9); }
     .sec-title .hbadge { margin-left:2px; }
-    /* --- тур первого входа --- */
-    .tour-back { position:fixed; inset:0; background:rgba(14,34,51,.62); z-index:120; display:none; }
+    /* тур */
+    .tour-back { position:fixed; inset:0; background:var(--dim); z-index:120; display:none; }
     .tour-back.on { display:block; }
-    .tour-card { position:fixed; z-index:121; left:50%; bottom:96px; transform:translateX(-50%); width:calc(100% - 40px); max-width:360px;
-      background:rgba(255,255,255,.05); border-radius:18px; padding:18px 18px 16px; box-shadow:0 14px 40px rgba(0,0,0,.3); }
+    .tour-card { position:fixed; z-index:121; left:50%; bottom:100px; transform:translateX(-50%); width:calc(100% - 40px); max-width:360px; background:var(--card); border-radius:22px; padding:18px 18px 16px; box-shadow:var(--sh-lg); }
     .tour-emoji { font-size:30px; }
-    .tour-h { font-size:16px; font-weight:800; color:#EEF1F4; margin-top:6px; }
-    .tour-d { font-size:13px; color:#5d6f7c; line-height:1.5; margin-top:6px; }
+    .tour-h { font-size:16px; font-weight:800; color:var(--fg); margin-top:6px; }
+    .tour-d { font-size:13px; color:var(--fg2); line-height:1.5; margin-top:6px; }
     .tour-row { display:flex; align-items:center; gap:10px; margin-top:16px; }
     .tour-dots { display:flex; gap:6px; flex:1; }
-    .tour-dot { width:7px; height:7px; border-radius:50%; background:#D2DAE0; }
-    .tour-dot.on { background:#37474F; width:18px; border-radius:99px; }
-    .tour-skip { font-size:12px; color:#6E7882; font-weight:700; cursor:pointer; }
-    .tour-next { background:#37474F; color:#fff; border:none; border-radius:11px; padding:10px 18px; font-family:'Manrope'; font-size:13px; font-weight:800; cursor:pointer; }
-    .tour-spot { position:fixed; z-index:121; border:2px solid #fff; border-radius:14px; box-shadow:0 0 0 4px rgba(14,92,138,.5); pointer-events:none; transition:all .25s ease; display:none; }
+    .tour-dot { width:7px; height:7px; border-radius:50%; background:var(--soft-2); }
+    .tour-dot.on { background:var(--acc); width:18px; border-radius:99px; }
+    .tour-skip { font-size:12px; color:var(--fg3); font-weight:700; cursor:pointer; }
+    .tour-next { background:var(--acc); color:var(--accfg); border:none; border-radius:999px; padding:11px 18px; font-family:'Manrope'; font-size:13px; font-weight:800; cursor:pointer; }
+    .tour-spot { position:fixed; z-index:121; border:2px solid var(--card); border-radius:18px; box-shadow:0 0 0 4px var(--acc); pointer-events:none; transition:all .25s ease; display:none; }
     .tour-spot.on { display:block; }
 
     /* ===== ВОРОНКА ===== */
-    .fn-overlay{position:fixed;inset:0;z-index:200;background:#060708;background-image:radial-gradient(125% 70% at 50% -6%, #171A1F 0%, #0C0E11 44%, #050506 100%);display:none;flex-direction:column;overflow:hidden}
+    .fn-overlay{position:fixed;inset:0;z-index:200;background:var(--bg);display:none;flex-direction:column;overflow:hidden;color:var(--fg)}
     .fn-overlay.on{display:flex}
-    .fn-x{position:absolute;top:12px;right:14px;z-index:5;width:32px;height:32px;border-radius:50%;background:rgba(14,34,51,.06);display:grid;place-items:center;color:#9AA3AB;font-size:15px;cursor:pointer}
-    .fn-screen{position:absolute;inset:0;display:none;flex-direction:column;opacity:0;transition:opacity .38s ease, transform .38s ease;transform:translateY(10px)}
+    .fn-x{position:absolute;top:calc(14px + var(--safe-top));right:16px;z-index:5;width:34px;height:34px;border-radius:50%;background:var(--card);box-shadow:var(--sh);display:grid;place-items:center;color:var(--fg2);font-size:15px;cursor:pointer}
+    .fn-screen{position:absolute;inset:0;display:none;flex-direction:column;opacity:0;transition:opacity .38s var(--ease), transform .38s var(--ease);transform:translateY(10px);padding-top:var(--safe-top)}
     .fn-screen.fn-on{display:flex;opacity:1;transform:none}
-    .fn-sea{background:linear-gradient(165deg,#0A2130,#123B54 70%);padding:20px 20px 22px;color:#fff}
+    .fn-sea{padding:22px 20px 16px}
     .fn-mentor{display:flex;align-items:center;gap:11px}
-    .fn-av{width:44px;height:44px;border-radius:13px;flex:0 0 auto;display:grid;place-items:center;font-size:22px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14)}
+    .fn-av{width:44px;height:44px;border-radius:14px;flex:0 0 auto;display:grid;place-items:center;font-size:20px;background:var(--card);box-shadow:var(--sh)}
     .fn-name{font-size:14.5px;font-weight:800}
-    .fn-sub{font-size:11px;color:#9DB6C6;margin-top:1px;font-weight:600;display:flex;align-items:center;gap:5px}
-    .fn-live{width:6px;height:6px;border-radius:50%;background:#7CD9C2;animation:fnpulse 2s infinite}
-    @keyframes fnpulse{0%{box-shadow:0 0 0 0 rgba(124,217,194,.5)}70%{box-shadow:0 0 0 7px rgba(124,217,194,0)}100%{box-shadow:0 0 0 0 rgba(124,217,194,0)}}
-    .fn-body{flex:1;overflow-y:auto;padding:20px}
-    .fn-foot{padding:14px 20px 22px}
+    .fn-sub{font-size:11.5px;color:var(--fg2);margin-top:1px;font-weight:600;display:flex;align-items:center;gap:5px}
+    .fn-live{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:fnpulse 2s infinite}
+    @keyframes fnpulse{0%{box-shadow:0 0 0 0 rgba(19,160,107,.5)}70%{box-shadow:0 0 0 7px rgba(19,160,107,0)}100%{box-shadow:0 0 0 0 rgba(19,160,107,0)}}
+    .fn-body{flex:1;overflow-y:auto;padding:4px 20px 20px;overscroll-behavior:contain}
+    .fn-foot{padding:14px 20px calc(22px + env(safe-area-inset-bottom,0px))}
     .fnc-body{display:flex;flex-direction:column;gap:10px}
-    .fnc-row{display:flex;gap:8px;max-width:100%;animation:fncIn .25s ease}
+    .fnc-row{display:flex;gap:8px;max-width:100%;animation:fncIn .25s var(--ease)}
     @keyframes fncIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
     .fnc-a{justify-content:flex-start}
     .fnc-u{justify-content:flex-end}
-    .fnc-av{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:#0E2A3B;display:grid;place-items:center;font-size:15px;align-self:flex-end}
-    .fnc-b{max-width:80%;padding:11px 14px;border-radius:16px;font-size:14px;line-height:1.42;background:#F3F5F7;color:#111;border-bottom-left-radius:5px}
-    .fnc-ub{background:linear-gradient(135deg,#1C4B66,#123B54);color:#EAF2F7;border-bottom-left-radius:16px;border-bottom-right-radius:5px}
+    .fnc-av{flex:0 0 auto;width:30px;height:30px;border-radius:50%;background:var(--card);box-shadow:var(--sh);display:grid;place-items:center;font-size:15px;align-self:flex-end}
+    .fnc-b{max-width:80%;padding:11px 14px;border-radius:18px;font-size:14px;line-height:1.42;background:var(--card);color:var(--fg);box-shadow:var(--sh);border-bottom-left-radius:6px}
+    .fnc-ub{background:var(--acc);color:var(--accfg);box-shadow:none;border-bottom-left-radius:18px;border-bottom-right-radius:6px}
     .fnc-typing{display:flex;gap:4px;align-items:center;padding:14px 16px}
-    .fnc-typing span{width:7px;height:7px;border-radius:50%;background:#9AA3AB;animation:fncBlink 1s infinite}
+    .fnc-typing span{width:7px;height:7px;border-radius:50%;background:var(--fg3);animation:fncBlink 1s infinite}
     .fnc-typing span:nth-child(2){animation-delay:.2s}
     .fnc-typing span:nth-child(3){animation-delay:.4s}
     @keyframes fncBlink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
     .fnc-foot{display:flex;flex-direction:column;gap:8px}
-    .fnc-qr{width:100%;padding:13px 14px;border-radius:14px;border:1.5px solid rgba(203,213,221,.28);background:rgba(255,255,255,.05);color:#EEF1F4;font-size:14px;font-weight:700;cursor:pointer;transition:transform .1s}
+    .fnc-qr{width:100%;padding:14px;border-radius:16px;border:0;background:var(--card);box-shadow:var(--sh);color:var(--fg);font-size:14px;font-weight:700;cursor:pointer;transition:transform .1s;font-family:'Manrope'}
     .fnc-qr:active{transform:scale(.98)}
-    .fn-q{font-size:19px;font-weight:800;color:#EEF1F4;letter-spacing:-.3px;line-height:1.25;margin:2px 2px 16px}
-    .fn-opts{display:flex;flex-direction:column;gap:10px}
-    .massbar{display:flex;align-items:center;gap:12px;margin:2px 2px 12px;padding:13px 14px;border-radius:16px;cursor:pointer;background:linear-gradient(135deg,rgba(203,213,221,.14),rgba(120,150,175,.08));border:1.5px solid rgba(203,213,221,.28)}
+    .fn-q{font-size:24px;font-weight:800;color:var(--fg);letter-spacing:-.6px;line-height:1.15;margin:8px 2px 18px}
+    .fn-opts{display:flex;flex-direction:column;gap:8px}
+    .massbar{display:flex;align-items:center;gap:12px;margin:2px 0 12px;padding:14px;border-radius:var(--r-md);cursor:pointer;background:var(--card);box-shadow:var(--sh)}
     .massbar:active{transform:scale(.99)}
-    .massbar-lock{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.10)}
+    .massbar-lock{opacity:.85}
     .massbar-ico{font-size:22px;flex:0 0 auto}
-    .massbar-t{font-size:13.5px;font-weight:800;color:#EEF1F4}
-    .massbar-s{font-size:11.5px;color:#9AA3AB;line-height:1.4;margin-top:2px}
-    .massbar-cta{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#0B1418;background:#CBD5DD;padding:6px 12px;border-radius:999px}
-    .ap-box{display:flex;align-items:center;gap:11px;margin-top:12px;padding:13px 14px;border-radius:15px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.12);font-size:12px;color:#9AA3AB}
-    .ap-box.ap-on{background:linear-gradient(135deg,rgba(140,192,166,.16),rgba(120,180,150,.05));border-color:rgba(140,192,166,.42)}
-    .ap-t{font-size:13.5px;font-weight:800;color:#EAF2E9}
-    .ap-s{font-size:11.5px;color:#9FB4A8;line-height:1.4;margin-top:2px}
-    .ap-btn{flex:0 0 auto;font-size:12px;font-weight:800;color:#0B1418;background:#8CC0A6;border:0;padding:9px 15px;border-radius:999px;cursor:pointer}
-    .ap-off-btn{background:rgba(255,255,255,.14);color:#EAE7EA}
-    .ap-spin-mini{width:16px;height:16px;border-radius:50%;border:2px solid rgba(255,255,255,.2);border-top-color:#8CC0A6;animation:cvspin .8s linear infinite;flex:0 0 auto}
+    .massbar-t{font-size:14px;font-weight:800;color:var(--fg)}
+    .massbar-s{font-size:12px;color:var(--fg2);line-height:1.4;margin-top:2px}
+    .massbar-cta{flex:0 0 auto;font-size:12px;font-weight:800;color:var(--accfg);background:var(--acc);padding:8px 13px;border-radius:999px}
+    .ap-box{display:flex;align-items:center;gap:11px;margin-top:12px;padding:14px;border-radius:var(--r-md);background:var(--card);box-shadow:var(--sh);font-size:12px;color:var(--fg2)}
+    .ap-box.ap-on{background:var(--ok-soft);box-shadow:none}
+    .ap-t{font-size:14px;font-weight:800;color:var(--fg)}
+    .ap-s{font-size:12px;color:var(--fg2);line-height:1.4;margin-top:2px}
+    .ap-btn{flex:0 0 auto;font-size:12.5px;font-weight:800;color:var(--accfg);background:var(--acc);border:0;padding:10px 15px;border-radius:999px;cursor:pointer;font-family:'Manrope'}
+    .ap-off-btn{background:var(--soft-2);color:var(--fg)}
+    .ap-spin-mini{width:16px;height:16px;border-radius:50%;border:2px solid var(--soft-2);border-top-color:var(--fg);animation:cvspin .8s linear infinite;flex:0 0 auto}
     @keyframes cvspin{to{transform:rotate(360deg)}}
-    .massbar-lock .massbar-cta{background:rgba(203,213,221,.9)}
-    .mass-prog{height:8px;border-radius:999px;background:rgba(255,255,255,.10);overflow:hidden;margin:14px 0 8px}
-    .mass-prog>i{display:block;height:100%;background:linear-gradient(90deg,#7FA8C0,#CBD5DD);width:0;transition:width .3s ease}
-    .mass-cur{font-size:12px;color:#9AA3AB;text-align:center;min-height:16px}
-    .mass-price{text-align:center;font-size:14px;font-weight:800;color:#CBD5DD;margin-top:12px;letter-spacing:.2px}
+    .massbar-lock .massbar-cta{background:var(--soft-2);color:var(--fg)}
+    .mass-prog{height:6px;border-radius:999px;background:var(--soft);overflow:hidden;margin:14px 0 8px}
+    .mass-prog>i{display:block;height:100%;background:var(--acc);width:0;transition:width .3s ease}
+    .mass-cur{font-size:12px;color:var(--fg2);text-align:center;min-height:16px}
+    .mass-price{text-align:center;font-size:15px;font-weight:800;color:var(--fg);margin-top:12px}
     .mass-stat{display:flex;justify-content:center;gap:16px;font-size:12px;margin:6px 0 2px}
-    .mass-stat b{font-size:17px;display:block;text-align:center}
-    .fn-opt{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border:1.5px solid rgba(255,255,255,.10);border-radius:14px;padding:15px 16px;cursor:pointer;font-size:14.5px;font-weight:700;color:#EEF1F4;transition:transform .12s,border-color .2s,background .2s}
+    .mass-stat b{font-size:18px;display:block;text-align:center;font-variant-numeric:tabular-nums}
+    .fn-opt{display:flex;align-items:center;gap:12px;background:var(--card);border:0;box-shadow:var(--sh);border-radius:18px;padding:15px 16px;cursor:pointer;font-size:14.5px;font-weight:700;color:var(--fg);transition:transform .12s,box-shadow .2s}
     .fn-opt:active{transform:scale(.98)}
-    .fn-opt.fn-sel{border-color:#37474F;background:rgba(210,225,240,.09)}
+    .fn-opt.fn-sel{box-shadow:0 0 0 2px var(--acc) inset,var(--sh)}
     .fn-oi{font-size:20px;flex:0 0 auto}
-    .fn-ok{margin-left:auto;width:20px;height:20px;border-radius:50%;border:2px solid #CBD6DE;flex:0 0 auto;display:grid;place-items:center;color:#fff;font-size:11px;transition:.2s}
-    .fn-opt.fn-sel .fn-ok{background:#37474F;border-color:#37474F}
-    .fn-gauge{display:flex;align-items:center;gap:8px;margin-top:6px}
-    .fn-track{flex:1;height:6px;background:rgba(255,255,255,.16);border-radius:99px;overflow:hidden}
-    .fn-fill{height:100%;background:linear-gradient(90deg,#7CD9C2,#59c0e0);border-radius:99px;width:0;transition:width .45s ease}
-    .fn-gtxt{font-size:11px;font-weight:800;color:#9DB6C6;white-space:nowrap}
-    .fn-btn{display:block;width:100%;text-align:center;border:none;border-radius:14px;font-family:'Manrope';font-size:15px;font-weight:800;padding:16px;cursor:pointer;transition:transform .12s}
+    .fn-ok{margin-left:auto;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--soft-2);flex:0 0 auto;display:grid;place-items:center;color:var(--accfg);font-size:11px;transition:.2s}
+    .fn-opt.fn-sel .fn-ok{background:var(--acc);border-color:var(--acc)}
+    .fn-gauge{display:flex;align-items:center;gap:8px;margin-top:14px}
+    .fn-track{flex:1;height:5px;background:var(--soft);border-radius:99px;overflow:hidden}
+    .fn-fill{height:100%;background:var(--acc);border-radius:99px;width:0;transition:width .45s var(--ease)}
+    .fn-gtxt{font-size:11px;font-weight:800;color:var(--fg3);white-space:nowrap}
+    .fn-btn{display:flex;align-items:center;justify-content:center;width:100%;text-align:center;border:none;border-radius:999px;font-family:'Manrope';font-size:15px;font-weight:800;min-height:56px;padding:0 20px;cursor:pointer;transition:transform .12s}
     .fn-btn:active{transform:scale(.98)}
-    .fn-primary{background:#37474F;color:#fff;box-shadow:0 8px 22px rgba(14,92,138,.28)}
-    .fn-freebar{display:flex;align-items:center;gap:11px;margin:16px 2px 2px;padding:13px 15px;border-radius:15px;
-      background:linear-gradient(135deg,rgba(140,192,166,.16),rgba(120,180,150,.06));
-      border:1.5px solid rgba(140,192,166,.4);opacity:0;transform:translateY(10px);
-      animation:fnFreeIn .5s ease .25s forwards}
+    .fn-primary{background:var(--acc);color:var(--accfg)}
+    .fn-freebar{display:flex;align-items:center;gap:11px;margin:16px 2px 2px;padding:14px;border-radius:18px;background:var(--ok-soft);opacity:0;transform:translateY(10px);animation:fnFreeIn .5s var(--ease) .25s forwards}
     @keyframes fnFreeIn{to{opacity:1;transform:none}}
-    .fn-freebar-dot{flex:0 0 auto;width:11px;height:11px;border-radius:50%;background:#8CC0A6;
-      box-shadow:0 0 0 0 rgba(140,192,166,.6);animation:fnPulse 1.9s ease-out infinite}
-    @keyframes fnPulse{0%{box-shadow:0 0 0 0 rgba(140,192,166,.55)}70%{box-shadow:0 0 0 12px rgba(140,192,166,0)}100%{box-shadow:0 0 0 0 rgba(140,192,166,0)}}
-    .fn-freebar-t{font-size:14px;font-weight:800;color:#EAF2E9}
-    .fn-freebar-s{font-size:11.5px;color:#9FB4A8;line-height:1.4;margin-top:2px}
-    .fn-primary-glow{position:relative;animation:fnGlow 2.4s ease-in-out infinite}
-    @keyframes fnGlow{0%,100%{box-shadow:0 8px 22px rgba(14,92,138,.28)}50%{box-shadow:0 8px 30px rgba(140,192,166,.5)}}
-    .fn-skip{text-align:center;font-size:13px;color:#6E7882;font-weight:700;margin-top:12px;cursor:pointer}
+    .fn-freebar-dot{flex:0 0 auto;width:10px;height:10px;border-radius:50%;background:var(--ok);animation:fnPulse 1.9s ease-out infinite}
+    @keyframes fnPulse{0%{box-shadow:0 0 0 0 rgba(19,160,107,.45)}70%{box-shadow:0 0 0 12px rgba(19,160,107,0)}100%{box-shadow:0 0 0 0 rgba(19,160,107,0)}}
+    .fn-freebar-t{font-size:14px;font-weight:800;color:var(--fg)}
+    .fn-freebar-s{font-size:12px;color:var(--fg2);line-height:1.4;margin-top:2px}
+    .fn-primary-glow{position:relative}
+    .fn-skip{text-align:center;font-size:13px;color:var(--fg3);font-weight:700;margin-top:12px;cursor:pointer;padding:6px}
     .fn-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 26px}
-    .fn-badge{width:84px;height:84px;border-radius:26px;display:grid;place-items:center;font-size:40px;background:linear-gradient(135deg,#37474F,#0A2130);color:#fff;box-shadow:0 14px 34px rgba(14,34,51,.3);margin-bottom:20px;animation:fnfloat 3.5s ease-in-out infinite}
-    @keyframes fnfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-    .fn-h{font-size:24px;font-weight:800;color:#EEF1F4;letter-spacing:-.4px;line-height:1.2}
-    .fn-d{font-size:14px;color:#9AA3AB;line-height:1.55;margin-top:12px;max-width:320px}
-    .fn-tag{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:#8CC0A6;background:rgba(120,200,160,.14);padding:6px 12px;border-radius:99px;margin-top:18px}
+    .fn-badge{width:84px;height:84px;border-radius:28px;display:grid;place-items:center;font-size:38px;background:var(--card);box-shadow:var(--sh-lg);margin-bottom:22px;animation:fnfloat 3.5s ease-in-out infinite}
+    @keyframes fnfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    .fn-h{font-size:28px;font-weight:800;color:var(--fg);letter-spacing:-.8px;line-height:1.1}
+    .fn-d{font-size:14.5px;color:var(--fg2);line-height:1.55;margin-top:12px;max-width:320px}
+    .fn-tag{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:800;color:var(--ok);background:var(--ok-soft);padding:7px 12px;border-radius:99px;margin-top:18px}
     .fn-analyze{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px}
-    .fn-radar{width:96px;height:96px;border-radius:50%;border:2px solid rgba(255,255,255,.10);position:relative;display:grid;place-items:center;margin-bottom:22px;overflow:hidden}
-    .fn-radar::after{content:'';position:absolute;inset:0;background:conic-gradient(from 0deg,transparent 0deg,rgba(14,92,138,.28) 60deg,transparent 61deg);animation:fnspin 1.1s linear infinite}
+    .fn-radar{width:96px;height:96px;border-radius:50%;border:1.5px solid var(--soft-2);position:relative;display:grid;place-items:center;margin-bottom:22px;overflow:hidden;background:var(--card)}
+    .fn-radar::after{content:'';position:absolute;inset:0;background:conic-gradient(from 0deg,transparent 0deg,var(--soft-2) 60deg,transparent 61deg);animation:fnspin 1.1s linear infinite}
     .fn-radar span{font-size:34px;z-index:2}
     @keyframes fnspin{to{transform:rotate(360deg)}}
     .fn-typing{display:inline-flex;gap:5px;align-items:center;margin-top:8px}
-    .fn-typing i{width:8px;height:8px;border-radius:50%;background:#37474F;opacity:.4;animation:fnblink 1.2s infinite}
+    .fn-typing i{width:8px;height:8px;border-radius:50%;background:var(--fg);opacity:.4;animation:fnblink 1.2s infinite}
     .fn-typing i:nth-child(2){animation-delay:.2s}.fn-typing i:nth-child(3){animation-delay:.4s}
     @keyframes fnblink{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-4px)}}
-    .fn-verdict{background:linear-gradient(165deg,#0A2130,#123B54);border-radius:20px;padding:20px;color:#fff;margin-bottom:14px;animation:fnpop .4s ease both}
+    .fn-verdict{background:var(--acc);border-radius:var(--r);padding:20px;color:var(--accfg);margin-bottom:12px;animation:fnpop .4s var(--ease) both}
     @keyframes fnpop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
-    .fn-veyebrow{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#7CD9C2}
-    .fn-vtitle{font-size:19px;font-weight:800;margin-top:8px;line-height:1.25}
-    .fn-vtext{font-size:13.5px;line-height:1.55;color:#D5E2EA;margin-top:10px}
-    .fn-path{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:6px 16px;margin-bottom:14px}
-    .fn-prow{display:flex;gap:12px;align-items:flex-start;padding:12px 0;animation:fnpop .4s ease both}
-    .fn-prow+.fn-prow{border-top:1px solid rgba(255,255,255,.06)}
-    .fn-pn{width:25px;height:25px;flex:0 0 auto;border-radius:50%;background:#37474F;color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
-    .fn-ph{font-size:13.5px;font-weight:800;color:#EEF1F4}
-    .fn-pd{font-size:12px;color:#9AA3AB;margin-top:2px;line-height:1.4}
-    .fn-oh{font-size:22px;font-weight:800;color:#EEF1F4;letter-spacing:-.3px;text-align:center;line-height:1.25}
-    .fn-osub{font-size:13px;color:#9AA3AB;text-align:center;margin-top:8px;line-height:1.5}
-    .fn-plan{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:18px;padding:18px;margin-top:16px;box-shadow:0 6px 20px rgba(14,34,51,.06)}
-    .fn-ptop{display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.06);padding-bottom:14px;margin-bottom:6px}
-    .fn-pname{font-size:16px;font-weight:800;color:#EEF1F4}
+    .fn-veyebrow{font-size:10.5px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.6}
+    .fn-vtitle{font-size:20px;font-weight:800;margin-top:8px;line-height:1.2;letter-spacing:-.4px}
+    .fn-vtext{font-size:13.5px;line-height:1.55;opacity:.85;margin-top:10px}
+    .fn-path{background:var(--card);border:0;box-shadow:var(--sh);border-radius:var(--r-md);padding:6px 16px;margin-bottom:12px}
+    .fn-prow{display:flex;gap:12px;align-items:flex-start;padding:12px 0;animation:fnpop .4s var(--ease) both}
+    .fn-prow+.fn-prow{border-top:1px solid var(--line)}
+    .fn-pn{width:26px;height:26px;flex:0 0 auto;border-radius:50%;background:var(--soft);color:var(--fg);font-size:12px;font-weight:800;display:grid;place-items:center}
+    .fn-ph{font-size:14px;font-weight:800;color:var(--fg)}
+    .fn-pd{font-size:12.5px;color:var(--fg2);margin-top:2px;line-height:1.4}
+    .fn-oh{font-size:24px;font-weight:800;color:var(--fg);letter-spacing:-.6px;text-align:center;line-height:1.15}
+    .fn-osub{font-size:13.5px;color:var(--fg2);text-align:center;margin-top:8px;line-height:1.5}
+    .fn-plan{background:var(--card);border:0;border-radius:var(--r);padding:18px;margin-top:16px;box-shadow:var(--sh-lg)}
+    .fn-ptop{display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:6px}
+    .fn-pname{font-size:16px;font-weight:800;color:var(--fg)}
     .fn-price{margin-left:auto;text-align:right}
-    .fn-price b{font-size:22px;font-weight:800;color:#37474F}
-    .fn-price span{font-size:11px;color:#9AA3AB;font-weight:600;display:block}
-    .fn-feat{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:#EEF1F4;padding:9px 0;line-height:1.4}
-    .fn-fi{color:#8CC0A6;flex:0 0 auto;font-weight:800}
-    .fn-season{display:flex;gap:10px;align-items:center;background:rgba(226,196,137,.12);border:1px solid rgba(226,196,137,.26);border-radius:13px;padding:12px 14px;margin-top:14px;font-size:12.5px;color:#6b5a2e;line-height:1.45}
-    .fn-season b{color:#8a6d20}
-    .fn-osmall{text-align:center;font-size:12.5px;color:#9AA3AB;margin-top:14px}
-    .fn-osmall span{color:#37474F;font-weight:800;cursor:pointer;text-decoration:underline}
-    /* ===== ЭКРАН ПРИВЕТСТВИЯ (чёрно-стальной, серьёзный) ===== */
-    :root{ --safe-top: 0px; }
-    .splash{ position:fixed; inset:0; z-index:400; display:flex; flex-direction:column; overflow:hidden;
-      background:radial-gradient(120% 75% at 50% 4%, #16181C 0%, #0B0C0E 44%, #030304 100%); color:#F2F4F6; padding-top:var(--safe-top); }
+    .fn-price b{font-size:24px;font-weight:800;color:var(--fg);letter-spacing:-.6px}
+    .fn-price span{font-size:11px;color:var(--fg3);font-weight:600;display:block}
+    .fn-feat{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--fg);padding:9px 0;line-height:1.4}
+    .fn-fi{color:var(--ok);flex:0 0 auto;font-weight:800}
+    .fn-season{display:flex;gap:10px;align-items:center;background:var(--soft);border:0;border-radius:14px;padding:12px 14px;margin-top:14px;font-size:12.5px;color:var(--fg2);line-height:1.45}
+    .fn-season b{color:var(--fg)}
+    .fn-osmall{text-align:center;font-size:12.5px;color:var(--fg3);margin-top:14px}
+    .fn-osmall span{color:var(--fg);font-weight:800;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+    /* ===== ЭКРАН ПРИВЕТСТВИЯ ===== */
+    .splash{ position:fixed; inset:0; z-index:400; display:flex; flex-direction:column; overflow:hidden; background:var(--bg); color:var(--fg); padding-top:var(--safe-top); }
     .splash.hide{ display:none; }
     .sp-bg{ position:absolute; inset:0; overflow:hidden; z-index:0; }
     .sp-bg span{ position:absolute; }
-    .sp-glow{ left:50%; top:40%; width:440px; height:440px; transform:translate(-50%,-50%); border-radius:50%;
-      background:radial-gradient(circle, rgba(200,215,230,.14), transparent 62%); filter:blur(30px); animation:spglow 7s ease-in-out infinite alternate; }
-    @keyframes spglow{from{opacity:.6}to{opacity:1}}
-    .sp-rings{ inset:0; background:
-      radial-gradient(circle at 50% 40%, transparent 158px, rgba(200,215,230,.05) 159px, transparent 162px),
-      radial-gradient(circle at 50% 40%, transparent 210px, rgba(200,215,230,.035) 211px, transparent 214px);
-      animation:sppulse 6s ease-in-out infinite; }
-    @keyframes sppulse{0%,100%{opacity:.6}50%{opacity:1}}
-    .sp-grain{ inset:0; opacity:.05; background-image:radial-gradient(rgba(255,255,255,.7) .5px,transparent .5px); background-size:4px 4px; }
-
+    .sp-glow{ left:50%; top:40%; width:460px; height:460px; transform:translate(-50%,-50%); border-radius:50%; background:radial-gradient(circle, var(--soft-2), transparent 62%); filter:blur(30px); }
+    .sp-rings{ display:none; }
+    .sp-grain{ display:none; }
     .sp-stage{ position:relative; z-index:1; flex:1; margin-top:6%; }
-    .sp-word{ position:absolute; left:50%; top:44%; transform:translate(-50%,-50%); width:64%; max-width:280px;
-      filter:drop-shadow(0 12px 30px rgba(0,0,0,.7)) drop-shadow(0 0 26px rgba(210,225,240,.25)); animation:spword 5.5s ease-in-out infinite; z-index:2; }
+    .sp-word{ position:absolute; left:50%; top:44%; transform:translate(-50%,-50%); width:58%; max-width:250px; filter:drop-shadow(0 20px 40px rgba(10,14,20,.25)); animation:spword 5.5s ease-in-out infinite; z-index:2; }
+    :root[data-theme="light"] .sp-word, :root:not([data-theme="dark"]) .sp-word { filter: invert(1) drop-shadow(0 20px 40px rgba(10,14,20,.18)); }
     @keyframes spword{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-50%,-53%)}}
-    .sp-tagline{ position:absolute; left:0; right:0; top:calc(44% + 78px); text-align:center; font-size:12px; font-weight:800; letter-spacing:.4em; text-transform:uppercase; color:#8B95A0; z-index:2; }
-
-    .sp-orbit{ position:absolute; left:50%; top:42%; width:0; height:0; z-index:1; animation:orbit 34s linear infinite; }
-    @keyframes orbit{ from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-    .sp-obj{ position:absolute; filter:drop-shadow(0 10px 20px rgba(0,0,0,.6)) drop-shadow(0 0 14px rgba(200,215,230,.18)); }
-    .sp-obj img{ display:block; width:100%; animation:spin-rev 34s linear infinite; }
-    @keyframes spin-rev{ from{transform:rotate(0deg)} to{transform:rotate(-360deg)} }
-    .o-anchor{ width:82px;  left:-41px;  top:-210px; }
-    .o-wheel{ width:96px;  left:-193px; top:36px; }
-    .o-compass{ width:92px; left:104px;  top:40px; }
-
+    .sp-tagline{ position:absolute; left:0; right:0; top:calc(44% + 78px); text-align:center; font-size:11.5px; font-weight:800; letter-spacing:.34em; text-transform:uppercase; color:var(--fg3); z-index:2; }
+    .sp-orbit{ display:none; }
     .sp-copy{ position:relative; z-index:1; text-align:center; padding:0 30px; }
-    .sp-welcome{ font-size:27px; font-weight:800; letter-spacing:-.3px; }
-    .sp-sub{ font-size:13.5px; color:#9AA3AB; margin:10px auto 0; max-width:320px; line-height:1.55; font-weight:600; }
+    .sp-welcome{ font-size:30px; font-weight:800; letter-spacing:-.9px; }
+    .sp-sub{ font-size:14px; color:var(--fg2); margin:10px auto 0; max-width:320px; line-height:1.55; font-weight:500; }
     .sp-foot{ position:relative; z-index:1; padding:22px 24px calc(28px + env(safe-area-inset-bottom,0px)); }
-    .sp-btn{ width:100%; border:none; border-radius:15px; padding:18px; font-family:'Manrope'; font-size:16px; font-weight:800; color:#0B0D10; cursor:pointer;
-      background:linear-gradient(180deg,#FBFCFD,#C9CFD6); box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 1px 1px rgba(255,255,255,.9); }
+    .sp-btn{ width:100%; border:none; border-radius:999px; min-height:60px; padding:0 24px; font-family:'Manrope'; font-size:16px; font-weight:800; color:var(--accfg); cursor:pointer; background:var(--acc); box-shadow:var(--sh-lg); }
     .sp-btn:active{ transform:scale(.99); }
-    @media (prefers-reduced-motion: reduce){ .sp-bg span,.sp-obj,.sp-word,.sp-orbit{ animation:none } }
-    .bgmark{ position:fixed; inset:0; z-index:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; opacity:.055; }
-    .bgmark .bm-anchor{ font-size:160px; line-height:1; filter:grayscale(1) brightness(1.6); }
-    .bgmark .bm-word{ font-size:38px; font-weight:800; letter-spacing:.34em; color:#AEC2CE; margin-top:-6px; }
-    .app{ position:relative; z-index:1; }
-    .hl-row{display:flex;gap:14px;overflow-x:auto;padding:2px 2px 16px;margin:0 -2px}
+    .bgmark{ display:none; }
+
+    /* сторис — спокойные круги */
+    .hl-row{display:flex;gap:12px;overflow-x:auto;padding:14px 2px 6px;margin:0 -2px;scrollbar-width:none}
     .hl-row::-webkit-scrollbar{display:none}
-    .hl{flex:0 0 auto;width:66px;text-align:center;cursor:pointer}
-    .hl-ring{width:64px;height:64px;border-radius:50%;padding:2.5px;background:conic-gradient(from 200deg,#8CC0A6,#37474F,#8CC0A6);box-shadow:0 0 14px rgba(140,192,166,.2)}
-    .hl-ring>div{width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 50% 35%,#12181d,#0a0d10);display:grid;place-items:center;font-size:25px;border:2.5px solid #060708}
-    .hl-label{font-size:10.5px;color:#9AA3AB;margin-top:7px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .hl{flex:0 0 auto;width:64px;text-align:center;cursor:pointer}
+    .hl-ring{width:60px;height:60px;border-radius:50%;padding:0;background:var(--card);box-shadow:var(--sh);margin:0 auto}
+    .hl-ring>div{width:100%;height:100%;border-radius:50%;background:transparent;display:grid;place-items:center;font-size:24px;border:0}
+    .hl-label{font-size:10.5px;color:var(--fg2);margin-top:6px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .stv{position:fixed;inset:0;z-index:300;background:#000;display:none;flex-direction:column;padding-top:var(--safe-top)}
     .stv.on{display:flex}
     .stv-bars{display:flex;gap:4px;padding:12px 12px 8px;position:relative;z-index:4}
@@ -470,32 +517,62 @@
     .stv-bar{flex:1;height:3px;background:rgba(255,255,255,.28);border-radius:3px;overflow:hidden}
     .stv-bar>i{display:block;height:100%;width:0;background:#fff;border-radius:3px}
     .stv-ttl{position:absolute;top:calc(30px + var(--safe-top));left:16px;z-index:4;color:#fff;font-size:13px;font-weight:800;text-shadow:0 1px 5px rgba(0,0,0,.7)}
-    .stv-close{position:absolute;top:calc(58px + var(--safe-top));right:14px;z-index:5;color:#fff;font-size:20px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.28);box-shadow:0 2px 10px rgba(0,0,0,.5);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+    .stv-close{position:absolute;top:calc(58px + var(--safe-top));right:14px;z-index:5;color:#fff;font-size:20px;background:rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.28);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
     .stv-media{flex:1;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;background:#000;opacity:0;transition:opacity .28s ease}
     .stv-media.in{opacity:1}
     .stv-media img,.stv-media video{max-width:100%;max-height:100%;object-fit:contain}
     .stv-text{padding:34px;text-align:center}
     .stv-text h3{font-size:12px;font-weight:800;letter-spacing:.22em;text-transform:uppercase;color:#8CC0A6}
-    .stv-text p{font-size:25px;font-weight:800;margin-top:16px;line-height:1.35;color:#EEF1F4}
+    .stv-text p{font-size:25px;font-weight:800;margin-top:16px;line-height:1.35;color:#fff}
     .stv-nav{position:absolute;inset:0;display:flex;z-index:3}
     .stv-nav .z{height:100%}
     .stv-nav .zl{flex:0 0 32%} .stv-nav .zr{flex:1}
-      .ib-dot { display:inline-block; min-width:18px; padding:1px 6px; border-radius:999px; background:#C2410C; color:#fff; font-size:11px; font-weight:800; text-align:center; margin-left:4px; }
+    /* ответы */
+    .ib-dot { display:inline-block; min-width:18px; padding:1px 6px; border-radius:999px; background:var(--hot); color:#fff; font-size:11px; font-weight:800; text-align:center; margin-left:4px; }
     .ib-row { display:flex; gap:10px; align-items:flex-start; cursor:pointer; }
-    .ib-name { font-size:13.5px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .ib-snip { font-size:12px; color:#9AA3AB; margin-top:3px; line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-    .ib-msg { max-width:92%; padding:11px 13px; border-radius:14px; margin-bottom:10px; font-size:13px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
-    .ib-in { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.10); margin-right:auto; }
-    .ib-out { background:rgba(14,92,138,.28); border:1px solid rgba(120,170,200,.25); margin-left:auto; }
-    .ib-meta { font-size:10.5px; color:#9AA3AB; margin-bottom:5px; white-space:normal; }
-    .ib-tr { margin-top:9px; padding-top:9px; border-top:1px dashed rgba(255,255,255,.18); color:#DCE6EC; }
-    .ib-link { display:inline-block; margin-top:8px; font-size:12px; font-weight:700; color:#8EC5E4; cursor:pointer; white-space:normal; }
-    .ib-ta { width:100%; box-sizing:border-box; min-height:84px; padding:11px; border-radius:12px; border:1px solid rgba(255,255,255,.14); background:rgba(0,0,0,.25); color:#EEF1F4; font-family:'Manrope',sans-serif; font-size:13px; line-height:1.5; resize:vertical; }
+    .ib-name { font-size:14px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .ib-snip { font-size:12.5px; color:var(--fg2); margin-top:3px; line-height:1.45; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .ib-msg { max-width:92%; padding:12px 14px; border-radius:18px; margin-bottom:10px; font-size:13.5px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+    .ib-in { background:var(--card); box-shadow:var(--sh); margin-right:auto; border-bottom-left-radius:6px; }
+    .ib-out { background:var(--acc); color:var(--accfg); margin-left:auto; border-bottom-right-radius:6px; }
+    .ib-meta { font-size:11px; color:var(--fg3); margin-bottom:5px; white-space:normal; }
+    .ib-out .ib-meta { color:var(--accfg); opacity:.6; }
+    .ib-tr { margin-top:9px; padding-top:9px; border-top:1px dashed var(--soft-2); color:var(--fg); }
+    .ib-out .ib-tr { color:var(--accfg); border-top-color:rgba(255,255,255,.25); }
+    .ib-link { display:inline-block; margin-top:8px; font-size:12.5px; font-weight:700; color:var(--fg); cursor:pointer; white-space:normal; text-decoration:underline; text-underline-offset:3px; }
+    .ib-out .ib-link { color:var(--accfg); }
+    .ib-ta { width:100%; box-sizing:border-box; min-height:84px; padding:12px; border-radius:14px; border:0; background:var(--soft); color:var(--fg); font-family:'Manrope',sans-serif; font-size:16px; line-height:1.5; resize:vertical; }
     .ib-blur { filter:blur(5px); user-select:none; pointer-events:none; }
   </style>
 </head>
 <body>
-  <div class="bgmark"><div class="bm-anchor">⚓</div><div class="bm-word">AMORE</div></div>
+  <svg style="display:none" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 3 5 14h6l-1 7 8-11h-6z"/></symbol>
+    <symbol id="i-anchor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2"/><path d="M12 7v14M5 13a7 7 0 0 0 14 0M3 13h4M17 13h4"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+    <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h5M10 17h5"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M21 3 10 14M21 3l-7 18-4-7-7-4z"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-ship" viewBox="0 0 24 24"><path d="M3 17c2 2 4 2 6 0 2 2 4 2 6 0 2 2 4 2 6 0M5 15l-1-5h16l-1 5M8 10V5h8v5M12 5V3"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c.8-3.5 3.2-5.5 6-5.5s5.2 2 6 5.5M15 20c.3-2.3 1.7-4 3.5-4s3 1.5 3.5 4"/></symbol>
+    <symbol id="i-tool" viewBox="0 0 24 24"><path d="M14.5 5.5a4 4 0 0 0 5 5L9 21l-4-4z"/><path d="M19 3l2 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5M5 14v6h14v-6"/></symbol>
+    <symbol id="i-euro" viewBox="0 0 24 24"><path d="M18 6a7 7 0 1 0 0 12M4 10h10M4 14h10"/></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 14h5l1 2h4l1-2h5"/></symbol>
+  </svg>
   <div class="splash" id="splash">
     <div class="sp-bg"><span class="sp-glow"></span><span class="sp-rings"></span><span class="sp-grain"></span></div>
     <div class="sp-stage">
@@ -515,15 +592,15 @@
   </div>
   <div class="app">
     <div class="head">
-      <div class="logo">A</div>
-      <div><div class="greet">Привет, <span class="name" id="uname">моряк</span>!</div><div class="subt">Сообщество AMORE</div></div>
+      <div><div class="greet">Привет, <span class="name" id="uname">моряк</span></div><div class="subt" id="subt">Сообщество AMORE</div></div>
+      <div class="logo" id="hdr-logo">A</div>
     </div>
     <div class="status load" id="status">⏳ Проверяем доступ…</div>
 
     <div class="view" id="view-home"><div id="homebox"></div></div>
 
     <div class="view hidden" id="view-vacancies">
-      <div class="sec-title"><span style="color:#CBD5DD">⚡</span> Вакансии <span class="hbadge" onclick="showHint(event,'vac')">?</span></div>
+      <div class="sec-title"><span style="color:var(--fg2)">⚡</span> Вакансии <span class="hbadge" onclick="showHint(event,'vac')">?</span></div>
       <div id="vlist"><div class="info">Загружаем вакансии…</div></div>
     </div>
 
@@ -532,7 +609,7 @@
     <div class="view hidden" id="view-path"><div id="pathbox"><div class="info">Загружаем…</div></div></div>
 
     <div class="view hidden" id="view-contacts">
-      <div class="sec-title"><span style="color:#CBD5DD">⚓</span> База работодателей <span class="hbadge" onclick="showHint(event,'base')">?</span> <span class="ccount" id="ccount">…</span></div>
+      <div class="sec-title"><span style="color:var(--fg2)">⚓</span> База работодателей <span class="hbadge" onclick="showHint(event,'base')">?</span> <span class="ccount" id="ccount">…</span></div>
       <div class="search"><span>🔍</span><input id="csearch" placeholder="Компания, тип, страна…" /></div>
       <div class="chips" id="dirchips"></div>
       <div class="chips" id="cntchips"></div>
@@ -543,49 +620,49 @@
     </div>
 
     <div class="view hidden" id="view-mentors">
-      <div class="back" onclick="switchView('home')">← Назад</div>
-      <div class="sec-title"><span style="color:#CBD5DD">👥</span> Наставники</div>
-      <div style="font-size:12px;color:#9AA3AB;margin:0 2px 14px;line-height:1.5">Каждый — практик в своём деле. Опыт и контакты сразу по нескольким флотам.</div>
+      <div class="back" onclick="switchView('home')"><svg class="i" style="width:16px;height:16px"><use href="#i-left"/></svg> Назад</div>
+      <div class="sec-title"><span style="color:var(--fg2)">👥</span> Наставники</div>
+      <div style="font-size:12px;color:var(--fg2);margin:0 2px 14px;line-height:1.5">Каждый — практик в своём деле. Опыт и контакты сразу по нескольким флотам.</div>
       <div id="mlist"></div>
     </div>
 
     <div class="view hidden" id="view-reviews">
-      <div class="back" onclick="switchView('home')">← Назад</div>
-      <div class="sec-title"><span style="color:#CBD5DD">💬</span> Отзывы</div>
+      <div class="back" onclick="switchView('home')"><svg class="i" style="width:16px;height:16px"><use href="#i-left"/></svg> Назад</div>
+      <div class="sec-title"><span style="color:var(--fg2)">💬</span> Отзывы</div>
       <div id="rvlist"></div>
     </div>
 
     <div class="view hidden" id="view-profile"><div id="profbox"></div></div>
 
     <div class="view hidden" id="view-docs">
-      <div class="back" onclick="switchView('profile')">← Назад</div>
-      <div class="sec-title"><span style="color:#CBD5DD">📋</span> Документы моряка</div>
+      <div class="back" onclick="switchView('profile')"><svg class="i" style="width:16px;height:16px"><use href="#i-left"/></svg> Назад</div>
+      <div class="sec-title"><span style="color:var(--fg2)">📋</span> Документы моряка</div>
       <div id="docsbox"></div>
     </div>
     <div class="view hidden" id="view-mailgen">
-      <div class="back" onclick="switchView('profile')">← Назад</div>
-      <div class="sec-title"><span style="color:#CBD5DD">📧</span> Письмо для рассылки</div>
+      <div class="back" onclick="switchView('profile')"><svg class="i" style="width:16px;height:16px"><use href="#i-left"/></svg> Назад</div>
+      <div class="sec-title"><span style="color:var(--fg2)">📧</span> Письмо для рассылки</div>
       <div id="mailgenbox"></div>
     </div>
     <div class="view hidden" id="view-docapply">
-      <div class="back" onclick="switchView('profile')">← Назад</div>
-      <div class="sec-title"><span style="color:#CBD5DD">🛠️</span> Сделать документы</div>
+      <div class="back" onclick="switchView('profile')"><svg class="i" style="width:16px;height:16px"><use href="#i-left"/></svg> Назад</div>
+      <div class="sec-title"><span style="color:var(--fg2)">🛠️</span> Сделать документы</div>
       <div id="docapplybox"></div>
     </div>
     <div class="view hidden" id="view-myapps">
-      <div class="back" onclick="switchView('profile')">← Назад</div>
-      <div class="sec-title"><span style="color:#CBD5DD">📨</span> Мои отклики</div>
+      <div class="back" onclick="switchView('profile')"><svg class="i" style="width:16px;height:16px"><use href="#i-left"/></svg> Назад</div>
+      <div class="sec-title"><span style="color:var(--fg2)">📨</span> Мои отклики</div>
       <div id="myappsbox"></div>
     </div>
     <div class="view hidden" id="view-inbox"><div id="inboxbox"></div></div>
   </div>
 
   <div class="nav">
-    <div class="nav-item on" id="nav-home" onclick="switchView('home')"><span class="nav-ico">🏠</span>Главная</div>
-    <div class="nav-item" id="nav-plan" onclick="switchView('plan')"><span class="nav-ico">📚</span>Обучение</div>
-    <div class="nav-item" id="nav-vacancies" onclick="switchView('vacancies')"><span class="nav-ico">⚡</span>Вакансии</div>
-    <div class="nav-item" id="nav-contacts" onclick="switchView('contacts')"><span class="nav-ico">⚓</span>База</div>
-    <div class="nav-item" id="nav-profile" onclick="switchView('profile')"><span class="nav-ico">👤</span>Профиль</div>
+    <div class="nav-item on" id="nav-home" onclick="switchView('home')" aria-label="Главная"><span class="nav-ico"><svg class="i"><use href="#i-home"/></svg></span>Главная</div>
+    <div class="nav-item" id="nav-plan" onclick="switchView('plan')" aria-label="Обучение"><span class="nav-ico"><svg class="i"><use href="#i-book"/></svg></span>Обучение</div>
+    <div class="nav-item" id="nav-vacancies" onclick="switchView('vacancies')" aria-label="Вакансии"><span class="nav-ico"><svg class="i"><use href="#i-bolt"/></svg></span>Вакансии</div>
+    <div class="nav-item" id="nav-contacts" onclick="switchView('contacts')" aria-label="База"><span class="nav-ico"><svg class="i"><use href="#i-anchor"/></svg></span>База</div>
+    <div class="nav-item" id="nav-profile" onclick="switchView('profile')" aria-label="Профиль"><span class="nav-ico"><svg class="i"><use href="#i-user"/></svg></span><span class="nav-dot" id="nav-prof-dot" style="display:none"></span>Профиль</div>
   </div>
 
   <div class="totop" id="totop" onclick="scrollTop()">↑</div>
@@ -661,7 +738,7 @@
         <div class="fn-oh">Твой короткий путь в море</div>
         <div class="fn-osub" id="fn-offerSub">Всё, что нужно для первого контракта — в одном месте.</div>
         <div class="fn-plan">
-          <div class="fn-ptop"><span style="font-size:26px">⚓</span><div><div class="fn-pname">AMORE</div><div style="font-size:11px;color:#9AA3AB;font-weight:600">сообщество для работы в море</div></div><div class="fn-price"><b>50€</b><span>в месяц</span></div></div>
+          <div class="fn-ptop"><span style="font-size:26px">⚓</span><div><div class="fn-pname">AMORE</div><div style="font-size:11px;color:var(--fg2);font-weight:600">сообщество для работы в море</div></div><div class="fn-price"><b>50€</b><span>в месяц</span></div></div>
           <div class="fn-feat"><span class="fn-fi">✓</span> База 5 600 работодателей Норвегии, Дании, Британии</div>
           <div class="fn-feat"><span class="fn-fi">✓</span> Отклики работодателям прямо из приложения</div>
           <div class="fn-feat"><span class="fn-fi">✓</span> Помощь с документами и резюме</div>
@@ -691,6 +768,14 @@
 
   <script>
     var BACKEND_URL = "https://amore-backend-production-c946.up.railway.app";
+    function ico(n, cls){ return '<svg class="i '+(cls||'')+'"><use href="#i-'+n+'"/></svg>'; }
+    function arrBtn(){ return '<span class="arr">'+ico('arrow')+'</span>'; }
+    function applyTheme(){
+      var dark=false;
+      try{ if(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.colorScheme){ dark=Telegram.WebApp.colorScheme==='dark'; } else { dark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches; } }catch(e){}
+      document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+      try{ var T=Telegram.WebApp; var c=dark?'#0A0B0E':'#F3F4F6'; if(T.setHeaderColor) T.setHeaderColor(c); if(T.setBackgroundColor) T.setBackgroundColor(c); if(T.setBottomBarColor) T.setBottomBarColor(c); }catch(e){}
+    }
     var TRIBUTE_URL = "https://t.me/tribute/app?startapp=sUKo";
     var PRICE_3M = "120€", PRICE_1M = "50€"; // 3 месяца — дефолт, месяц — второй вариант
     var TRIBUTE_DISCOUNT_URL = "https://t.me/tribute/app?startapp=sUKo_pc_CRABINTOP"; // -10% промокод CRABINTOP
@@ -736,15 +821,15 @@
         var how = isAndroid()
           ? 'Нажми <b>⋮</b> в правом верхнем углу приложения → <b>«Добавить на главный экран»</b>.<br><br>Если Telegram пишет «добавлено», а иконки нет — телефон блокирует ярлыки. Разреши: <b>Настройки → Приложения → Telegram → Разрешения → Ярлыки на главном экране</b> (Xiaomi, Huawei, часть Samsung). Если пункта в меню нет — обнови Telegram в Google Play.'
           : 'Нажми <b>⋯</b> в правом верхнем углу приложения → <b>«Добавить на экран»</b>. Если пункта нет — обнови Telegram.';
-        body='<div style="font-size:13px;color:#EAF2E9;line-height:1.6;margin-top:12px;background:rgba(255,255,255,.06);border-radius:12px;padding:12px">'+how+'</div>'
+        body='<div style="font-size:13px;color:var(--fg);line-height:1.6;margin-top:12px;background:rgba(255,255,255,.06);border-radius:12px;padding:12px">'+how+'</div>'
             +'<button class="btn btn-gold" style="margin-top:14px" onclick="closeModal()">Понятно</button>';
       }
       sheet.innerHTML='<div class="grip"></div><div style="text-align:center;padding:18px 8px">'
         +'<div style="font-size:44px">⚓</div>'
         +'<div style="font-size:17px;font-weight:800;margin:10px 0 6px">Добавь AMORE на экран</div>'
-        +'<div style="font-size:13px;color:#9AA3AB;line-height:1.55">Иконка на телефоне — открываешь как обычное приложение, без поиска в Telegram. Ответы работодателей и вакансии всегда под рукой.</div>'
+        +'<div style="font-size:13px;color:var(--fg2);line-height:1.55">Иконка на телефоне — открываешь как обычное приложение, без поиска в Telegram. Ответы работодателей и вакансии всегда под рукой.</div>'
         +body
-        +'<div id="hs-diag" style="font-size:10.5px;color:#6b7680;margin-top:10px">Telegram '+esc((tg&&tg.version)||'?')+' · '+esc((tg&&tg.platform)||'?')+' · метод: '+(homeScreenSupported()?'есть':'нет')+' · статус: …</div>'
+        +'<div id="hs-diag" style="font-size:10.5px;color:var(--fg3);margin-top:10px">Telegram '+esc((tg&&tg.version)||'?')+' · '+esc((tg&&tg.platform)||'?')+' · метод: '+(homeScreenSupported()?'есть':'нет')+' · статус: …</div>'
         +'<div class="close" onclick="closeModal()">Не сейчас</div></div>';
       document.getElementById('modal').className='overlay';
       try{ tg.checkHomeScreenStatus(function(st){ var d=document.getElementById('hs-diag'); if(d) d.textContent=d.textContent.replace('статус: …','статус: '+st); }); }catch(e){}
@@ -785,18 +870,18 @@
       try{
         if(!tg||!tg.shareToStory){ popup('Поделиться в сторис можно в свежей версии Telegram.'); return; }
         var W=1080,H=1920,c=document.createElement('canvas');c.width=W;c.height=H;var x=c.getContext('2d');
-        var g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0B1418');g.addColorStop(1,'#16242C');x.fillStyle=g;x.fillRect(0,0,W,H);
+        var g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,'var(--fg)');g.addColorStop(1,'var(--fg)');x.fillStyle=g;x.fillRect(0,0,W,H);
         x.fillStyle='rgba(140,192,166,.12)';x.beginPath();x.arc(W/2,H*0.42,420,0,7);x.fill();
-        x.textAlign='center';x.fillStyle='#EAF2E9';
+        x.textAlign='center';x.fillStyle='var(--fg)';
         x.font='900 92px -apple-system,Manrope,Arial';x.fillText('⚓ AMORE',W/2,300);
-        x.font='600 40px -apple-system,Manrope,Arial';x.fillStyle='#9FB4A8';x.fillText('сообщество для работы в море',W/2,370);
+        x.font='600 40px -apple-system,Manrope,Arial';x.fillStyle='var(--fg2)';x.fillText('сообщество для работы в море',W/2,370);
         var icon = kind==='reply'?'📩':(kind==='offer'?'🎉':'🚢');
         x.font='220px -apple-system,Apple Color Emoji,Segoe UI Emoji';x.fillText(icon,W/2,H*0.45);
-        x.fillStyle='#EAF2E9';x.font='800 64px -apple-system,Manrope,Arial';
+        x.fillStyle='var(--fg)';x.font='800 64px -apple-system,Manrope,Arial';
         var words=String(line||'').split(' '),lines=[],cur='';
         words.forEach(function(w){ if(x.measureText(cur+' '+w).width>900){lines.push(cur);cur=w;} else cur=(cur?cur+' ':'')+w; }); if(cur)lines.push(cur);
         lines.slice(0,4).forEach(function(l,i){ x.fillText(l,W/2,H*0.56+i*80); });
-        x.fillStyle='#8CC0A6';x.font='700 44px -apple-system,Manrope,Arial';x.fillText('t.me/Crabnorwaybot',W/2,H-220);
+        x.fillStyle='var(--ok)';x.font='700 44px -apple-system,Manrope,Arial';x.fillText('t.me/Crabnorwaybot',W/2,H-220);
         var url=c.toDataURL('image/png');
         tg.shareToStory(url,{ text:'⚓ AMORE — работа в море. t.me/Crabnorwaybot', widget_link:{ url:'https://t.me/Crabnorwaybot/amore', name:'Открыть AMORE' } });
         hap('success');
@@ -823,20 +908,20 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var DIRS = ["Все", "Рыболовные суда", "Замывка трюмов", "Яхты", "Торговый флот"];
     var CNTS = ["Все", "Норвегия", "Дания", "Британия"];
     var PLAN_DIRS = [
-      { value: "Рыболовные суда", label: "Краболовы, рыбаки, рыбные фабрики — Норвегия, Британия, Дания", ico: "⚓", grad: "linear-gradient(135deg,#0E5C8A,#E0A93B)" },
+      { value: "Рыболовные суда", label: "Краболовы, рыбаки, рыбные фабрики — Норвегия, Британия, Дания", ico: "⚓", grad: "linear-gradient(135deg,var(--fg),#E0A93B)" },
       { value: "Замывка трюмов", label: "Замывка трюмов", ico: "🧽", grad: "linear-gradient(135deg,#5B8DEF,#3B5BC4)" },
       { value: "Яхты", label: "Яхты", ico: "🛥️", grad: "linear-gradient(135deg,#E07AC4,#9B4FC4)" },
-      { value: "Торговый флот", label: "Торговый флот", ico: "🚢", grad: "linear-gradient(135deg,#0E7A5B,#2A8FA8)" }
+      { value: "Торговый флот", label: "Торговый флот", ico: "🚢", grad: "linear-gradient(135deg,var(--ok),#2A8FA8)" }
     ];
     var MENTORS = [
-      { photo:"m-danil.jpg", init:"ДБ", grad:"linear-gradient(135deg,#0E5C8A,#0E5C8A)", name:"Даниил Богатко", dir:"Краболовы · Рыбаки", tg:"crabnorway", bio:"В море с 2019 года, прошёл путь с нуля. 8 судов Норвегии, Дании и Британии." },
-      { photo:"m-ganchurin.jpg", init:"ВГ", grad:"linear-gradient(135deg,#0E7A5B,#2A8FA8)", name:"Владислав Ганчурин", dir:"Торговый флот", tg:"cmnnnt", bio:"Офицер-механик. Балкеры, ro-ro, контейнеровозы — путь от кадета." },
+      { photo:"m-danil.jpg", init:"ДБ", grad:"linear-gradient(135deg,#2E3A48,#0B1418)", name:"Даниил Богатко", dir:"Краболовы · Рыбаки", tg:"crabnorway", bio:"В море с 2019 года, прошёл путь с нуля. 8 судов Норвегии, Дании и Британии." },
+      { photo:"m-ganchurin.jpg", init:"ВГ", grad:"linear-gradient(135deg,var(--ok),#2A8FA8)", name:"Владислав Ганчурин", dir:"Торговый флот", tg:"cmnnnt", bio:"Офицер-механик. Балкеры, ro-ro, контейнеровозы — путь от кадета." },
       { photo:"m-makarenko.jpg", init:"ВМ", grad:"linear-gradient(135deg,#5B8DEF,#3B5BC4)", name:"Владислав Макаренко", dir:"Замывка трюмов", tg:"makarenko_88", bio:"10 лет в профессии, бригадир. Химчистка, мойка, покраска на всех типах судов." },
       { photo:"m-gumenny.jpg", init:"НГ", grad:"linear-gradient(135deg,#E07AC4,#9B4FC4)", name:"Никита Гуменный", dir:"Яхтинг", tg:"shifvmmgf", bio:"От кадета на торговом флоте до офицера-механика на больших яхтах." }
     ];
     var REVIEWS = [];
     var DOC_DIRS = [
-      { key:"crab", label:"Краболов / рыбак — Норвегия", ico:"⚓", grad:"linear-gradient(135deg,#0E5C8A,#E0A93B)", docs:[
+      { key:"crab", label:"Краболов / рыбак — Норвегия", ico:"⚓", grad:"linear-gradient(135deg,var(--fg),#E0A93B)", docs:[
         { name:"Basic Safety Training", sub:"Базовая безопасность (STCW)" },
         { name:"Медкомиссия", sub:"Аккредитованная норвежская" }
       ]},
@@ -849,7 +934,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         { name:"Basic Safety Training", sub:"Базовая безопасность (STCW)" },
         { name:"ENG1", sub:"Британский медсертификат (вместо норвежской медкомиссии)" }
       ]},
-      { key:"merchant", label:"Торговый флот — старт", ico:"🚢", grad:"linear-gradient(135deg,#0E7A5B,#2A8FA8)", docs:[
+      { key:"merchant", label:"Торговый флот — старт", ico:"🚢", grad:"linear-gradient(135deg,var(--ok),#2A8FA8)", docs:[
         { name:"4 базовых STCW", sub:"Базовые сертификаты безопасности" },
         { name:"Seaman's book", sub:"Мореходная книжка" },
         { name:"Медкомиссия", sub:"Медицинский сертификат моряка" }
@@ -894,7 +979,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(v==='home') renderHome();
       if(v==='contacts' && CONTACTS.length===0) loadContacts();
       else if(v==='contacts'){ renderChips(); renderContacts(); }
-      if(v==='contacts'){ var wasBase=taskDone('base'); markTask('base'); if(!wasBase && !isMember) setTimeout(baseCongrats, 500); }
+      if(v==='contacts'){ markTask('base'); }
       if(v==='plan'){ planDir=null; if(LESSONS.length===0) loadLessons(); else renderPlan(); }
       if(v==='path'){ renderPathView(); }
       if(v==='mentors') renderMentors();
@@ -917,7 +1002,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         {ic:'🚢', n:'Торговый флот', pay:'1 000–10 000 €', per:'в месяц', c:'контракт 4–6 мес', hot:false},
         {ic:'🧽', n:'Замывка трюмов', pay:'2 000–3 000 €', per:'за контракт', c:'2–3 недели', hot:false}
       ];
-      var h='<div class="sec-title"><span style="color:#0E7A5B">💰</span> Сколько зарабатывают в море</div>';
+      var h='<div class="sec-title"><span style="color:var(--ok)">💰</span> Сколько зарабатывают в море</div>';
       h+='<div class="sal-wrap">';
       rows.forEach(function(r){
         h+='<div class="sal-card">';
@@ -943,7 +1028,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function highlightsHTML(){
       var h='<div class="hl-row">';
       HIGHLIGHTS.forEach(function(x){
-        h+='<div class="hl" onclick="openHighlight(\''+x.id+'\')"><div class="hl-ring"><div>'+x.emoji+'</div></div><div class="hl-label">'+x.label+'</div></div>';
+        var ph=(x.items||[]).filter(function(i){return i.t==='photo';})[0];
+        h+='<div class="hl" onclick="openHighlight(\''+x.id+'\')"><div class="hl-ring"><div'+(ph?' style="background:url('+ph.src+') center/cover"':'')+'>'+(ph?'':x.emoji)+'</div></div><div class="hl-label">'+x.label+'</div></div>';
       });
       h+='</div>'; return h;
     }
@@ -1026,11 +1112,14 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           }
         }).catch(function(){}).finally(function(){ cvRestoring=false; });
     }
-    function gpStep(n, done, onclick, head, desc, badge){
-      var mark = done ? '<div class="gp-n gp-n-done">✓</div>' : '<div class="gp-n">'+n+'</div>';
-      var bd = done ? '<span class="gp-free gp-free-done">готово</span>' : '<span class="gp-free">'+badge+'</span>';
-      return '<div class="gp-step'+(done?' gp-step-done':'')+'" onclick="'+onclick+'">'+mark+
-        '<div class="gp-c"><div class="gp-h">'+head+' '+bd+'</div><div class="gp-d">'+desc+'</div></div><span class="gp-arr">›</span></div>';
+    var STEP_ICONS={1:'compass',2:'doc',3:'user',4:'send',5:'chat'};
+    function gpStep(n, done, onclick, head, desc, badge, cur){
+      var icn=STEP_ICONS[n]||'check';
+      var mark = done ? '<div class="gp-n gp-n-done">'+ico('check')+'</div>' : '<div class="gp-n">'+ico(icn)+'</div>';
+      var isLock = badge && badge.indexOf('🔒')>=0;
+      var right = done ? '<span class="gp-free gp-free-done">готово</span>' : (isLock ? '<span class="gp-arr">'+ico('lock')+'</span>' : (cur ? '<span class="gp-arr">'+ico('arrow')+'</span>' : '<span class="gp-free">'+badge+'</span>'));
+      return '<div class="gp-step'+(done?' gp-step-done':'')+(cur?' gp-last':'')+'" onclick="'+onclick+'">'+mark+
+        '<div class="gp-c"><div class="gp-h">'+head+'</div><div class="gp-d">'+desc+'</div></div>'+right+'</div>';
     }
     window.claimDiscount=function(){
       track('pay_click',{from:_lastLock||curV, promo:1});
@@ -1061,7 +1150,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var h='<div class="grip"></div><div style="text-align:center;padding:20px 10px">';
       h+='<div style="font-size:46px">🎉</div>';
       h+='<div style="font-size:18px;font-weight:800;margin:10px 0 8px">Отлично, база открыта!</div>';
-      h+='<div style="font-size:13.5px;color:#9AA3AB;line-height:1.6">Остался <b style="color:#EAF2E9">последний шаг</b> — отправь отклик работодателю прямо из базы. '+(HAS_PROMO?'После этого откроется твоё <b style="color:#8CC0A6">спецпредложение</b> на подписку 🎁':'Первые 3 отклика бесплатно — посмотри, как отвечают работодатели.')+'</div>';
+      h+='<div style="font-size:13.5px;color:var(--fg2);line-height:1.6">Остался <b style="color:var(--fg)">последний шаг</b> — отправь отклик работодателю прямо из базы. '+(HAS_PROMO?'После этого откроется твоё <b style="color:var(--ok)">спецпредложение</b> на подписку 🎁':'Первые 3 отклика бесплатно — посмотри, как отвечают работодатели.')+'</div>';
       h+='<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal()">Отправить отклик →</button></div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
@@ -1069,56 +1158,31 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function renderHome(){
       var html='';
       html+=highlightsHTML();
-      html+='<div class="hero"><div class="hero-name">⚓ AMORE</div>';
-      html+='<div class="hero-tag">Путь до контракта: 5 шагов</div>';
-      html+='<div class="hero-desc">Инструмент для поиска работы в море: направление → документы → резюме → отклики работодателям → ментор. Норвегия, Дания, Британия, Средиземноморье.</div>';
-      html+=pulseHTML();
-      html+='<div class="hero-row"><span onclick="switchView(\'contacts\')">⚓ База работодателей</span><span onclick="switchView(\'vacancies\')">⚡ Свежие вакансии</span></div>';
-      html+='<div class="hero-row"><span onclick="switchView(\'plan\')">📚 Обучение с нуля</span><span onclick="switchView(\'mentors\')">👥 Наставники-практики</span></div></div>';
-      html+=inboxHomeHTML();
-      if(!memberKnown){
-        html+='<div class="skel skel-card"></div>';
-      }
-      if(memberKnown){
-        html+=memberPathHTML();
-      }
-      if(false){
-        var hasCv=false; try{ hasCv=!!(localStorage.getItem('amore_cv_b64')&&localStorage.getItem('amore_cv_name')); }catch(e){}
-        var remApply=guestRemaining();
-        var appliedBefore = taskDone('apply') || (remApply!=null && remApply<=0); // отклики кончились = когда-то отправлял
-        var t1=taskDone('cv')||hasCv, t2=taskDone('base'), t3=appliedBefore;
-        var done=(t1?1:0)+(t2?1:0)+(t3?1:0);
-        var pct=Math.round(done/3*100);
-        html+='<div class="plan-box plan-hot">';
-        html+='<div class="gp-title">🎁 Твой план: пройди 3 шага → <span class="plan-badge">спецпредложение</span></div>';
-        html+='<div class="gp-sub">Всё бесплатно. Выполни шаги и забери личное предложение на подписку 👇</div>';
-        html+='<div class="tp-bar"><i style="width:'+pct+'%"></i></div>';
-        html+='<div class="tp-cnt">Выполнено '+done+' из 3</div>';
-        html+=gpStep(1, t1, "openResume()", "Собери резюме моряка", "На норвежском или английском, за минуту", "бесплатно");
-        html+=gpStep(2, t2, "switchView('contacts')", "Открой контакты работодателей", "Реальная база Норвегии, Дании, Британии", "5 бесплатно");
-        html+=gpStep(3, t3, "goStep3()", "Отправь отклик с резюме", "Открой контакт в базе и отправь письмо — 3 бесплатно", "3 бесплатно");
-        if(done>=3){
-          html+='<div class="rw-card">';
-          html+='<div class="rw-h">🎉 Ты прошёл все шаги — вот твоё спецпредложение!</div>';
-          html+='<div class="rw-code">Промокод: <b>'+PROMO_CODE+'</b> · только для тебя</div>';
-          html+='<div class="rw-list">Что откроется в AMORE:<br>• Вся база 5600+ работодателей с контактами<br>• Безлимит откликов + авторассылка<br>• Обучение и личные наставники<br>• Все вакансии с прямыми контактами</div>';
-          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="claimDiscount()">Забрать спецпредложение →</button>';
-          html+='</div>';
-        } else {
-          html+='<div class="rw-teaser">🎁 Впереди: пройди все 3 шага и получи <b>личное спецпредложение</b> на подписку</div>';
-          html+='<button class="btn btn-gold" style="margin-top:12px" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
-        }
-        html+='</div>';
-      }
-      html+='<div class="sec-title"><span style="color:#CBD5DD">⚡</span> Срочные вакансии <span class="hbadge" onclick="showHint(event,\'vac\')">?</span> <span class="see" onclick="switchView(\'vacancies\')">все ›</span></div>';
-      html+='<div id="home-vac"><div class="info">Загружаем…</div></div>';
-      html+=salaryBlock();
+      if(!memberKnown){ html+='<div class="skel skel-card"></div>'; }
+      if(memberKnown){ html+=memberPathHTML(); }
+      html+='<div class="bento">';
+      html+='<div class="tile" onclick="switchView(\'contacts\')"><div class="ti">'+ico('anchor')+'</div><b class="n" id="tile-base">5 600</b><small>работодателей в базе</small></div>';
+      var unread=(INBOX&&INBOX.unread)||0, live=(INBOX&&INBOX.live)||0;
+      html+='<div class="tile" onclick="switchView(\'inbox\')"><div class="ti">'+ico('mail')+'</div><b class="n">'+(live||'—')+'</b><small>'+(live?ibPlural(live,'ответ работодателя','ответа работодателей','ответов работодателей'):'ответы работодателей')+'</small>'+(unread?'<span class="dot">'+unread+'</span>':'')+'</div>';
+      html+='<div id="home-vac" class="tile wide" style="display:none"></div>';
+      html+='</div>';
       html+='<div class="sec-title">Разделы</div>';
-      html+='<div class="prow" onclick="switchView(\'mentors\')"><div class="prow-ico">👥</div><div style="flex:1"><div class="prow-t">Наставники</div><div class="prow-s">Команда практиков по флотам</div></div><span style="color:#9AA3AB">›</span></div>';
-      html+='<div class="prow" onclick="switchView(\'reviews\')"><div class="prow-ico">💬</div><div style="flex:1"><div class="prow-t">Отзывы</div><div class="prow-s">Истории учеников</div></div><span style="color:#9AA3AB">›</span></div>';
-      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист: что собрать</div></div><span style="color:#9AA3AB">›</span></div>';
+      html+='<div class="prow" onclick="switchView(\'plan\')"><div class="prow-ico">'+ico('book')+'</div><div style="flex:1"><div class="prow-t">Обучение</div><div class="prow-s">Курс по твоему направлению</div></div>'+ico('chev','gp-arr')+'</div>';
+      html+='<div class="prow" onclick="switchView(\'mentors\')"><div class="prow-ico">'+ico('users')+'</div><div style="flex:1"><div class="prow-t">Наставники</div><div class="prow-s">Практики по четырём флотам</div></div>'+ico('chev','gp-arr')+'</div>';
+      html+='<div class="prow" onclick="switchView(\'reviews\')"><div class="prow-ico">'+ico('star')+'</div><div style="flex:1"><div class="prow-t">Отзывы</div><div class="prow-s">Истории участников</div></div>'+ico('chev','gp-arr')+'</div>';
+      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">'+ico('doc')+'</div><div style="flex:1"><div class="prow-t">Документы моряка</div><div class="prow-s">Чек-лист: что собрать</div></div>'+ico('chev','gp-arr')+'</div>';
+      html+=salaryBlock();
       document.getElementById('homebox').innerHTML=html;
-      renderVacInto('home-vac', 2);
+      renderVacTile();
+      var cc=document.getElementById('tile-base'); if(cc && typeof CONTACTS!=='undefined' && CONTACTS.length>100) cc.textContent=CONTACTS.length.toLocaleString('ru-RU');
+    }
+    function renderVacTile(){
+      var el=document.getElementById('home-vac'); if(!el) return;
+      var v=null; try{ v=(VACANCIES||[]).filter(function(x){return x.urgent;})[0]||(VACANCIES||[])[0]; }catch(e){}
+      if(!v){ el.style.display='none'; return; }
+      var parts=[]; if(v.company) parts.push(esc(v.company)); if(v.pay) parts.push(esc(v.pay)); if(v.urgent) parts.push('срочно');
+      el.innerHTML='<div class="ti">'+ico('ship')+'</div><div style="flex:1;min-width:0"><b class="b">'+esc(v.role||'Вакансия')+'</b><small>'+parts.join(' · ')+'</small></div>'+ico('chev','gp-arr');
+      el.setAttribute('onclick',"switchView('vacancies')"); el.style.display='flex';
     }
 
     /* ---------- «МОЙ ПУТЬ» УЧАСТНИКА ---------- */
@@ -1134,13 +1198,17 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var PATH = { direction:null, data:{}, hasCv:false, autopilot:false, apps:0, loaded:false };
     var PULSE = null;
     function pulseHTML(){
-      if(!PULSE) return '<div id="pulse-line"></div>';
-      if(!PULSE.letters24h) return '<div id="pulse-line"></div>';
-      return '<div id="pulse-line" class="pulse">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> откликов работодателям</div>';
+      if(!PULSE || !PULSE.letters24h) return '<div id="pulse-line"></div>';
+      return '<div id="pulse-line" class="pulse">За сутки участники отправили <b>'+PULSE.letters24h+'</b> откликов работодателям</div>';
+    }
+    function countUp(el, n){
+      if(!el||!n||n<5) return; var t0=null, dur=900;
+      function f(ts){ if(!t0)t0=ts; var k=Math.min(1,(ts-t0)/dur); k=1-Math.pow(1-k,3); el.textContent=Math.round(n*k); if(k<1) requestAnimationFrame(f); }
+      requestAnimationFrame(f);
     }
     function pulseLoad(){
       fetch(BACKEND_URL+'/pulse',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'}).then(function(r){return r.json();})
-        .then(function(d){ if(d&&d.ok){ PULSE=d; var el=document.getElementById('pulse-line'); if(el) el.outerHTML=pulseHTML(); } }).catch(function(){});
+        .then(function(d){ if(d&&d.ok){ PULSE=d; var el=document.getElementById('pulse-line'); if(el){ var inHome=!!el.closest('#homebox'); el.outerHTML=inHome?('<div class="live" id="pulse-line">За сутки участники отправили <b>'+d.letters24h+'</b> откликов</div>'):pulseHTML(); countUp(document.querySelector('#pulse-line b'), d.letters24h); } } }).catch(function(){});
     }
     // Шторка «замок»: что откроется, отзыв, одна кнопка. Человек остаётся на шаге.
     var LOCK_TEXTS = {
@@ -1152,22 +1220,35 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       reply:   { t:'Тебе ответил работодатель', d:'Письмо уже ждёт тебя. Участники читают ответы с переводом на русский и отвечают работодателю прямо из приложения — помощник составит письмо на английском или норвежском.' },
       generic: { t:'Доступно участникам AMORE', d:'' }
     };
+    function priceTilesHTML(){
+      var m=parseInt(PRICE_1M,10)||0, q=parseInt(PRICE_3M,10)||0, save=(m*3-q);
+      return '<div class="price-row">'+
+        '<div class="price-tile" onclick="subscribe()"><b>'+PRICE_1M+'</b><span>в месяц</span><small>отмена в любой момент</small></div>'+
+        '<div class="price-tile hot" onclick="subscribe()">'+(save>0?'<i>−'+save+' €</i>':'')+'<b>'+PRICE_3M+'</b><span>за 3 месяца</span><small>спокойный темп до контракта</small></div>'+
+        '</div>';
+    }
     window.lockSheet=function(kind, extra){
       _lastLock='lock_'+kind; track('lock_show',{kind:kind});
       var L=LOCK_TEXTS[kind]||LOCK_TEXTS.generic;
       var h='<div class="grip"></div>';
-      h+='<div class="det-title">🔒 '+esc(L.t)+'</div>';
-      if(L.d||extra) h+='<div style="font-size:13px;color:#CBD5DD;line-height:1.5;margin:6px 2px 10px">'+esc(extra||L.d)+'</div>';
-      if(kind==='applies' && PULSE && PULSE.letters24h) h+='<div class="pulse" style="margin:0 0 10px">📨 За сутки участники отправили <b>'+PULSE.letters24h+'</b> откликов работодателям</div>';
+      h+='<div class="det-title">'+esc(L.t)+'</div>';
+      if(L.d||extra) h+='<div class="det-sub" style="margin-bottom:6px">'+esc(extra||L.d)+'</div>';
+      h+='<div class="feat-list">'
+        +'<div class="feat"><span class="fi">'+ico('send')+'</span>Авторассылка 15 писем в день</div>'
+        +'<div class="feat"><span class="fi">'+ico('mail')+'</span>Ответы работодателей с переводом</div>'
+        +'<div class="feat"><span class="fi">'+ico('chat')+'</span>Ментор по твоему направлению</div>'
+        +'</div>';
+      if(kind==='applies' && PULSE && PULSE.letters24h) h+='<div class="pulse" style="margin:10px 0 0">За сутки участники отправили <b>'+PULSE.letters24h+'</b> откликов работодателям</div>';
       var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
       if(kind==='applies' && HAS_PROMO){
         // обещанное спецпредложение: гость отправил все бесплатные отклики
         h+='<div class="rw-code" style="margin:10px 0 0">🎁 Твоё спецпредложение: −10% по промокоду <b>'+PROMO_CODE+'</b></div>';
-        h+='<button class="btn btn-gold" style="margin-top:10px" onclick="claimDiscount()">Забрать скидку и открыть весь путь →</button>';
-        h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+        h+='<button class="btn btn-gold" style="margin-top:10px" onclick="claimDiscount()">Забрать скидку и открыть весь путь'+arrBtn()+'</button>';
+        h+='<div class="price-later" onclick="closeModal()">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца · Позже</div>';
       } else {
-        h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
-        h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или 3 месяца за '+PRICE_3M+' · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+        h+=priceTilesHTML();
+        h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь'+arrBtn()+'</button>';
+        h+='<div class="price-later" onclick="closeModal()">Позже</div>';
       }
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
@@ -1215,30 +1296,31 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       return [
         { done:!!dir, head:'Выбери направление', desc: dir?('Твоё: '+dir):'Посмотри 4 обзора по минуте и выбери, куда реальнее', badge:'шаг 1', go:"switchView('path')" },
         { done:docsAll||!!PATH.data.docsInWork, head:'Документы', desc: dk?(docsAll?'Все документы на руках':(PATH.data.docsInWork?'В работе — заявка отправлена':'Отмечено '+docsN+' из '+docsT)):'Сначала выбери направление', badge:'шаг 2', go: dk?("openDocDir('"+dk+"');switchView('docs')"):"switchView('path')" },
-        { done:hasCv, head:'Резюме моряка', desc: hasCv?'Сохранено для откликов':'Собери за 2 минуты, на норвежском или английском', badge:'шаг 3', go:"openResume()" },
-        { done:PATH.autopilot||PATH.apps>0, head:'Отклики', desc: PATH.autopilot?'Авторассылка включена':(PATH.apps>0?('Отправлено откликов: '+PATH.apps):'Включи авторассылку или отправь первый отклик'), badge:'шаг 4', go:"switchView('contacts')" },
-        { done:!!PATH.data.mentorSeen, head:'Ментор и ветка направления', desc: dir?(isMember?'Задай вопрос ментору и читай ветку в группе':'Ментор твоего направления — кто он и как с ним связаться'):'Откроется после выбора направления', badge:'шаг 5', go:"pathMentor()" }
+        { done:hasCv, head:'Резюме моряка', desc: hasCv?'Сохранено для откликов':'Собери за 2 минуты, на норвежском или английском', badge:'бесплатно', go:"openResume()" },
+        { done:PATH.autopilot||PATH.apps>0, head:'Отклики', desc: PATH.autopilot?'Авторассылка включена':(PATH.apps>0?('Отправлено откликов: '+PATH.apps):'Включи авторассылку или отправь первый отклик'), badge:(isMember?'шаг 4':'3 бесплатно'), go:"switchView('contacts')" },
+        { done:!!PATH.data.mentorSeen, head:'Ментор и ветка направления', desc: dir?(isMember?'Задай вопрос ментору и читай ветку в группе':'Ментор твоего направления — кто он и как с ним связаться'):'Откроется после выбора направления', badge:(isMember?'шаг 5':'🔒 участникам'), go:"pathMentor()" }
       ];
     }
     function memberPathHTML(){
       if(!PATH.loaded){ pathLoad(function(){ var hv=document.getElementById('view-home'); if(hv&&hv.className.indexOf('hidden')<0) renderHome(); }); return '<div class="skel skel-card"></div>'; }
-      var st=pathSteps(); var done=st.filter(function(x){return x.done;}).length; var pct=Math.round(done/st.length*100);
+      var st=pathSteps(); var done=st.filter(function(x){return x.done;}).length; var pct=Math.max(4,Math.round(done/st.length*100));
       var next=st.filter(function(x){return !x.done;})[0];
-      var h='<div class="plan-box plan-hot">';
-      h+='<div class="gp-title">🧭 '+(isMember?'Мой путь в море':'Твой путь до контракта')+' <span class="plan-badge">'+(done===st.length?'пройден':'шаг '+(done+1)+' из '+st.length)+'</span></div>';
-      h+='<div class="gp-sub">'+(done===st.length?'Все шаги пройдены. Дальше — отклики каждый день и связь с ментором.':(isMember?'Иди по шагам сверху вниз — это самый короткий путь до контракта.':'Шаги 1–3 и первые 3 отклика — бесплатно. Начни, остальное откроешь, когда дойдёшь.'))+'</div>';
-      h+='<div class="tp-bar"><i style="width:'+pct+'%"></i></div><div class="tp-cnt">Выполнено '+done+' из '+st.length+'</div>';
-      st.forEach(function(x,i){ h+=gpStep(i+1, x.done, x.go, x.head, x.desc, x.badge); });
-      if(next) h+='<button class="btn btn-gold" style="margin-top:12px" onclick="'+next.go+'">Следующий шаг: '+next.head+' →</button>';
+      var h='';
+      if(PULSE && PULSE.letters24h) h+='<div class="live" id="pulse-line">За сутки участники отправили <b>'+PULSE.letters24h+'</b> откликов</div>'; else h+='<div id="pulse-line"></div>';
+      h+='<div class="plan-box plan-hot">';
+      h+='<div class="gp-title">'+(isMember?'Мой путь в море':'Твой путь до контракта')+'<span class="plan-badge">'+done+' / '+st.length+'</span></div>';
+      h+='<div class="tp-bar"><i style="width:'+pct+'%"></i></div>';
+      h+='<div class="gp-sub">'+(done===st.length?'Все шаги пройдены. Дальше — отклики каждый день и связь с ментором.':(isMember?'Иди по шагам сверху вниз — это самый короткий путь до контракта.':'Шаги 1–3 и первые 3 отклика — бесплатно. Остальное откроешь, когда дойдёшь.'))+'</div>';
+      st.forEach(function(x,i){ h+=gpStep(i+1, x.done, x.go, x.head, x.desc, x.badge, next===x); });
+      if(next) h+='<button class="btn btn-gold" onclick="'+next.go+'">Продолжить: '+next.head.toLowerCase()+arrBtn()+'</button>';
       if(!next && !isMember){
-        // гость прошёл весь бесплатный путь — не оставляем в тупике
         if(HAS_PROMO){
-          h+='<div class="rw-code" style="margin-top:12px">🎁 Ты прошёл все шаги — вот твоё спецпредложение: −10% по промокоду <b>'+PROMO_CODE+'</b></div>';
-          h+='<button class="btn btn-gold" style="margin-top:10px" onclick="_lastLock=\'path_done\';claimDiscount()">Забрать скидку и открыть весь путь →</button>';
+          h+='<div class="rw-code" style="margin-top:12px">Ты прошёл все шаги — спецпредложение: −10% по промокоду <b>'+PROMO_CODE+'</b></div>';
+          h+='<button class="btn btn-gold" style="margin-top:10px" onclick="_lastLock=\'path_done\';claimDiscount()">Забрать скидку и открыть весь путь'+arrBtn()+'</button>';
         } else {
-          h+='<button class="btn btn-gold" style="margin-top:12px" onclick="_lastLock=\'path_done\';subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
+          h+=priceTilesHTML();
+          h+='<button class="btn btn-gold" style="margin-top:12px" onclick="_lastLock=\'path_done\';subscribe()">Открыть весь путь'+arrBtn()+'</button>';
         }
-        h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца</div>';
       }
       h+='</div>';
       return h;
@@ -1256,9 +1338,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function renderPathView2(){
       var box=document.getElementById('pathbox');
       var watched=PATH.data.watched||{};
-      var h='<div class="back" onclick="goBack()">← На главную</div>';
-      h+='<div class="sec-title">🧭 Шаг 1 — выбери направление</div>';
-      h+='<div style="font-size:12.5px;color:#9AA3AB;margin:0 2px 14px;line-height:1.5">Минутный обзор по каждому: кому подходит, деньги, сколько до выхода. Выбери одно — дальше весь путь будет под него.</div>';
+      var h='<div class="back" onclick="goBack()">'+ico('left')+' Мой путь</div>';
+      h+='<div class="greet" style="margin:2px 2px 6px">Шаг 1<br>Выбери направление</div>';
+      h+='<div style="font-size:13px;color:var(--fg2);margin:0 2px 14px;line-height:1.5">Минутный обзор по каждому: кому подходит, деньги, сколько до выхода. Выбери одно — дальше весь путь будет под него.</div>';
       PLAN_DIRS.forEach(function(p){
         var ls=LESSONS.filter(function(l){return l.direction===p.value;}).sort(function(a,b){return a.order-b.order;});
         var ov=ls.filter(function(l){return l.order===0;})[0];
@@ -1269,7 +1351,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         h+='<div class="pd-head" onclick="pathChoose(\''+esc(p.value)+'\')"><div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div>';
         var PATH_SHORT={"Рыболовные суда":"Краб, рыба, фабрики","Замывка трюмов":"Замывка трюмов","Яхты":"Яхты","Торговый флот":"Торговый флот"};
         h+='<div style="flex:1;min-width:0"><div class="dirname">'+esc(PATH_SHORT[p.value]||p.label)+'</div><div class="pd-sub">'+esc(short)+'</div></div>';
-        h+='<div class="pd-pick">'+(isCur?'✓':'')+'</div></div>';
+        h+='<div class="pd-pick">'+(isCur?ico('check'):'')+'</div></div>';
         h+='<div class="pd-row">';
         if(ov && ov.videoId){
           h+='<div class="pd-chip" onclick="pathPlay(\''+esc(p.value)+'\',\''+esc(ov.videoId)+'\',\''+esc(ov.title)+'\')" style="background-image:url(https://img.youtube.com/vi/'+ov.videoId+'/mqdefault.jpg)"><div class="pd-chip-in"><span>▶ Обзор</span><small>'+(ov.duration?esc(ov.duration):'1 мин')+(w?' · ✓':'')+'</small></div></div>';
@@ -1278,7 +1360,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           if(base.videoId){
             h+='<div class="pd-chip" onclick="playVid(\''+esc(base.videoId)+'\',\''+esc(base.title)+'\')" style="background-image:url(https://img.youtube.com/vi/'+base.videoId+'/mqdefault.jpg)"><div class="pd-chip-in"><span>▶ Полное</span><small>'+(base.duration?esc(base.duration):'')+'</small></div></div>';
           } else {
-            h+='<div class="pd-chip pd-lock" onclick="lockSheet(\'video\')"><div class="pd-chip-in"><span>🔒 Полное</span><small>'+(base.duration?esc(base.duration):'')+' · участникам</small></div></div>';
+            h+='<div class="pd-chip pd-lock" onclick="lockSheet(\'video\')"><div class="pd-chip-in"><span>'+ico('lock')+' Полное</span><small>'+(base.duration?esc(base.duration):'')+' · участникам</small></div></div>';
           }
         }
         h+='</div>';
@@ -1368,7 +1450,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       } else if(!isMember){
         h+='<button class="btn btn-gold" style="margin-top:8px" onclick="subscribe()">Открыть контакты — подписка</button>';
       }
-      if(!v.phone&&!v.email&&isMember)h+='<div style="font-size:13px;color:#9AA3AB;text-align:center;padding:6px 4px;line-height:1.5">Контакты по этой вакансии скоро добавим. А пока вся база работодателей — в разделе «База».</div>';
+      if(!v.phone&&!v.email&&isMember)h+='<div style="font-size:13px;color:var(--fg2);text-align:center;padding:6px 4px;line-height:1.5">Контакты по этой вакансии скоро добавим. А пока вся база работодателей — в разделе «База».</div>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
@@ -1390,8 +1472,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(v.when)h+='<span class="when">🕒 '+esc(v.when)+'</span>';
       h+='</div>';
       h+= isMember
-        ? '<button class="btn btn-gold" onclick="vacContacts('+v._i+')">Посмотреть контакты</button>'
-        : (v.email ? '<button class="btn btn-gold" onclick="applyFromVac('+v._i+')">✉️ Откликнуться (бесплатно)</button>' : '<button class="btn btn-lock" onclick="vlock()">🔒 Посмотреть контакты</button>');
+        ? '<button class="btn btn-gold" onclick="vacContacts('+v._i+')">Посмотреть контакты'+arrBtn()+'</button>'
+        : (v.email ? '<button class="btn btn-gold" onclick="applyFromVac('+v._i+')">Откликнуться — бесплатно'+arrBtn()+'</button>' : '<button class="btn btn-lock" onclick="vlock()">'+ico('lock')+' Посмотреть контакты</button>');
       return h+'</div>';
     }
     // оборачиваем число в зарплате, чтобы его «накрутить»
@@ -1444,23 +1526,23 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function renderPlan(){
       var box=document.getElementById('plist');
       if(planDir===null){
-        var html='<div class="sec-title"><span style="color:#CBD5DD">📚</span> Обучение <span class="hbadge" onclick="showHint(event,\'plan\')">?</span></div>';
+        var html='<div class="sec-title"><span style="color:var(--fg2)">📚</span> Обучение <span class="hbadge" onclick="showHint(event,\'plan\')">?</span></div>';
         PLAN_DIRS.forEach(function(p){
           var n=LESSONS.filter(function(l){return l.direction===p.value && l.order>0;}).length;
           html+='<div class="dircard" onclick="openDir(\''+p.value+'\')"><div class="dirico" style="background:'+p.grad+'">'+p.ico+'</div>';
-          html+='<div style="flex:1"><div class="dirname">'+esc(p.label)+'</div><div class="dircount">'+n+' уроков</div></div><span style="color:#9AA3AB">›</span></div>';
+          html+='<div style="flex:1"><div class="dirname">'+esc(p.label)+'</div><div class="dircount">'+n+' уроков</div></div>'+ico('chev','gp-arr')+'</div>';
         });
         box.innerHTML=html; return;
       }
       var ls=LESSONS.filter(function(l){return l.direction===planDir && l.order>0;}).sort(function(a,b){return a.order-b.order;});
       var dirObj=PLAN_DIRS.filter(function(p){return p.value===planDir;})[0];
-      var html='<div class="back" onclick="backToDirs()">← Назад</div><div class="sec-title">'+esc(dirObj?dirObj.label:planDir)+'</div>';
+      var html='<div class="back" onclick="backToDirs()">'+ico('left')+' Назад</div><div class="sec-title">'+esc(dirObj?dirObj.label:planDir)+'</div>';
       if(!ls.length){box.innerHTML=html+'<div class="info">В этом направлении пока нет уроков.</div>';return;}
       window.__lessons=ls;
       ls.forEach(function(l,i){
         var ts=l.videoId?'background-image:url(https://img.youtube.com/vi/'+l.videoId+'/mqdefault.jpg)':'';
         html+='<div class="lesson" onclick="openLesson('+i+')"><div class="thumb" style="'+ts+'"><div class="play">▶</div>'+(l.videoId?'':'<span class="lk">🔒</span>')+'</div>';
-        html+='<div style="flex:1"><div class="ltitle">'+esc(l.title)+'</div><div class="ldur">▶ Урок '+(i+1)+(l.duration?' · '+esc(l.duration):'')+'</div></div>'+(l.videoId?'':'<span style="color:#CBD5DD">🔒</span>')+'</div>';
+        html+='<div style="flex:1"><div class="ltitle">'+esc(l.title)+'</div><div class="ldur">▶ Урок '+(i+1)+(l.duration?' · '+esc(l.duration):'')+'</div></div>'+(l.videoId?'':'<span style="color:var(--fg2)">🔒</span>')+'</div>';
       });
       box.innerHTML=html;
     }
@@ -1491,7 +1573,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(mine && !isMember) html+='<div class="info" style="margin:0 0 10px">Твой ментор по направлению — первый в списке. Личный чат открывается участникам.</div>';
       list.forEach(function(m){
         html+='<div class="mentor"><div class="m-av" data-init="'+m.init+'" style="background:'+m.grad+'"><img src="'+esc(m.photo)+'" style="width:100%;height:100%;object-fit:cover" onerror="avFallback(this)"></div>';
-        html+='<div style="flex:1"><div class="m-name">'+esc(m.name)+' <span style="color:#0E7A5B">✓</span></div><div class="m-dir">'+esc(m.dir)+'</div><div class="m-bio">'+esc(m.bio)+'</div>';
+        html+='<div style="flex:1"><div class="m-name">'+esc(m.name)+' <span style="color:var(--ok)">✓</span></div><div class="m-dir">'+esc(m.dir)+'</div><div class="m-bio">'+esc(m.bio)+'</div>';
         html+='<div class="m-ask" onclick="askMentor(\''+esc(m.tg)+'\')">'+(isMember?'💬 Написать наставнику':'🔒 Написать наставнику')+'</div></div></div>';
       });
       document.getElementById('mlist').innerHTML=html;
@@ -1547,10 +1629,10 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function renderDocs(){
       var box=document.getElementById('docsbox');
       if(docDir===null){
-        var html='<div style="font-size:12px;color:#9AA3AB;margin:0 2px 14px;line-height:1.5">Выбери направление — покажу, какие документы нужны именно под него.</div>';
+        var html='<div style="font-size:12px;color:var(--fg2);margin:0 2px 14px;line-height:1.5">Выбери направление — покажу, какие документы нужны именно под него.</div>';
         DOC_DIRS.forEach(function(d){
           html+='<div class="dircard" onclick="openDocDir(\''+d.key+'\')"><div class="dirico" style="background:'+d.grad+'">'+d.ico+'</div>';
-          html+='<div style="flex:1"><div class="dirname">'+esc(d.label)+'</div><div class="dircount">'+d.docs.length+' документа</div></div><span style="color:#9AA3AB">›</span></div>';
+          html+='<div style="flex:1"><div class="dirname">'+esc(d.label)+'</div><div class="dircount">'+d.docs.length+' документа</div></div>'+ico('chev','gp-arr')+'</div>';
         });
         box.innerHTML=html; return;
       }
@@ -1559,8 +1641,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var allDone = done===dir.docs.length;
       var html='<div class="back" onclick="backDocDirs()">← Все направления</div>';
       html+='<div class="sec-title">'+esc(dir.label)+'</div>';
-      html+='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:#9AA3AB">Готовность пакета</span><span style="font-weight:700;color:#CBD5DD">'+done+' / '+dir.docs.length+'</span></div>';
-      html+='<div class="prog"><div class="prog-bar" style="width:'+(done/dir.docs.length*100)+'%"></div></div><div style="font-size:11px;color:#9AA3AB">Отметь галочкой то, что у тебя уже есть</div></div>';
+      html+='<div class="card" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:12.5px"><span style="color:var(--fg2)">Готовность пакета</span><span style="font-weight:700;color:var(--fg2)">'+done+' / '+dir.docs.length+'</span></div>';
+      html+='<div class="prog"><div class="prog-bar" style="width:'+(done/dir.docs.length*100)+'%"></div></div><div style="font-size:11px;color:var(--fg2)">Отметь галочкой то, что у тебя уже есть</div></div>';
       dir.docs.forEach(function(d,i){
         var on=docChecked[docDir+'-'+i];
         html+='<div class="doc'+(on?' done':'')+'">';
@@ -1573,20 +1655,20 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         html+='<div class="plan-box" style="margin-top:16px;text-align:center"><div style="font-size:32px">🎉</div>';
         html+='<div style="font-size:15px;font-weight:700;margin:4px 0 6px">Ты готов выходить в море!</div>';
         if(isMember){
-          html+='<div style="font-size:12.5px;color:#9AA3AB;margin-bottom:14px">Все документы на руках. Открывай базу работодателей и выходи на них напрямую.</div>';
+          html+='<div style="font-size:12.5px;color:var(--fg2);margin-bottom:14px">Все документы на руках. Открывай базу работодателей и выходи на них напрямую.</div>';
           html+='<button class="btn btn-gold" onclick="switchView(\'contacts\')">Найти судно с AMORE</button></div>';
         } else {
-          html+='<div style="font-size:12.5px;color:#9AA3AB;margin-bottom:14px">Все документы на руках. В AMORE поможем найти судно и выйти на работодателя напрямую.</div>';
+          html+='<div style="font-size:12.5px;color:var(--fg2);margin-bottom:14px">Все документы на руках. В AMORE поможем найти судно и выйти на работодателя напрямую.</div>';
           html+='<button class="btn btn-gold" onclick="subscribe()">Найти судно с AMORE</button></div>';
         }
       } else {
         if(isMember){
-          html+='<div style="font-size:11.5px;color:#9AA3AB;text-align:center;margin-top:14px;line-height:1.5">Чего-то не хватает? Оставь заявку — подскажем, где и как оформить документы быстрее и без переплат.</div>';
+          html+='<div style="font-size:11.5px;color:var(--fg2);text-align:center;margin-top:14px;line-height:1.5">Чего-то не хватает? Оставь заявку — подскажем, где и как оформить документы быстрее и без переплат.</div>';
           html+='<button class="btn btn-gold" style="margin-top:10px" onclick="switchView(\'docapply\')">Помочь с документами</button>';
         } else {
           html+='<button class="btn" style="margin-top:14px" onclick="pathDocsLater()">Документы в работе — иду дальше →</button>';
-          html+='<div style="font-size:11.5px;color:#9AA3AB;text-align:center;margin-top:10px;line-height:1.5">Нет документа — нажми «Поможем оформить» под ним: там написано, где и как сделать самому. Чего-то не хватает? В AMORE поможем собрать документы и довести до первого контракта.</div>';
-          html+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">🔒 <span onclick="lockSheet(\'docs\')" style="text-decoration:underline">Помочь с документами</span> — для участников</div>';
+          html+='<div style="font-size:11.5px;color:var(--fg2);text-align:center;margin-top:10px;line-height:1.5">Нет документа — нажми «Поможем оформить» под ним: там написано, где и как сделать самому. Чего-то не хватает? В AMORE поможем собрать документы и довести до первого контракта.</div>';
+          html+='<div style="text-align:center;font-size:12px;color:var(--fg2);margin-top:8px">🔒 <span onclick="lockSheet(\'docs\')" style="text-decoration:underline">Помочь с документами</span> — для участников</div>';
         }
       }
       box.innerHTML=html;
@@ -1603,10 +1685,10 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(isMember){ switchView('docapply'); return; }
       var how=DOC_HOW[name]||'';
       var h='<div class="grip"></div><div class="det-title">'+esc(name)+'</div>';
-      if(how) h+='<div style="font-size:13px;color:#CBD5DD;line-height:1.55;margin:8px 2px 12px">'+esc(how)+'</div>';
-      h+='<div style="font-size:12px;color:#9AA3AB;line-height:1.5;margin:0 2px 12px">Сделать можно самому — сроки и цены выше ориентировочные, уточняй в центре. Документы делаются параллельно с откликами: пока ищешь судно, бумаги оформляются.</div>';
+      if(how) h+='<div style="font-size:13px;color:var(--fg2);line-height:1.55;margin:8px 2px 12px">'+esc(how)+'</div>';
+      h+='<div style="font-size:12px;color:var(--fg2);line-height:1.5;margin:0 2px 12px">Сделать можно самому — сроки и цены выше ориентировочные, уточняй в центре. Документы делаются параллельно с откликами: пока ищешь судно, бумаги оформляются.</div>';
       h+='<button class="btn" onclick="closeModal();pathDocsLater()">Понял, оформлю сам — иду дальше</button>';
-      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:10px">🔒 <span onclick="lockSheet(\'docs\')" style="text-decoration:underline">Хочу, чтобы помогли оформить</span> — для участников</div>';
+      h+='<div style="text-align:center;font-size:12px;color:var(--fg2);margin-top:10px">🔒 <span onclick="lockSheet(\'docs\')" style="text-decoration:underline">Хочу, чтобы помогли оформить</span> — для участников</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
     };
@@ -1636,7 +1718,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     window.showHint=function(ev,key){
       if(ev){ ev.stopPropagation(); }
       var t=HINTS[key]; if(!t)return;
-      var h='<div class="grip"></div><div style="font-size:13.5px;line-height:1.6;color:#2A3D4C;font-weight:500;padding:2px 2px 4px">'+t+'</div>';
+      var h='<div class="grip"></div><div style="font-size:14px;line-height:1.6;color:var(--fg);font-weight:500;padding:2px 2px 4px">'+t+'</div>';
       h+='<div class="close" onclick="closeModal()">Понятно</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
@@ -1832,10 +1914,10 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var h='<div class="grip"></div>';
       h+='<div style="text-align:center;font-size:36px;margin-bottom:6px">🔒</div>';
       h+='<div class="det-title" style="text-align:center">'+title+'</div>';
-      h+='<div style="text-align:center;font-size:13px;color:#9AA3AB;line-height:1.5;margin:8px 4px 18px">'+text+'</div>';
+      h+='<div style="text-align:center;font-size:13px;color:var(--fg2);line-height:1.5;margin:8px 4px 18px">'+text+'</div>';
       var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
       h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
-      h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">или 3 месяца за '+PRICE_3M+' · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+      h+='<div style="text-align:center;font-size:12px;color:var(--fg2);margin-top:8px">или 3 месяца за '+PRICE_3M+' · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
     };
@@ -1871,7 +1953,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     window.mgInput=function(k,v){ mg[k]=v; saveMG(); };
     function renderMailGen(){
       var box=document.getElementById('mailgenbox');
-      var html='<div style="font-size:12px;color:#9AA3AB;margin:0 2px 14px;line-height:1.5">Ответь на пару вопросов — апка соберёт готовое письмо работодателю под твой опыт и нужную работу. Потом скопируешь и разошлёшь.</div>';
+      var html='<div style="font-size:12px;color:var(--fg2);margin:0 2px 14px;line-height:1.5">Ответь на пару вопросов — апка соберёт готовое письмо работодателю под твой опыт и нужную работу. Потом скопируешь и разошлёшь.</div>';
       // язык
       html+='<div class="group-mg"><div class="mg-q">Язык письма</div><div class="seg-mail"><button class="'+(mg.lang==='en'?'on':'')+'" onclick="mgSet(\'lang\',\'en\')">English</button><button class="'+(mg.lang==='no'?'on':'')+'" onclick="mgSet(\'lang\',\'no\')">Norsk</button></div></div>';
       // позиция
@@ -1895,7 +1977,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       html+='<button class="btn btn-gold" onclick="mgGenerate()">✨ Собрать письмо</button>';
 
       if(mg.generated){
-        html+='<div class="mg-result"><div class="mg-q" style="margin-bottom:8px">Готовое письмо <span style="color:#9AA3AB;font-weight:500">(можно поправить)</span></div>';
+        html+='<div class="mg-result"><div class="mg-q" style="margin-bottom:8px">Готовое письмо <span style="color:var(--fg2);font-weight:500">(можно поправить)</span></div>';
         html+='<label class="ml-lbl">Тема</label><input class="ml-in" id="mg-subj" value="'+esc(mg.generated.subj)+'">';
         html+='<label class="ml-lbl">Текст</label><textarea class="ml-ta" id="mg-body" rows="12">'+esc(mg.generated.body)+'</textarea>';
         html+='<div class="ml-note">Файл резюме приложи вручную — собери его в «Моё резюме». При отправке конкретному работодателю можешь заменить обращение на название его компании.</div>';
@@ -1964,11 +2046,11 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(da.sent){
         box.innerHTML='<div class="card" style="text-align:center;padding:30px 18px"><div style="font-size:40px">✅</div>'
           +'<div style="font-size:17px;font-weight:800;margin:10px 0 8px">Спасибо за заявку!</div>'
-          +'<div style="font-size:13px;color:#9AA3AB;line-height:1.55">Команда AMORE свяжется с тобой в ближайшее время и поможет оформить документы.</div>'
+          +'<div style="font-size:13px;color:var(--fg2);line-height:1.55">Команда AMORE свяжется с тобой в ближайшее время и поможет оформить документы.</div>'
           +'<button class="btn btn-gold" style="margin-top:18px" onclick="daReset()">Готово</button></div>';
         return;
       }
-      var html='<div style="font-size:12px;color:#9AA3AB;margin:0 2px 14px;line-height:1.5">Оставь заявку — поможем оформить нужные морские сертификаты. Заполни данные и выбери, что нужно.</div>';
+      var html='<div style="font-size:12px;color:var(--fg2);margin:0 2px 14px;line-height:1.5">Оставь заявку — поможем оформить нужные морские сертификаты. Заполни данные и выбери, что нужно.</div>';
       html+='<div class="group-mg"><div class="mg-q">Имя и фамилия</div><input class="ml-in" id="da-name" placeholder="Имя Фамилия" value="'+esc(da.name)+'" oninput="daInput(\'name\',this.value)"></div>';
       html+='<div class="group-mg"><div class="mg-q">Номер телефона</div><input class="ml-in" id="da-phone" type="tel" placeholder="+47 ..." value="'+esc(da.phone)+'" oninput="daInput(\'phone\',this.value)"></div>';
       html+='<div class="group-mg"><div class="mg-q">Гражданство</div><input class="ml-in" id="da-cit" placeholder="Напр.: Украина" value="'+esc(da.citizenship)+'" oninput="daInput(\'citizenship\',this.value)"></div>';
@@ -1999,21 +2081,21 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var initial=uName?uName.charAt(0).toUpperCase():'?';
       var html='<div class="prof-head"><div class="prof-av">'+esc(initial)+'</div><div class="prof-name">'+esc(uName)+'</div>';
       html+='<div class="prof-tag">'+(isMember?'Участник сообщества AMORE':'Гостевой доступ')+'</div></div>';
-      html+='<div class="plan-box"><div style="display:flex;align-items:center;gap:8px"><span style="color:#CBD5DD">★</span><span style="font-size:13px;font-weight:700">Участие в AMORE</span>';
+      html+='<div class="plan-box"><div style="display:flex;align-items:center;gap:8px"><span style="color:var(--fg2)">★</span><span style="font-size:13px;font-weight:700">Участие в AMORE</span>';
       if(isMember)html+='<span class="badge hire" style="margin-left:auto">активна</span>';
-      html+='</div><div style="margin:12px 0 4px"><span class="plan-price">'+PRICE_1M+'</span> <span class="plan-per">/ месяц</span> <span style="font-size:11px;color:#9AA3AB">· или 3 месяца за '+PRICE_3M+'</span></div>';
-      if(isMember){html+='<div style="font-size:11.5px;color:#9AA3AB">Доступ открыт: вакансии, база, обучение и наставники.</div><button class="btn btn-announce" onclick="subscribe()">⚙️ Управлять подпиской</button>';}
-      else{html+='<div style="font-size:11.5px;color:#9AA3AB;margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';}
+      html+='</div><div style="margin:12px 0 4px"><span class="plan-price">'+PRICE_1M+'</span> <span class="plan-per">/ месяц</span> <span style="font-size:11px;color:var(--fg2)">· или 3 месяца за '+PRICE_3M+'</span></div>';
+      if(isMember){html+='<div style="font-size:11.5px;color:var(--fg2)">Доступ открыт: вакансии, база, обучение и наставники.</div><button class="btn btn-announce" onclick="subscribe()">⚙️ Управлять подпиской</button>';}
+      else{html+='<div style="font-size:11.5px;color:var(--fg2);margin-bottom:12px">Открой вакансии, базу, обучение и наставников.</div><button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';}
       html+='</div>';
-      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">📋</div><div style="flex:1"><div class="prow-t">Документы моряка <span class="hbadge" onclick="showHint(event,\'docs\')">?</span></div><div class="prow-s">Чек-лист по направлениям</div></div><span style="color:#9AA3AB">›</span></div>';
-      html+='<div class="prow" onclick="openResume()"><div class="prow-ico">📄</div><div style="flex:1"><div class="prow-t">Моё резюме <span class="hbadge" onclick="showHint(event,\'resume\')">?</span></div><div class="prow-s">Собери CV по шаблону AMORE</div></div><span style="color:#9AA3AB">›</span></div>';
-      if(isAdmin){ html+='<div class="prow" onclick="openDigest()"><div class="prow-ico">📢</div><div style="flex:1"><div class="prow-t">Сводка вакансий за сегодня</div><div class="prow-s">Разослать всем: сколько добавили и куда</div></div><span style="color:#9AA3AB">›</span></div>'; }
-      html+='<div class="prow" onclick="switchView(\'docapply\')"><div class="prow-ico">🛠️</div><div style="flex:1"><div class="prow-t">Сделать документы</div><div class="prow-s">Оставь заявку — поможем оформить сертификаты</div></div><span style="color:#9AA3AB">›</span></div>';
-      html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">📧</div><div style="flex:1"><div class="prow-t">Письмо для рассылки <span class="hbadge" onclick="showHint(event,\'mail\')">?</span></div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div><span style="color:#9AA3AB">›</span></div>';
-      html+='<div class="prow" onclick="switchView(\'inbox\')"><div class="prow-ico">📩</div><div style="flex:1"><div class="prow-t">Ответы работодателей'+(INBOX.unread?' <span class="ib-dot">'+INBOX.unread+'</span>':'')+'</div><div class="prow-s">Письма с переводом и помощь с ответом</div></div><span style="color:#9AA3AB">›</span></div>';
-      html+='<div class="prow" onclick="switchView(\'myapps\')"><div class="prow-ico">📨</div><div style="flex:1"><div class="prow-t">Мои отклики <span class="hbadge" onclick="showHint(event,\'myapps\')">?</span></div><div class="prow-s">Статусы отправленных писем</div></div><span style="color:#9AA3AB">›</span></div>';
-      if(tg){ html+='<div class="prow" onclick="hap(\'medium\');homeScreenAdd()"><div class="prow-ico">📲</div><div style="flex:1"><div class="prow-t">Добавить AMORE на экран</div><div class="prow-s">Иконка на телефоне — как обычное приложение</div></div><span style="color:#9AA3AB">›</span></div>'; }
-      if(tg&&tg.shareToStory){ html+='<div class="prow" onclick="shareStory(\'app\',\'Ищу работу в море через AMORE — база 5000+ работодателей и ответы капитанов прямо в телефоне\')"><div class="prow-ico">📣</div><div style="flex:1"><div class="prow-t">Рассказать в сторис</div><div class="prow-s">Поделиться AMORE с друзьями-моряками</div></div><span style="color:#9AA3AB">›</span></div>'; }
+      html+='<div class="prow" onclick="switchView(\'docs\')"><div class="prow-ico">'+ico('doc')+'</div><div style="flex:1"><div class="prow-t">Документы моряка <span class="hbadge" onclick="showHint(event,\'docs\')">?</span></div><div class="prow-s">Чек-лист по направлениям</div></div>'+ico('chev','gp-arr')+'</div>';
+      html+='<div class="prow" onclick="openResume()"><div class="prow-ico">'+ico('user')+'</div><div style="flex:1"><div class="prow-t">Моё резюме <span class="hbadge" onclick="showHint(event,\'resume\')">?</span></div><div class="prow-s">Собери CV по шаблону AMORE</div></div>'+ico('chev','gp-arr')+'</div>';
+      if(isAdmin){ html+='<div class="prow" onclick="openDigest()"><div class="prow-ico">'+ico('bolt')+'</div><div style="flex:1"><div class="prow-t">Сводка вакансий за сегодня</div><div class="prow-s">Разослать всем: сколько добавили и куда</div></div>'+ico('chev','gp-arr')+'</div>'; }
+      html+='<div class="prow" onclick="switchView(\'docapply\')"><div class="prow-ico">'+ico('tool')+'</div><div style="flex:1"><div class="prow-t">Сделать документы</div><div class="prow-s">Оставь заявку — поможем оформить сертификаты</div></div>'+ico('chev','gp-arr')+'</div>';
+      html+='<div class="prow" onclick="openMailGen()"><div class="prow-ico">'+ico('mail')+'</div><div style="flex:1"><div class="prow-t">Письмо для рассылки <span class="hbadge" onclick="showHint(event,\'mail\')">?</span></div><div class="prow-s">Апка соберёт письмо под твой опыт и работу</div></div>'+ico('chev','gp-arr')+'</div>';
+      html+='<div class="prow" onclick="switchView(\'inbox\')"><div class="prow-ico">'+ico('inbox')+'</div><div style="flex:1"><div class="prow-t">Ответы работодателей'+(INBOX.unread?' <span class="ib-dot">'+INBOX.unread+'</span>':'')+'</div><div class="prow-s">Письма с переводом и помощь с ответом</div></div>'+ico('chev','gp-arr')+'</div>';
+      html+='<div class="prow" onclick="switchView(\'myapps\')"><div class="prow-ico">'+ico('send')+'</div><div style="flex:1"><div class="prow-t">Мои отклики <span class="hbadge" onclick="showHint(event,\'myapps\')">?</span></div><div class="prow-s">Статусы отправленных писем</div></div>'+ico('chev','gp-arr')+'</div>';
+      if(tg){ html+='<div class="prow" onclick="hap(\'medium\');homeScreenAdd()"><div class="prow-ico">'+ico('phone')+'</div><div style="flex:1"><div class="prow-t">Добавить AMORE на экран</div><div class="prow-s">Иконка на телефоне — как обычное приложение</div></div>'+ico('chev','gp-arr')+'</div>'; }
+      if(tg&&tg.shareToStory){ html+='<div class="prow" onclick="shareStory(\'app\',\'Ищу работу в море через AMORE — база 5000+ работодателей и ответы капитанов прямо в телефоне\')"><div class="prow-ico">'+ico('share')+'</div><div style="flex:1"><div class="prow-t">Рассказать в сторис</div><div class="prow-s">Поделиться AMORE с друзьями-моряками</div></div>'+ico('chev','gp-arr')+'</div>'; }
       document.getElementById('profbox').innerHTML=html;
     }
 
@@ -2095,11 +2177,11 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         var name=open?esc(c.company||c.vessel||'—'):'<span class="masked">🔒 Контакт скрыт</span>';
         html+='<div class="ccard'+(c.hiring?' c-hire':'')+'" onclick="openContact('+idx+')"><div style="flex:1;min-width:0"><div class="cname">'+fl+' '+name;
         if(c.hiring)html+=' <span class="badge hire">набирает</span>';
-        if(!isMember&&open)html+=' <span class="badge hire" style="background:rgba(120,200,160,.16);color:#8CC0A6">бесплатно</span>';
+        if(!isMember&&open)html+=' <span class="badge hire" style="background:rgba(120,200,160,.16);color:var(--ok)">бесплатно</span>';
         html+='</div><div class="cmeta">'+esc(c.country||'—');
         if(c.type)html+=' · '+esc(c.type);
         if(open&&(c.hasPhone||c.hasEmail))html+=' <span class="avail">'+(c.hasPhone?'📞':'')+(c.hasEmail?'✉️':'')+'</span>';
-        html+='</div></div>'+(open?'<span style="color:#9AA3AB">›</span>':'<span style="color:#CBD5DD">🔒</span>')+'</div>';
+        html+='</div></div>'+(open?'<span style="color:var(--fg2)">›</span>':'<span style="color:var(--fg2)">🔒</span>')+'</div>';
       });
       box.innerHTML=html;
       if(list.length>cVisible)box.innerHTML+='<button class="more" onclick="showMore()">Показать ещё '+Math.min(PAGE,list.length-cVisible)+' (из '+list.length+')</button>';
@@ -2218,8 +2300,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             }
             hap('success');
             var h='<div class="grip"></div><div style="text-align:center;padding:24px 10px"><div style="font-size:42px">✅</div><div style="font-size:17px;font-weight:800;margin:10px 0 6px">Письмо отправлено!</div>';
-            h+='<div style="font-size:13px;color:#9AA3AB;line-height:1.55">Резюме ушло работодателю '+esc(c.company||c.email)+'. Ответ придёт на '+esc(reply)+'.</div>';
-            if(d.remaining!=null) h+='<div style="font-size:12px;color:#9AA3AB;margin-top:10px">Осталось откликов'+(d.guest?' (бесплатно)':' сегодня')+': '+d.remaining+'</div>';
+            h+='<div style="font-size:13px;color:var(--fg2);line-height:1.55">Резюме ушло работодателю '+esc(c.company||c.email)+'. Ответ придёт на '+esc(reply)+'.</div>';
+            if(d.remaining!=null) h+='<div style="font-size:12px;color:var(--fg2);margin-top:10px">Осталось откликов'+(d.guest?' (бесплатно)':' сегодня')+': '+d.remaining+'</div>';
             h+='<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal()">Готово</button></div>';
             document.getElementById('sheet').innerHTML=h;
           } else if(d.limit){
@@ -2296,7 +2378,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         .then(function(r){return r.json();})
         .then(function(d){
           var h='<div class="grip"></div><div style="text-align:center;padding:24px 8px">';
-          if(d&&d.ok){ h+='<div style="font-size:44px">✅</div><div style="font-size:17px;font-weight:800;margin:10px 0 6px">Сводка отправлена</div><div style="font-size:13px;color:#9AA3AB">Вакансий: '+d.total+' · получили: '+d.sent+'</div>'; }
+          if(d&&d.ok){ h+='<div style="font-size:44px">✅</div><div style="font-size:17px;font-weight:800;margin:10px 0 6px">Сводка отправлена</div><div style="font-size:13px;color:var(--fg2)">Вакансий: '+d.total+' · получили: '+d.sent+'</div>'; }
           else { h+='<div style="font-size:44px">⚠️</div><div style="font-size:15px;margin-top:8px">'+esc((d&&d.error)||'Не получилось отправить. Попробуй ещё раз.')+'</div>'; }
           h+='<div class="close" onclick="closeModal()">Закрыть</div></div>';
           sheet.innerHTML=h;
@@ -2329,7 +2411,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         var msg = totalMail>0
           ? 'Ты уже разослал резюме всем работодателям из базы по текущему фильтру. Когда появятся новые — сможешь отправить и им.'
           : 'В текущем фильтре нет работодателей с почтой. Убери фильтры или поменяй направление.';
-        sheet.innerHTML='<div class="grip"></div><div style="text-align:center;padding:24px 8px"><div style="font-size:44px">✅</div><div style="font-size:18px;font-weight:800;margin:10px 0 6px">Все обработаны</div><div style="font-size:13px;color:#9AA3AB;line-height:1.55">'+msg+'</div><div class="close" onclick="closeModal()">Закрыть</div></div>';
+        sheet.innerHTML='<div class="grip"></div><div style="text-align:center;padding:24px 8px"><div style="font-size:44px">✅</div><div style="font-size:18px;font-weight:800;margin:10px 0 6px">Все обработаны</div><div style="font-size:13px;color:var(--fg2);line-height:1.55">'+msg+'</div><div class="close" onclick="closeModal()">Закрыть</div></div>';
         return;
       }
       var cvB64='', cvName='';
@@ -2392,7 +2474,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             sheet.innerHTML='<div class="grip"></div><div style="text-align:center;padding:22px 8px">'
               +'<div style="font-size:44px">🤖</div>'
               +'<div style="font-size:18px;font-weight:800;margin:10px 0 8px">Автопилот включён</div>'
-              +'<div style="font-size:13.5px;color:#9AA3AB;line-height:1.6">Твоя рассылка начнётся <b style="color:#EAF2E9">завтра в 9:00 утра</b> и дальше будет идти сама каждый день. Каждый вечер пришлю отчёт: сколько писем ушло и сколько открыли.<br><br>Заходить в приложение больше не нужно — всё на автомате.</div>'
+              +'<div style="font-size:13.5px;color:var(--fg2);line-height:1.6">Твоя рассылка начнётся <b style="color:var(--fg)">завтра в 9:00 утра</b> и дальше будет идти сама каждый день. Каждый вечер пришлю отчёт: сколько писем ушло и сколько открыли.<br><br>Заходить в приложение больше не нужно — всё на автомате.</div>'
               +'<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal()">Понятно</button></div>';
           } else if(d&&d.massRequired){ massPaywall(); }
           else { popup((d&&d.error)||'Не получилось включить. Попробуй ещё раз.'); refreshAutopilot(); }
@@ -2422,7 +2504,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         var pct=total?Math.round(i/total*100):0;
         var h='<div class="grip"></div><div class="det-title">🚀 Рассылаю резюме…</div>';
         h+='<div class="mass-prog"><i style="width:'+pct+'%"></i></div>';
-        h+='<div class="mass-stat"><div><b style="color:#8CC0A6">'+sent+'</b>отправлено</div><div><b>'+i+' / '+total+'</b>обработано</div>'+(fail?'<div><b style="color:#C2853F">'+fail+'</b>ошибок</div>':'')+'</div>';
+        h+='<div class="mass-stat"><div><b style="color:var(--ok)">'+sent+'</b>отправлено</div><div><b>'+i+' / '+total+'</b>обработано</div>'+(fail?'<div><b style="color:#C2853F">'+fail+'</b>ошибок</div>':'')+'</div>';
         h+='<div class="mass-cur">'+(curName?('→ '+esc(curName)):'')+'</div>';
         h+='<button class="btn btn-lock" style="margin-top:16px" onclick="stopMassApply()">Остановить</button>';
         document.getElementById('sheet').innerHTML=h;
@@ -2433,7 +2515,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         var h='<div class="grip"></div><div style="text-align:center;padding:20px 8px">';
         h+='<div style="font-size:42px">'+(sent?'✅':'🛑')+'</div>';
         h+='<div style="font-size:17px;font-weight:800;margin:8px 0 6px">Отправлено: '+sent+' из '+total+'</div>';
-        h+='<div style="font-size:13px;color:#9AA3AB;line-height:1.55">'+note+'</div>';
+        h+='<div style="font-size:13px;color:var(--fg2);line-height:1.55">'+note+'</div>';
         h+='<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal();switchView(\'myapps\')">Смотреть статусы</button>';
         h+='<div class="close" onclick="closeModal()">Закрыть</div></div>';
         document.getElementById('sheet').innerHTML=h;
@@ -2487,13 +2569,13 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function inboxHomeHTML(){
       if(!INBOX.loaded || !INBOX.live) return '';
       var t = INBOX.unread ? ('Новых ответов: '+INBOX.unread) : (INBOX.live+' '+ibPlural(INBOX.live,'работодатель ответил','работодателя ответили','работодателей ответили'));
-      return '<div class="card" style="margin-top:12px;cursor:pointer;display:flex;align-items:center;gap:12px;border-color:rgba(142,197,228,.45)" onclick="switchView(\'inbox\')"><div style="font-size:26px">📩</div><div style="flex:1"><div style="font-size:14px;font-weight:800">Ответы работодателей'+(INBOX.unread?' <span class="ib-dot">'+INBOX.unread+'</span>':'')+'</div><div style="font-size:12px;color:#9AA3AB;margin-top:2px">'+esc(t)+(INBOX.locked?' · открыть':' · перевод и помощь с ответом')+'</div></div><span style="color:#9AA3AB">›</span></div>';
+      return '<div class="card" style="margin-top:12px;cursor:pointer;display:flex;align-items:center;gap:12px;border-color:rgba(142,197,228,.45)" onclick="switchView(\'inbox\')"><div style="font-size:26px">📩</div><div style="flex:1"><div style="font-size:14px;font-weight:800">Ответы работодателей'+(INBOX.unread?' <span class="ib-dot">'+INBOX.unread+'</span>':'')+'</div><div style="font-size:12px;color:var(--fg2);margin-top:2px">'+esc(t)+(INBOX.locked?' · открыть':' · перевод и помощь с ответом')+'</div></div>'+ico('chev','gp-arr')+'</div>';
     }
     function ibThreads(){ return INBOX.threads.filter(function(t){ return inboxTab==='auto' ? t.auto : !t.auto; }); }
     window.inboxSetTab=function(t){ inboxTab=t; inboxCur=null; hap('select'); renderInbox(); };
     function renderInbox(reload){
       var box=document.getElementById('inboxbox'); if(!box) return;
-      var head='<div class="back" onclick="goBack()">← Назад</div><div class="sec-title"><span style="color:#CBD5DD">📩</span> Ответы работодателей</div>';
+      var head='<div class="back" onclick="goBack()">'+ico('left')+' Назад</div><div class="sec-title"><span style="color:var(--fg2)">📩</span> Ответы работодателей</div>';
       if(reload){
         if(!INBOX.loaded) box.innerHTML=head+skel('skel-row',4);
         inboxLoad(function(){ track('inbox_open',{locked:INBOX.locked?1:0, live:INBOX.live, auto:INBOX.auto}); if(curV==='inbox'){ renderInbox(); if(INBOX.locked && INBOX.live>0) setTimeout(function(){ if(curV==='inbox') lockSheet('reply'); }, 600); } });
@@ -2504,8 +2586,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(INBOX.locked){ box.innerHTML=h+inboxLockedHTML(); return; }
       if(inboxCur!==null){ box.innerHTML=inboxThreadHTML(); updateBackBtn(); return; }
       h+='<div style="display:flex;gap:8px;margin:0 0 12px"><div class="chip'+(inboxTab==='live'?' on':'')+'" onclick="inboxSetTab(\'live\')">Ответы · '+INBOX.live+'</div><div class="chip'+(inboxTab==='auto'?' on':'')+'" onclick="inboxSetTab(\'auto\')">Автоответы · '+INBOX.auto+'</div></div>';
-      if(inboxTab==='auto') h+='<div style="font-size:12px;color:#9AA3AB;margin:0 2px 12px;line-height:1.5">Автоответ — это «в отпуске» или «не в офисе». Значит, письмо дошло, человек прочитает позже. Отвечать на него не нужно.</div>';
-      else h+='<div style="font-size:12px;color:#9AA3AB;margin:0 2px 12px;line-height:1.5">Здесь письма, которые работодатели написали тебе сами. Открой письмо — переведу и помогу ответить.</div>';
+      if(inboxTab==='auto') h+='<div style="font-size:12px;color:var(--fg2);margin:0 2px 12px;line-height:1.5">Автоответ — это «в отпуске» или «не в офисе». Значит, письмо дошло, человек прочитает позже. Отвечать на него не нужно.</div>';
+      else h+='<div style="font-size:12px;color:var(--fg2);margin:0 2px 12px;line-height:1.5">Здесь письма, которые работодатели написали тебе сами. Открой письмо — переведу и помогу ответить.</div>';
       var list=ibThreads(); INBOX._list=list;
       if(!list.length){
         h+='<div class="info" style="padding:30px 16px"><div style="font-size:34px">'+(inboxTab==='auto'?'📭':'⏳')+'</div><div style="margin-top:8px">'+(inboxTab==='auto'?'Автоответов пока нет.':'Живых ответов пока нет.<br>Работодатели отвечают в среднем через несколько дней — чем больше откликов, тем выше шанс.')+'</div></div>';
@@ -2515,10 +2597,10 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         var last=null; for(var k=t.messages.length-1;k>=0;k--){ if(t.messages[k].dir==='in'){ last=t.messages[k]; break; } }
         var answered = t.messages.length && t.messages[t.messages.length-1].dir==='out';
         h+='<div class="card ib-row" onclick="inboxOpen('+i+')"><div style="font-size:20px">'+(t.auto?'📬':(t.unread?'🔵':'✉️'))+'</div><div style="flex:1;min-width:0">';
-        h+='<div style="display:flex;gap:8px;align-items:baseline"><div class="ib-name" style="flex:1">'+esc(t.name||t.employer)+'</div><div style="font-size:10.5px;color:#9AA3AB;flex:0 0 auto">'+esc(ibDate(t.last))+'</div></div>';
-        if(t.name) h+='<div style="font-size:11px;color:#9AA3AB;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(t.employer)+'</div>';
+        h+='<div style="display:flex;gap:8px;align-items:baseline"><div class="ib-name" style="flex:1">'+esc(t.name||t.employer)+'</div><div style="font-size:10.5px;color:var(--fg2);flex:0 0 auto">'+esc(ibDate(t.last))+'</div></div>';
+        if(t.name) h+='<div style="font-size:11px;color:var(--fg2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(t.employer)+'</div>';
         h+='<div class="ib-snip">'+esc(last?String(last.body||last.subject||'').slice(0,160):'')+'</div>';
-        if(!t.auto) h+='<div style="font-size:11px;font-weight:800;margin-top:6px;color:'+(answered?'#5FB58F':'#E0A458')+'">'+(answered?'✓ Ты ответил':(t.unread?'Новое — ждёт ответа':'Ждёт твоего ответа'))+'</div>';
+        if(!t.auto) h+='<div style="font-size:11px;font-weight:800;margin-top:6px;color:'+(answered?'var(--ok)':'#E0A458')+'">'+(answered?'✓ Ты ответил':(t.unread?'Новое — ждёт ответа':'Ждёт твоего ответа'))+'</div>';
         h+='</div></div>';
       });
       box.innerHTML=h;
@@ -2527,12 +2609,12 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var h='';
       if(INBOX.live>0){
         h+='<div class="plan-box" style="margin-top:4px"><div style="font-size:17px;font-weight:800;line-height:1.35">📩 '+INBOX.live+' '+ibPlural(INBOX.live,'работодатель ответил','работодателя ответили','работодателей ответили')+' на твой отклик</div>';
-        if(INBOX.last) h+='<div style="font-size:12px;color:#9AA3AB;margin-top:4px">Последнее письмо: '+esc(ibDate(INBOX.last))+'</div>';
+        if(INBOX.last) h+='<div style="font-size:12px;color:var(--fg2);margin-top:4px">Последнее письмо: '+esc(ibDate(INBOX.last))+'</div>';
         h+='<div class="ib-msg ib-in ib-blur" style="margin:14px 0 4px;max-width:100%">Hello, thank you for your application. We have looked at your CV and would like to ask you a few questions about your experience and availability. Please let us know when you can start.</div>';
-        h+='<div style="font-size:12.5px;color:#CBD5DD;line-height:1.5;margin:10px 0 2px">Письмо уже здесь. С подпиской AMORE ты прочитаешь его с переводом на русский и ответишь прямо из приложения — помощник составит письмо на языке работодателя.</div>';
+        h+='<div style="font-size:12.5px;color:var(--fg2);line-height:1.5;margin:10px 0 2px">Письмо уже здесь. С подпиской AMORE ты прочитаешь его с переводом на русский и ответишь прямо из приложения — помощник составит письмо на языке работодателя.</div>';
         h+='<button class="btn btn-gold" onclick="lockSheet(\'reply\')">Открыть письмо →</button>';
-        h+='<div style="text-align:center;font-size:12px;color:#9AA3AB;margin-top:8px">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца</div></div>';
-        if(INBOX.auto>0) h+='<div style="font-size:12px;color:#9AA3AB;margin:0 2px;line-height:1.5">Ещё '+INBOX.auto+' '+ibPlural(INBOX.auto,'автоответ','автоответа','автоответов')+' («в отпуске / не в офисе») — эти письма дошли, человек прочитает позже.</div>';
+        h+='<div style="text-align:center;font-size:12px;color:var(--fg2);margin-top:8px">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца</div></div>';
+        if(INBOX.auto>0) h+='<div style="font-size:12px;color:var(--fg2);margin:0 2px;line-height:1.5">Ещё '+INBOX.auto+' '+ibPlural(INBOX.auto,'автоответ','автоответа','автоответов')+' («в отпуске / не в офисе») — эти письма дошли, человек прочитает позже.</div>';
       } else if(INBOX.auto>0){
         h+='<div class="info" style="padding:26px 16px"><div style="font-size:34px">📬</div><div style="margin-top:8px">Автоответов: '+INBOX.auto+' — «в отпуске» или «не в офисе».<br>Значит, твои письма дошли. Живых ответов пока нет.</div></div>';
       } else {
@@ -2545,7 +2627,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function inboxThreadHTML(){
       var t=INBOX._list[inboxCur]; if(!t){ inboxCur=null; return ''; }
       var h='<div class="back" onclick="goBack()">← Все ответы</div>';
-      h+='<div style="margin:0 2px 14px"><div style="font-size:16px;font-weight:800">'+esc(t.name||t.employer)+'</div>'+(t.name?'<div style="font-size:12px;color:#9AA3AB;margin-top:2px">'+esc(t.employer)+'</div>':'')+'</div>';
+      h+='<div style="margin:0 2px 14px"><div style="font-size:16px;font-weight:800">'+esc(t.name||t.employer)+'</div>'+(t.name?'<div style="font-size:12px;color:var(--fg2);margin-top:2px">'+esc(t.employer)+'</div>':'')+'</div>';
       t.messages.forEach(function(m,k){
         if(m.dir==='out'){
           h+='<div class="ib-msg ib-out"><div class="ib-meta">Ты · '+esc(ibDate(m.ts))+'</div>'+esc(String(m.body||'').slice(0,4000))+'</div>';
@@ -2556,19 +2638,19 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           h+='</div>';
         }
       });
-      if(t.auto){ h+='<div style="font-size:12px;color:#9AA3AB;line-height:1.5;margin:4px 2px">Это автоответ: письмо дошло, отвечать не нужно. Когда человек вернётся и напишет сам — ответ появится во вкладке «Ответы».</div>'; return h; }
+      if(t.auto){ h+='<div style="font-size:12px;color:var(--fg2);line-height:1.5;margin:4px 2px">Это автоответ: письмо дошло, отвечать не нужно. Когда человек вернётся и напишет сам — ответ появится во вкладке «Ответы».</div>'; return h; }
       var d=IB_DRAFT[t.employer]||{};
       h+='<div class="plan-box" style="margin-top:8px"><div style="font-size:14px;font-weight:800">✍️ Ответить работодателю</div>';
       if(!d.show){
-        h+='<div style="font-size:12px;color:#9AA3AB;margin:6px 0 10px;line-height:1.5">Напиши по-русски своими словами, что хочешь ответить. Помощник составит письмо на языке работодателя, ты проверишь и отправишь.</div>';
+        h+='<div style="font-size:12px;color:var(--fg2);margin:6px 0 10px;line-height:1.5">Напиши по-русски своими словами, что хочешь ответить. Помощник составит письмо на языке работодателя, ты проверишь и отправишь.</div>';
         h+='<textarea class="ib-ta" id="ibWish" placeholder="Например: да, мне интересно, готов выйти с 10 ноября, документы пришлю" oninput="ibKeep(\'wish\',this.value)">'+esc(d.wish||'')+'</textarea>';
         h+='<button class="btn btn-gold" id="ibDraftBtn" onclick="inboxDraft()">Составить письмо</button>';
         h+='<div style="text-align:center"><span class="ib-link" onclick="inboxManual()">Напишу сам, без помощника</span></div>';
       } else {
-        if(d.comment) h+='<div style="font-size:12.5px;color:#CBD5DD;margin:8px 0 10px;line-height:1.5">💬 '+esc(d.comment)+'</div>';
-        else h+='<div style="font-size:12px;color:#9AA3AB;margin:6px 0 10px;line-height:1.5">Пиши на языке работодателя — английском или норвежском.</div>';
+        if(d.comment) h+='<div style="font-size:12.5px;color:var(--fg2);margin:8px 0 10px;line-height:1.5">💬 '+esc(d.comment)+'</div>';
+        else h+='<div style="font-size:12px;color:var(--fg2);margin:6px 0 10px;line-height:1.5">Пиши на языке работодателя — английском или норвежском.</div>';
         h+='<textarea class="ib-ta" id="ibLetter" style="min-height:190px" oninput="ibKeep(\'letter\',this.value)">'+esc(d.letter||'')+'</textarea>';
-        h+='<div style="font-size:11.5px;color:#9AA3AB;margin-top:6px;line-height:1.45">Проверь текст. Если есть слова в [квадратных скобках] — впиши туда свои данные.</div>';
+        h+='<div style="font-size:11.5px;color:var(--fg2);margin-top:6px;line-height:1.45">Проверь текст. Если есть слова в [квадратных скобках] — впиши туда свои данные.</div>';
         h+='<button class="btn btn-gold" id="ibSendBtn" onclick="inboxSend()">📤 Отправить работодателю</button>';
         h+='<div style="text-align:center"><span class="ib-link" onclick="inboxRedo()">← Переделать с помощником</span></div>';
       }
@@ -2635,17 +2717,17 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             box.innerHTML='<div class="info" style="text-align:center;padding:30px 16px"><div style="font-size:34px">📭</div><div style="margin-top:8px">Пока нет отправленных откликов.<br>Зайди в Базу или Вакансии и откликнись письмом'+(isMember?'':' — у тебя есть 3 бесплатных')+'!</div></div>';
             return;
           }
-          var badge={'Открыто':'#0E7A5B','Доставлено':'#0E5C8A','Отправлено':'#6B7E8C','Не доставлено':'#C2410C'};
-          var h='<div style="font-size:12px;color:#9AA3AB;margin:0 2px 12px">Статус обновляется автоматически. «Открыто» — работодатель прочитал письмо.</div>';
+          var badge={'Открыто':'var(--ok)','Доставлено':'var(--fg)','Отправлено':'var(--fg3)','Не доставлено':'var(--hot)'};
+          var h='<div style="font-size:12px;color:var(--fg2);margin:0 2px 12px">Статус обновляется автоматически. «Открыто» — работодатель прочитал письмо.</div>';
           apps.forEach(function(a){
-            var col=badge[a.status]||'#6B7E8C';
+            var col=badge[a.status]||'var(--fg3)';
             var dt=a.date?String(a.date).slice(0,10):'';
             h+='<div class="card" style="display:flex;align-items:center;gap:10px;padding:13px">';
-            h+='<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(a.to||'')+'</div><div style="font-size:11px;color:#9AA3AB;margin-top:2px">'+esc(dt)+'</div></div>';
+            h+='<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(a.to||'')+'</div><div style="font-size:11px;color:var(--fg2);margin-top:2px">'+esc(dt)+'</div></div>';
             h+='<span style="flex:0 0 auto;font-size:11px;font-weight:800;color:'+col+';background:'+col+'1a;padding:5px 10px;border-radius:999px">'+esc(a.status)+'</span></div>';
           });
           if(!isMember){
-            h+='<div class="plan-box" style="margin-top:14px"><div style="font-size:13px;font-weight:800">Это твои бесплатные отклики 🎯</div><div style="font-size:12px;color:#9AA3AB;margin:6px 0 12px;line-height:1.5">С подпиской AMORE — до 15 откликов в день, вся база из 5 600 работодателей и резюме без водяного знака.</div><button class="btn btn-gold" onclick="lockSheet(\'applies\')">Открыть весь путь — 50€/мес</button></div>';
+            h+='<div class="plan-box" style="margin-top:14px"><div style="font-size:13px;font-weight:800">Это твои бесплатные отклики 🎯</div><div style="font-size:12px;color:var(--fg2);margin:6px 0 12px;line-height:1.5">С подпиской AMORE — до 15 откликов в день, вся база из 5 600 работодателей и резюме без водяного знака.</div><button class="btn btn-gold" onclick="lockSheet(\'applies\')">Открыть весь путь — 50€/мес</button></div>';
           }
           box.innerHTML=h;
         })
@@ -2691,7 +2773,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(!tg||!tg.initData){ memberKnown=true; setStatus('guest','Открой через бота'); renderHome(); loadVacancies(); updateSplashBtn(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); return; }
       tg.ready(); tg.expand();
       // нативные цвета шапки и нижней панели под нашу тему (убирает "шов" между Telegram и апкой)
-      try{ if(tg.setHeaderColor) tg.setHeaderColor('#0B1418'); if(tg.setBackgroundColor) tg.setBackgroundColor('#0B1418'); if(tg.setBottomBarColor) tg.setBottomBarColor('#0B1418'); }catch(e){}
+      applyTheme(); try{ if(tg.onEvent) tg.onEvent('themeChanged', applyTheme); }catch(e){}
       // вертикальный свайп вниз не закрывает апку посреди работы (закрыть — крестиком)
       try{ if(tg.disableVerticalSwipes) tg.disableVerticalSwipes(); }catch(e){}
       // иконка на экран телефона: предлагаем один раз, после 2-го визита
@@ -2714,9 +2796,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(_st){ document.documentElement.style.setProperty('--safe-top', _st+'px'); }
         if(tg.onEvent){ tg.onEvent('safeAreaChanged',function(){ var t=(tg.contentSafeAreaInset&&tg.contentSafeAreaInset.top)||0; document.documentElement.style.setProperty('--safe-top', t+'px'); }); tg.onEvent('fullscreenChanged',function(){ var t=(tg.contentSafeAreaInset&&tg.contentSafeAreaInset.top)||0; document.documentElement.style.setProperty('--safe-top', t+'px'); }); }
       }catch(e){}
-      try{ tg.setHeaderColor('#0B0C0E'); tg.setBackgroundColor('#060708'); }catch(e){}
+      applyTheme();
       var u=tg.initDataUnsafe&&tg.initDataUnsafe.user;
-      if(u&&u.first_name){document.getElementById('uname').textContent=u.first_name;uName=u.first_name;}
+      if(u&&u.first_name){document.getElementById('uname').textContent=u.first_name;uName=u.first_name; var _lg=document.getElementById('hdr-logo'); if(_lg) _lg.textContent=u.first_name.charAt(0).toUpperCase();}
       fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
         .then(function(r){return r.json();})
         .then(function(d){
