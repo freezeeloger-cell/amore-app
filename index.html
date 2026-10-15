@@ -66,7 +66,7 @@
     .vac-date { font-size: 11.5px; color: var(--fg3); margin: 6px 0 2px; font-weight: 600; }
 
     /* кнопки */
-    .btn { width: 100%; margin-top: 12px; padding: 0 18px; min-height: 54px; border: none; border-radius: 999px; font-family: 'Manrope'; font-size: 15px; font-weight: 700; letter-spacing: -.1px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .12s var(--ease), background .2s ease, opacity .2s ease; }
+    .btn { width: 100%; margin-top: 12px; padding: 0 18px; min-height: 54px; border: none; border-radius: 999px; font-family: 'Manrope', -apple-system, system-ui, sans-serif; font-size: 15px; font-weight: 700; letter-spacing: -.1px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform .12s var(--ease), background .2s ease, opacity .2s ease; }
     .btn:active { transform: scale(.98); }
     .btn-gold { background: var(--acc); color: var(--accfg); }
     .btn-lock { background: var(--soft); color: var(--fg2); }
@@ -79,7 +79,7 @@
 
     /* поиск, чипы */
     .search { display: flex; align-items: center; gap: 9px; background: var(--card); border: 0; border-radius: 16px; padding: 12px 14px; box-shadow: var(--sh); }
-    .search input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--fg); font-family: 'Manrope'; font-size: 16px; font-weight: 500; }
+    .search input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--fg); font-family: 'Manrope', -apple-system, system-ui, sans-serif; font-size: 16px; font-weight: 500; }
     .search input::placeholder { color: var(--fg3); }
     .chips { display: flex; gap: 7px; overflow-x: auto; margin-top: 10px; padding-bottom: 2px; scrollbar-width: none; }
     .chips::-webkit-scrollbar { display: none; }
@@ -97,7 +97,7 @@
     .cmeta { font-size: 11.5px; color: var(--fg2); margin-top: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; font-weight: 500; }
     .avail { display: inline-flex; gap: 5px; color: var(--ok); }
     .masked { color: var(--fg3); }
-    .more { width: 100%; padding: 14px; margin-top: 4px; border: 1px dashed var(--soft-2); border-radius: 16px; background: transparent; color: var(--fg); font-family: 'Manrope'; font-size: 13px; font-weight: 700; cursor: pointer; }
+    .more { width: 100%; padding: 14px; margin-top: 4px; border: 1px dashed var(--soft-2); border-radius: 16px; background: transparent; color: var(--fg); font-family: 'Manrope', -apple-system, system-ui, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; }
     .c-hire { box-shadow: 0 0 0 1.5px var(--ok) inset, var(--sh); }
 
     .dircard { display: flex; align-items: center; gap: 13px; padding: 14px 16px; border-radius: var(--r-md); background: var(--card); border: 0; margin-bottom: 10px; cursor: pointer; box-shadow: var(--sh); }
@@ -240,7 +240,19 @@
     .feat { display: flex; gap: 12px; align-items: center; font-size: 14px; font-weight: 600; color: var(--fg); }
     .feat .fi { width: 32px; height: 32px; border-radius: 10px; background: var(--soft); display: grid; place-items: center; flex: 0 0 auto; }
     .feat .fi svg.i { width: 17px; height: 17px; }
-    .price-row { display: flex; gap: 10px; margin-top: 14px; }
+    .price-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; align-items: stretch; }
+    .plan-card { position: relative; display: flex; flex-direction: column; padding: 14px; border-radius: 18px; background: var(--soft); cursor: pointer; transition: transform .12s var(--ease), background .2s ease, box-shadow .2s ease; min-height: 150px; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+    .plan-card:active { transform: scale(.98); }
+    .plan-card .pc-t { font-size: 13px; font-weight: 700; color: var(--fg2); }
+    .plan-card .pc-p { font-size: 28px; font-weight: 800; letter-spacing: -.8px; color: var(--fg); margin-top: 4px; font-variant-numeric: tabular-nums; }
+    .plan-card .pc-s { font-size: 12.5px; font-weight: 600; color: var(--fg2); margin-top: 2px; }
+    .plan-card .pc-g { margin-top: 8px; padding-top: 0; font-size: 11px; line-height: 1.35; font-weight: 700; color: var(--ok); }
+    .plan-card .pc-g span { display: block; background: var(--ok-soft); border-radius: 10px; padding: 7px 8px; }
+    .plan-card .pc-dot { position: absolute; top: 12px; right: 12px; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--soft-2); display: grid; place-items: center; }
+    .plan-card .pc-dot svg.i { width: 13px; height: 13px; stroke-width: 2.4; opacity: 0; }
+    .plan-card.on { background: var(--card); box-shadow: 0 0 0 2px var(--acc) inset, var(--sh); }
+    .plan-card.on .pc-dot { background: var(--acc); border-color: var(--acc); color: var(--accfg); }
+    .plan-card.on .pc-dot svg.i { opacity: 1; }
     .price-tile { flex: 1; position: relative; padding: 14px; border-radius: 18px; background: var(--soft); text-align: left; cursor: pointer; transition: transform .12s var(--ease); min-height: 86px; }
     .price-tile:active { transform: scale(.97); }
     .price-tile b { display: block; font-size: 24px; font-weight: 800; letter-spacing: -.8px; color: var(--fg); font-variant-numeric: tabular-nums; }
@@ -318,10 +330,10 @@
     .totop { position: fixed; right: 16px; bottom: calc(92px + env(safe-area-inset-bottom,0px)); width: 44px; height: 44px; border-radius: 50%; display: none; place-items: center; z-index: 40; background: var(--card); color: var(--fg); font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: var(--sh-lg); }
     .totop:active { transform: scale(.92); }
     .seg-mail { display:flex; background:var(--soft); border-radius:14px; padding:4px; margin:14px 0 6px; }
-    .seg-mail button { flex:1; border:none; background:transparent; padding:9px; border-radius:11px; font-family:'Manrope'; font-size:13px; font-weight:700; color:var(--fg2); cursor:pointer; }
+    .seg-mail button { flex:1; border:none; background:transparent; padding:9px; border-radius:11px; font-family:'Manrope',-apple-system,system-ui,sans-serif; font-size:13px; font-weight:700; color:var(--fg2); cursor:pointer; }
     .seg-mail button.on { background:var(--card); color:var(--fg); box-shadow:var(--sh); }
     .ml-lbl { display:block; font-size:11.5px; font-weight:700; color:var(--fg3); margin:12px 0 5px; }
-    .ml-in, .ml-ta { width:100%; border:0; border-radius:14px; padding:12px 14px; font-family:'Manrope'; font-size:16px; color:var(--fg); outline:none; background:var(--soft); }
+    .ml-in, .ml-ta { width:100%; border:0; border-radius:14px; padding:12px 14px; font-family:'Manrope',-apple-system,system-ui,sans-serif; font-size:16px; color:var(--fg); outline:none; background:var(--soft); }
     .ml-in:focus, .ml-ta:focus { box-shadow: 0 0 0 2px var(--acc) inset; }
     .ml-ta { resize:vertical; line-height:1.5; }
     .ml-note { font-size:12px; color:var(--fg2); background:var(--soft); border:0; border-radius:14px; padding:11px 13px; margin:12px 0; line-height:1.5; }
@@ -337,7 +349,7 @@
     .sal-per { font-size:12px; font-weight:600; color:var(--fg2); }
     .sal-c { font-size:11.5px; color:var(--fg2); margin-top:2px; font-weight:600; }
     .sal-note { font-size:11.5px; color:var(--fg3); line-height:1.5; margin:10px 4px 0; }
-    .ml-cp { flex:1; padding:12px 6px; border:0; border-radius:12px; background:var(--soft); color:var(--fg); font-family:'Manrope'; font-size:12.5px; font-weight:700; cursor:pointer; }
+    .ml-cp { flex:1; padding:12px 6px; border:0; border-radius:12px; background:var(--soft); color:var(--fg); font-family:'Manrope',-apple-system,system-ui,sans-serif; font-size:12.5px; font-weight:700; cursor:pointer; }
     .ml-cp:active { background:var(--soft-2); transform:scale(.96); }
     .group-mg { background:var(--card); border:0; border-radius:var(--r-md); padding:14px; margin-bottom:10px; box-shadow:var(--sh); }
     .mg-q { font-size:13.5px; font-weight:800; margin-bottom:10px; }
@@ -360,7 +372,7 @@
     .tour-dot { width:7px; height:7px; border-radius:50%; background:var(--soft-2); }
     .tour-dot.on { background:var(--acc); width:18px; border-radius:99px; }
     .tour-skip { font-size:12px; color:var(--fg3); font-weight:700; cursor:pointer; }
-    .tour-next { background:var(--acc); color:var(--accfg); border:none; border-radius:999px; padding:11px 18px; font-family:'Manrope'; font-size:13px; font-weight:800; cursor:pointer; }
+    .tour-next { background:var(--acc); color:var(--accfg); border:none; border-radius:999px; padding:11px 18px; font-family:'Manrope',-apple-system,system-ui,sans-serif; font-size:13px; font-weight:800; cursor:pointer; }
     .tour-spot { position:fixed; z-index:121; border:2px solid var(--card); border-radius:18px; box-shadow:0 0 0 4px var(--acc); pointer-events:none; transition:all .25s ease; display:none; }
     .tour-spot.on { display:block; }
 
@@ -393,7 +405,7 @@
     .fnc-typing span:nth-child(3){animation-delay:.4s}
     @keyframes fncBlink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
     .fnc-foot{display:flex;flex-direction:column;gap:8px}
-    .fnc-qr{width:100%;padding:14px;border-radius:16px;border:0;background:var(--card);box-shadow:var(--sh);color:var(--fg);font-size:14px;font-weight:700;cursor:pointer;transition:transform .1s;font-family:'Manrope'}
+    .fnc-qr{width:100%;padding:14px;border-radius:16px;border:0;background:var(--card);box-shadow:var(--sh);color:var(--fg);font-size:14px;font-weight:700;cursor:pointer;transition:transform .1s;font-family:'Manrope',-apple-system,system-ui,sans-serif}
     .fnc-qr:active{transform:scale(.98)}
     .fn-q{font-size:24px;font-weight:800;color:var(--fg);letter-spacing:-.6px;line-height:1.15;margin:8px 2px 18px}
     .fn-opts{display:flex;flex-direction:column;gap:8px}
@@ -408,7 +420,7 @@
     .ap-box.ap-on{background:var(--ok-soft);box-shadow:none}
     .ap-t{font-size:14px;font-weight:800;color:var(--fg)}
     .ap-s{font-size:12px;color:var(--fg2);line-height:1.4;margin-top:2px}
-    .ap-btn{flex:0 0 auto;font-size:12.5px;font-weight:800;color:var(--accfg);background:var(--acc);border:0;padding:10px 15px;border-radius:999px;cursor:pointer;font-family:'Manrope'}
+    .ap-btn{flex:0 0 auto;font-size:12.5px;font-weight:800;color:var(--accfg);background:var(--acc);border:0;padding:10px 15px;border-radius:999px;cursor:pointer;font-family:'Manrope',-apple-system,system-ui,sans-serif}
     .ap-off-btn{background:var(--soft-2);color:var(--fg)}
     .ap-spin-mini{width:16px;height:16px;border-radius:50%;border:2px solid var(--soft-2);border-top-color:var(--fg);animation:cvspin .8s linear infinite;flex:0 0 auto}
     @keyframes cvspin{to{transform:rotate(360deg)}}
@@ -429,7 +441,7 @@
     .fn-track{flex:1;height:5px;background:var(--soft);border-radius:99px;overflow:hidden}
     .fn-fill{height:100%;background:var(--acc);border-radius:99px;width:0;transition:width .45s var(--ease)}
     .fn-gtxt{font-size:11px;font-weight:800;color:var(--fg3);white-space:nowrap}
-    .fn-btn{display:flex;align-items:center;justify-content:center;width:100%;text-align:center;border:none;border-radius:999px;font-family:'Manrope';font-size:15px;font-weight:800;min-height:56px;padding:0 20px;cursor:pointer;transition:transform .12s}
+    .fn-btn{display:flex;align-items:center;justify-content:center;width:100%;text-align:center;border:none;border-radius:999px;font-family:'Manrope',-apple-system,system-ui,sans-serif;font-size:15px;font-weight:800;min-height:56px;padding:0 20px;cursor:pointer;transition:transform .12s}
     .fn-btn:active{transform:scale(.98)}
     .fn-primary{background:var(--acc);color:var(--accfg)}
     .fn-freebar{display:flex;align-items:center;gap:11px;margin:16px 2px 2px;padding:14px;border-radius:18px;background:var(--ok-soft);opacity:0;transform:translateY(10px);animation:fnFreeIn .5s var(--ease) .25s forwards}
@@ -499,7 +511,7 @@
     .sp-welcome{ font-size:30px; font-weight:800; letter-spacing:-.9px; }
     .sp-sub{ font-size:14px; color:var(--fg2); margin:10px auto 0; max-width:320px; line-height:1.55; font-weight:500; }
     .sp-foot{ position:relative; z-index:1; padding:22px 24px calc(28px + env(safe-area-inset-bottom,0px)); }
-    .sp-btn{ width:100%; border:none; border-radius:999px; min-height:60px; padding:0 24px; font-family:'Manrope'; font-size:16px; font-weight:800; color:var(--accfg); cursor:pointer; background:var(--acc); box-shadow:var(--sh-lg); }
+    .sp-btn{ width:100%; border:none; border-radius:999px; min-height:60px; padding:0 24px; font-family:'Manrope',-apple-system,system-ui,sans-serif; font-size:16px; font-weight:800; color:var(--accfg); cursor:pointer; background:var(--acc); box-shadow:var(--sh-lg); }
     .sp-btn:active{ transform:scale(.99); }
     .bgmark{ display:none; }
 
@@ -1123,7 +1135,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     }
     window.claimDiscount=function(){
       track('pay_click',{from:_lastLock||curV, promo:1});
-      if(tg&&tg.openTelegramLink){ tg.openTelegramLink(TRIBUTE_DISCOUNT_URL); } else { window.open(TRIBUTE_DISCOUNT_URL,'_blank'); }
+      if(!isMember) sendPayIntent('promo');
+      openTribute(TRIBUTE_DISCOUNT_URL);
     };
     // общая карточка спецпредложения (используется и в дорожке, и после отклика)
     window.rewardSheet=function(){
@@ -1220,13 +1233,58 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       reply:   { t:'Тебе ответил работодатель', d:'Письмо уже ждёт тебя. Участники читают ответы с переводом на русский и отвечают работодателю прямо из приложения — помощник составит письмо на английском или норвежском.' },
       generic: { t:'Доступно участникам AMORE', d:'' }
     };
+    // ===== ОПЛАТА =====
+    // Тариф по умолчанию — 3 месяца. Ссылка Tribute одна на источник (TRIBUTE_URL уже выбрана по ?src=), тариф человек подтверждает в Tribute.
+    var SELECTED_PLAN='3m';
+    var GUARANTEE_TXT='Не нашёл работу за 3 месяца — 4-й месяц бесплатно';
     function priceTilesHTML(){
-      var m=parseInt(PRICE_1M,10)||0, q=parseInt(PRICE_3M,10)||0, save=(m*3-q);
-      return '<div class="price-row">'+
-        '<div class="price-tile" onclick="subscribe()"><b>'+PRICE_1M+'</b><span>в месяц</span><small>отмена в любой момент</small></div>'+
-        '<div class="price-tile hot" onclick="subscribe()">'+(save>0?'<i>−'+save+' €</i>':'')+'<b>'+PRICE_3M+'</b><span>за 3 месяца</span><small>спокойный темп до контракта</small></div>'+
+      return '<div class="price-row" id="price-row">'+
+        '<div class="plan-card'+(SELECTED_PLAN==='3m'?' on':'')+'" data-plan="3m" onclick="selectPlan(\'3m\')"><span class="pc-dot">'+ico('check')+'</span>'+
+          '<div class="pc-t">3 месяца</div><div class="pc-p">'+PRICE_3M+'</div>'+
+          '<div class="pc-g"><span>'+GUARANTEE_TXT+'</span></div></div>'+
+        '<div class="plan-card'+(SELECTED_PLAN==='1m'?' on':'')+'" data-plan="1m" onclick="selectPlan(\'1m\')"><span class="pc-dot">'+ico('check')+'</span>'+
+          '<div class="pc-t">1 месяц</div><div class="pc-p">'+PRICE_1M+'</div><div class="pc-s">отмена в любой момент</div></div>'+
         '</div>';
     }
+    function payBtnLabel(){ return 'Оплатить '+(SELECTED_PLAN==='1m'?PRICE_1M:PRICE_3M); }
+    window.selectPlan=function(pl){
+      SELECTED_PLAN=pl; hap('select'); track('plan_select',{plan:pl});
+      document.querySelectorAll('.plan-card').forEach(function(c){ c.className='plan-card'+(c.getAttribute('data-plan')===pl?' on':''); });
+      document.querySelectorAll('.pay-btn-l').forEach(function(b){ b.textContent=payBtnLabel(); });
+    };
+    function payBtnHTML(extra){ return '<button class="btn btn-gold" '+(extra||'')+' onclick="payNow()"><span class="pay-btn-l">'+payBtnLabel()+'</span>'+arrBtn()+'</button>'; }
+    // намерение оплатить → бэкенд (для цепочки «брошенной оплаты»). Ошибка не мешает открыть Tribute.
+    function sendPayIntent(plan){
+      try{
+        if(!tg||!tg.initData) return;
+        var u=(tg.initDataUnsafe&&tg.initDataUnsafe.user)||{};
+        fetch(BACKEND_URL+'/api/pay-intent',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({initData:tg.initData, tg_id:u.id||null, plan:plan, src:(window.__amoreSrc||'')})}).catch(function(){});
+      }catch(e){}
+    }
+    function openTribute(url){ if(tg&&tg.openTelegramLink){ tg.openTelegramLink(url); } else { window.open(url,'_blank'); } }
+    window.payNow=function(){
+      track('pay_click',{from:_lastLock||curV, plan:SELECTED_PLAN});
+      if(!isMember) sendPayIntent(SELECTED_PLAN);
+      openTribute(TRIBUTE_URL);
+    };
+    // экран оплаты: два тарифа + кнопка. Открывается отовсюду, где раньше была прямая ссылка.
+    window.paySheet=function(){
+      track('lock_show',{kind:'pay'});
+      var h='<div class="grip"></div>';
+      h+='<div class="det-title">Открыть весь путь</div>';
+      h+='<div class="det-sub" style="margin-bottom:4px">Ментор, база работодателей, авторассылка и ответы с переводом.</div>';
+      h+='<div class="feat-list">'
+        +'<div class="feat"><span class="fi">'+ico('send')+'</span>Авторассылка 15 писем в день</div>'
+        +'<div class="feat"><span class="fi">'+ico('mail')+'</span>Ответы работодателей с переводом</div>'
+        +'<div class="feat"><span class="fi">'+ico('chat')+'</span>Ментор по твоему направлению</div>'
+        +'</div>';
+      h+=priceTilesHTML()+payBtnHTML();
+      h+='<div class="price-later" onclick="closeModal()">Позже</div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+      hap('select');
+    };
     window.lockSheet=function(kind, extra){
       _lastLock='lock_'+kind; track('lock_show',{kind:kind});
       var L=LOCK_TEXTS[kind]||LOCK_TEXTS.generic;
@@ -1246,8 +1304,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         h+='<button class="btn btn-gold" style="margin-top:10px" onclick="claimDiscount()">Забрать скидку и открыть весь путь'+arrBtn()+'</button>';
         h+='<div class="price-later" onclick="closeModal()">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца · Позже</div>';
       } else {
-        h+=priceTilesHTML();
-        h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь'+arrBtn()+'</button>';
+        h+=priceTilesHTML()+payBtnHTML();
         h+='<div class="price-later" onclick="closeModal()">Позже</div>';
       }
       document.getElementById('sheet').innerHTML=h;
@@ -1318,8 +1375,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           h+='<div class="rw-code" style="margin-top:12px">Ты прошёл все шаги — спецпредложение: −10% по промокоду <b>'+PROMO_CODE+'</b></div>';
           h+='<button class="btn btn-gold" style="margin-top:10px" onclick="_lastLock=\'path_done\';claimDiscount()">Забрать скидку и открыть весь путь'+arrBtn()+'</button>';
         } else {
-          h+=priceTilesHTML();
-          h+='<button class="btn btn-gold" style="margin-top:12px" onclick="_lastLock=\'path_done\';subscribe()">Открыть весь путь'+arrBtn()+'</button>';
+          _lastLock='path_done'; h+=priceTilesHTML()+payBtnHTML();
         }
       }
       h+='</div>';
@@ -1702,7 +1758,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     /* ---------- ПРОФИЛЬ ---------- */
     function updateSplashBtn(){ try{ var b=document.getElementById('sp-btn'); if(!b)return; var passed = (localStorage.getItem('amore_funnel_v')==='1'); b.textContent = (passed||isMember) ? 'Войти →' : 'Продолжить →'; }catch(e){} }
     window.closeSplash=function(){ var s=document.getElementById('splash'); if(s && s.className.indexOf('hide')>=0) return; if(s) s.className='splash hide'; try{ localStorage.setItem('amore_seen','1'); }catch(e){} track('splash_close'); if(typeof fnShouldRun==='function' && !isMember && !window.__deepLink && fnShouldRun()){ setTimeout(showFunnel, 300); } };
-    window.subscribe=function(){ track('pay_click',{from:_lastLock||curV}); if(tg&&tg.openTelegramLink){tg.openTelegramLink(TRIBUTE_URL);} else {window.open(TRIBUTE_URL,'_blank');} };
+    window.subscribe=function(){ if(isMember){ track('manage_sub',{}); openTribute(TRIBUTE_URL); return; } paySheet(); };
 
     /* ---------- ПОДСКАЗКИ «?» ---------- */
     var HINTS = {
@@ -1916,8 +1972,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       h+='<div class="det-title" style="text-align:center">'+title+'</div>';
       h+='<div style="text-align:center;font-size:13px;color:var(--fg2);line-height:1.5;margin:8px 4px 18px">'+text+'</div>';
       var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
-      h+='<button class="btn btn-gold" onclick="subscribe()">Открыть весь путь — '+PRICE_1M+'/мес</button>';
-      h+='<div style="text-align:center;font-size:12px;color:var(--fg2);margin-top:8px">или 3 месяца за '+PRICE_3M+' · <span onclick="closeModal()" style="text-decoration:underline">Позже</span></div>';
+      h+=priceTilesHTML()+payBtnHTML();
+      h+='<div class="price-later" onclick="closeModal()">Позже</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
     };

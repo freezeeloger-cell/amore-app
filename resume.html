@@ -23,13 +23,13 @@
   .lead { font-size: 13px; color: var(--fg2); font-weight: 500; line-height: 1.5; margin-bottom: 16px; }
 
   .seg { display: flex; background: var(--soft); border-radius: 14px; padding: 4px; margin-bottom: 14px; }
-  .seg button { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 11px; font-family: 'Manrope'; font-size: 13px; font-weight: 700; color: var(--fg2); cursor: pointer; }
+  .seg button { flex: 1; border: none; background: transparent; padding: 10px; border-radius: 11px; font-family: 'Manrope', -apple-system, system-ui, sans-serif; font-size: 13px; font-weight: 700; color: var(--fg2); cursor: pointer; }
   .seg button.on { background: var(--card); color: var(--fg); box-shadow: var(--sh); }
 
   .group { background: var(--card); border: 0; border-radius: 20px; padding: 16px; margin-bottom: 10px; box-shadow: var(--sh); }
   .group h2 { font-size: 14px; font-weight: 800; margin-bottom: 10px; display: flex; align-items: center; gap: 7px; letter-spacing: -.1px; }
   label { display: block; font-size: 11.5px; font-weight: 700; color: var(--fg3); margin: 10px 0 5px; }
-  input, textarea { width: 100%; border: 0; border-radius: 14px; padding: 12px 14px; font-family: 'Manrope'; font-size: 16px; color: var(--fg); outline: none; background: var(--soft); }
+  input, textarea { width: 100%; border: 0; border-radius: 14px; padding: 12px 14px; font-family: 'Manrope', -apple-system, system-ui, sans-serif; font-size: 16px; color: var(--fg); outline: none; background: var(--soft); }
   input:focus, textarea:focus { box-shadow: 0 0 0 2px var(--acc) inset; }
   .ph-wrap { display: flex; align-items: center; gap: 14px; }
   .ph-prev { width: 64px; height: 64px; border-radius: 22px; object-fit: cover; border: 0; flex: 0 0 auto; background: var(--soft); }
@@ -41,10 +41,10 @@
   .stars span { font-size: 18px; color: var(--soft-2); cursor: pointer; }
   .stars span.f { color: var(--fg); }
   .del { flex: 0 0 auto; width: 36px; height: 36px; border-radius: 10px; border: 0; background: var(--soft); color: var(--hot); font-size: 16px; cursor: pointer; }
-  .additem { width: 100%; padding: 12px; border: 1px dashed var(--soft-2); border-radius: 14px; background: transparent; color: var(--fg); font-family: 'Manrope'; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+  .additem { width: 100%; padding: 12px; border: 1px dashed var(--soft-2); border-radius: 14px; background: transparent; color: var(--fg); font-family: 'Manrope', -apple-system, system-ui, sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 4px; }
   .prd { display:flex; align-items:center; gap:5px; flex-wrap:wrap; margin-bottom:4px; }
   .prd-lbl { font-size:11px; font-weight:700; color:var(--fg3); }
-  .prd select { flex:1; min-width:64px; border:0; border-radius:10px; padding:9px 6px; font-family:'Manrope'; font-size:16px; color:var(--fg); background:var(--soft); outline:none; }
+  .prd select { flex:1; min-width:64px; border:0; border-radius:10px; padding:9px 6px; font-family:'Manrope',-apple-system,system-ui,sans-serif; font-size:16px; color:var(--fg); background:var(--soft); outline:none; }
   .exp-card { border: 0; border-radius: 14px; padding: 12px; margin-bottom: 9px; background: var(--soft); }
 
   .preview-label { font-size: 12px; font-weight: 700; color: var(--fg3); margin: 20px 4px 10px; text-transform: uppercase; letter-spacing: .06em; }
@@ -54,7 +54,7 @@
   .scaler { transform-origin: top left; position: relative; }
 
   .bar { position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto; display: flex; gap: 10px; padding: 12px 16px calc(14px + env(safe-area-inset-bottom,0px)); background: var(--nav-bg); backdrop-filter: blur(20px) saturate(160%); -webkit-backdrop-filter: blur(20px) saturate(160%); border-top: 1px solid var(--line); }
-  .bar button { flex: 1; min-height: 52px; padding: 0 14px; border: none; border-radius: 999px; font-family: 'Manrope'; font-size: 14px; font-weight: 800; cursor: pointer; transition: transform .12s; }
+  .bar button { flex: 1; min-height: 52px; padding: 0 14px; border: none; border-radius: 999px; font-family: 'Manrope', -apple-system, system-ui, sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; transition: transform .12s; }
   .bar button:active { transform: scale(.98); }
   .b-pdf { background: var(--acc); color: var(--accfg); }
   .b-png { background: var(--soft); color: var(--fg); border: 0; }
@@ -396,7 +396,29 @@
     var scaler=document.getElementById('scaler');
     var prev=scaler.style.transform; scaler.style.transform='none';
     showBusy();
-    var done=function(canvas){ scaler.style.transform=prev; fitScale(); hideBusy(); cb(canvas); };
+    // Фото рисуем на холст сами: WebKit (Telegram на iPhone) теряет <img> при снимке через html-to-image.
+    var phEl=paper.querySelector('img.cv-photo');
+    var phRect=null;
+    if(phEl && data.photo){ var pr=paper.getBoundingClientRect(), r=phEl.getBoundingClientRect(); phRect={x:r.left-pr.left, y:r.top-pr.top, w:r.width, h:r.height}; }
+    function paintPhoto(canvas, next){
+      if(!phRect || !data.photo) return next(canvas);
+      var im=new Image();
+      im.onload=function(){
+        try{
+          var k=canvas.width/794, ctx=canvas.getContext('2d');
+          var x=phRect.x*k, y=phRect.y*k, w=phRect.w*k, h=phRect.h*k, cx=x+w/2, cy=y+h/2, rad=Math.min(w,h)/2;
+          // object-fit: cover
+          var sr=Math.max(w/im.width, h/im.height), sw=w/sr, sh=h/sr, sx=(im.width-sw)/2, sy=(im.height-sh)/2;
+          ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,rad,0,Math.PI*2); ctx.closePath(); ctx.clip();
+          ctx.drawImage(im, sx, sy, sw, sh, x, y, w, h); ctx.restore();
+          ctx.beginPath(); ctx.arc(cx,cy,rad-1.5*k,0,Math.PI*2); ctx.lineWidth=3*k; ctx.strokeStyle='#ffffff'; ctx.stroke();
+        }catch(e){ console.log('paintPhoto',e); }
+        next(canvas);
+      };
+      im.onerror=function(){ next(canvas); };
+      im.src=data.photo;
+    }
+    var done=function(canvas){ paintPhoto(canvas, function(c){ scaler.style.transform=prev; fitScale(); hideBusy(); cb(c); }); };
     var fail=function(e){ scaler.style.transform=prev; fitScale(); hideBusy(); console.log('capture:',e); alert('Не получилось собрать резюме. Попробуй ещё раз — а если повторится, закрой и открой резюме заново.'); };
     // ждём, пока шрифт Manrope точно загрузится — иначе буквы могут разъехаться
     var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
@@ -408,9 +430,7 @@
     var isSafari=/iP(hone|ad|od)|Macintosh/.test(navigator.userAgent) && /Safari/.test(navigator.userAgent);
     Promise.all([ready, decoded]).then(function(){
       setTimeout(function(){
-        var first=htmlToImage.toCanvas(paper, opts);
-        var p=isSafari ? first.then(function(){ return htmlToImage.toCanvas(paper, opts); }) : first;
-        p.then(done).catch(fail);
+        htmlToImage.toCanvas(paper, opts).then(done).catch(fail);
       }, 60);
     });
   }
@@ -598,6 +618,8 @@
       .then(function(r){return r.json();}).then(function(d){
         if(!d||!d.ok||!d.data) { if(!localEmpty) syncServer(); return; } // на сервере пусто — отправим то, что есть локально
         var srvTs=d.updated?Date.parse(d.updated):0;
+        // фото не влезло в память телефона, а на сервере есть — берём с сервера, даже если текст новее локально
+        if(!data.photo && d.data.photo){ data.photo=d.data.photo; saveNow(); var _pv=document.getElementById('ph-prev'); if(_pv) _pv.src=data.photo; render(); }
         if(localEmpty || srvTs>localTs+5000){
           for(var k in d.data){ if(Object.prototype.hasOwnProperty.call(d.data,k)) data[k]=d.data[k]; }
           saveNow(); applyDataToForm();
