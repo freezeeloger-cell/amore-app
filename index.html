@@ -2843,7 +2843,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(sp==='inbox'||sp==='inbox_auto'){ window.__goInbox=(sp==='inbox_auto'?'auto':'live'); window.__deepLink=true; }
         try{ if(new URLSearchParams(location.search).get('go')==='inbox'){ window.__goInbox='live'; window.__deepLink=true; } }catch(e){}
         // из бота: кнопка «Шаг n» → ?go=stepN
-        try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm){ window.__goStep=parseInt(gm[1],10); window.__deepLink=true; } }catch(e){}
+        try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm){ window.__goStep=parseInt(gm[1],10); window.__deepLink=true; } if(go==='pay'){ window.__goPay=true; window.__deepLink=true; } }catch(e){}
       }catch(e){}
       if(tg.BackButton){ try{ tg.BackButton.onClick(function(){ goBack(); }); }catch(e){} }
       try{ if(tg.requestFullscreen) tg.requestFullscreen(); }catch(e){}
@@ -2878,7 +2878,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           }catch(e){}
           renderHome(); loadVacancies(); updateSplashBtn(); pulseLoad(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); if(window.__openPath&&isMember){ window.__openPath=false; setTimeout(function(){ switchView('path'); }, 400); }
           if(window.__goInbox){ inboxTab=window.__goInbox; window.__goInbox=null; setTimeout(function(){ switchView('inbox'); }, 500); } else { setTimeout(function(){ inboxLoad(function(){ if(curV==='home') renderHome(); }); }, 1200); }
-          if(window.__goStep){ var gs=window.__goStep; window.__goStep=0; setTimeout(function(){ goPathStep(gs); }, 500); } });
+          if(window.__goStep){ var gs=window.__goStep; window.__goStep=0; setTimeout(function(){ goPathStep(gs); }, 500); }
+          if(window.__goPay){ window.__goPay=false; _lastLock='bot_offer'; setTimeout(function(){ if(!isMember) paySheet(); }, 700); } });
     })();
   </script>
 </body>
