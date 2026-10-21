@@ -1468,7 +1468,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(ok,function(){fallbackCopy(t);ok();}); return; } }catch(e){}
       fallbackCopy(t); ok();
     };
-    function contactRow(ico,label,value,href,act){
+    function contactRow(ico,label,value,href,act,country){
+      if(href==='tel:')value=fmtPhone(value,country);
       var h='<div class="det-row"><span class="det-ico">'+ico+'</span><div style="flex:1;min-width:0"><div class="det-k">'+label+'</div><div class="det-v">'+esc(value)+'</div></div>';
       h+='<span class="cp-btn" onclick="copyText(\''+esc(value)+'\')">📋</span>';
       if(href==='tel:')h+='<span class="cp-btn" onclick="callPhone(\''+esc(value)+'\')">'+act+'</span>';
@@ -1476,12 +1477,25 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       h+='</div>';
       return h;
     }
-    window.callPhone=function(num){
-      var s=String(num).replace(/^[='\s]+/,'');          // убрать мусор от Google Sheets (=, ')
-      var hadPlus=s.indexOf('+')>=0;
-      var clean=s.replace(/[^\d+]/g,'').replace(/\++/g,'+'); // оставить цифры и один плюс
-      clean=clean.replace(/(?!^)\+/g,'');                 // плюс только в начале
-      if(!hadPlus && clean.length>=8 && clean[0]!=='0'){ clean='+'+clean; } // нет плюса, но похоже на межд. — добавить
+    // Код страны по стране контакта: локальные номера без + получают префикс
+    var CC={"Норвегия":{cc:"47",len:8},"Дания":{cc:"45",len:8},"Британия":{cc:"44",len:10},"Великобритания":{cc:"44",len:10},"Нидерланды":{cc:"31",len:9},"Германия":{cc:"49",len:0},"Польша":{cc:"48",len:9},"Исландия":{cc:"354",len:7},"Фарерские острова":{cc:"298",len:6},"Швеция":{cc:"46",len:0},"Финляндия":{cc:"358",len:0},"Испания":{cc:"34",len:9},"Франция":{cc:"33",len:9},"Италия":{cc:"39",len:0},"Литва":{cc:"370",len:8},"Латвия":{cc:"371",len:8},"Эстония":{cc:"372",len:0}};
+    window.fmtPhone=function(num,country){
+      var s=String(num||'').replace(/^[='\s]+/,'');          // убрать мусор от Google Sheets (=, ')
+      var hadPlus=s.indexOf('+')>=0||/^00\d/.test(s.replace(/\s/g,''));
+      var clean=s.replace(/[^\d+]/g,'').replace(/\++/g,'+').replace(/(?!^)\+/g,'');
+      if(/^00\d/.test(clean)) clean='+'+clean.slice(2);
+      if(hadPlus) return clean;
+      var c=CC[country||'']||null;
+      if(c){
+        var d=clean.replace(/^0+/,'');
+        if(d.indexOf(c.cc)===0 && d.length>(c.len||0)+c.cc.length-1 && (!c.len||d.length===c.cc.length+c.len)) return '+'+d;   // код уже вписан без плюса
+        return '+'+c.cc+d;
+      }
+      if(clean.length>=10 && clean[0]!=='0') return '+'+clean;   // похоже на международный без плюса
+      return clean;
+    };
+    window.callPhone=function(num,country){
+      var clean=fmtPhone(num,country);
       var tel='tel:'+clean;
       try{
         if(tg&&tg.openLink){ tg.openLink(tel); return; }
@@ -1496,7 +1510,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var sub=[]; if(v.company)sub.push(esc(v.company)); if(v.direction)sub.push(esc(v.direction));
       if(sub.length)h+='<div class="det-sub">'+sub.join(' · ')+'</div>';
       if(isMember){
-        if(v.phone)h+=contactRow('📞','Телефон',v.phone,'tel:','Позвонить');
+        if(v.phone)h+=contactRow('📞','Телефон',v.phone,'tel:','Позвонить',v.country||'Норвегия');
         if(v.email)h+=contactRow('✉️','Email',v.email,'','');
       } else {
         h+='<div class="ml-note">Откликнись бесплатно прямо сейчас — резюме уйдёт работодателю. Прямые контакты (телефон/почта) открыты участникам AMORE.</div>';
@@ -2262,7 +2276,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var h='<div class="grip"></div><div class="det-title">'+esc(c.company||c.vessel||'—')+'</div>';
       h+='<div class="det-sub">'+fl+' '+esc(c.country||'')+(c.type?' · '+esc(c.type):'')+' · '+esc(c.direction||'')+'</div>';
       if(c.vessel&&c.company)h+='<div class="det-row"><span class="det-ico">🚢</span><div><div class="det-k">Судно</div><div class="det-v">'+esc(c.vessel)+'</div></div></div>';
-      if(c.hasPhone)h+=contactRow('📞','Телефон',c.phone,'tel:','Позвонить');
+      if(c.hasPhone)h+=contactRow('📞','Телефон',c.phone,'tel:','Позвонить',c.country);
       if(c.hasEmail)h+=contactRow('✉️','Email',c.email,'','');
       if(c.hasEmail)h+='<button class="btn btn-gold" style="margin-top:8px" onclick="openApply()">✉️ Откликнуться письмом</button>';
       h+='<div class="close" onclick="closeModal()">Закрыть</div>';
