@@ -70,6 +70,14 @@
     .btn:active { transform: scale(.98); }
     .btn-gold { background: var(--acc); color: var(--accfg); }
     .btn-lock { background: var(--soft); color: var(--fg2); }
+.btn-plain { background: var(--soft); color: var(--fg); margin-top: 8px; }
+.trial-note { font-size: 12.5px; color: var(--fg2); text-align: center; margin: 8px 0 2px; line-height: 1.45; }
+.or-line { display: flex; align-items: center; gap: 10px; margin: 14px 0 2px; color: var(--fg2); font-size: 12px; }
+.or-line:before, .or-line:after { content: ""; flex: 1; height: 1px; background: var(--line, rgba(127,127,127,.25)); }
+.trial-bar { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line, rgba(127,127,127,.2)); border-radius: 16px; padding: 12px 14px; margin: 0 0 12px; }
+.trial-bar .tb-t { font-weight: 800; font-size: 14px; }
+.trial-bar .tb-s { font-size: 12px; color: var(--fg2); margin-top: 2px; }
+.trial-bar .tb-btn { background: var(--acc); color: var(--accfg); border: none; border-radius: 999px; padding: 10px 14px; font-weight: 700; font-size: 12.5px; white-space: nowrap; }
     .btn-announce { margin-top:8px; background: var(--soft); color: var(--fg); }
     .btn .arr { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.14); display: grid; place-items: center; margin-right: -12px; margin-left: auto; }
     :root[data-theme="dark"] .btn .arr { background: rgba(0,0,0,.12); }
@@ -791,6 +799,10 @@
     var TRIBUTE_URL = "https://t.me/tribute/app?startapp=sUKo";
     var PRICE_3M = "120€", PRICE_1M = "50€"; // 3 месяца — дефолт, месяц — второй вариант
     var TRIBUTE_DISCOUNT_URL = "https://t.me/tribute/app?startapp=sUKo_pc_CRABINTOP"; // -10% промокод CRABINTOP
+    // Пробный доступ: отдельная подписка Tribute с триалом 24 ч → потом 50€/мес. Одна на всех источников (ментор считается по src в базе).
+    var TRIAL_URL = "https://t.me/tribute/app?startapp=s1az4";
+    var TRIAL_HOURS = 24;
+    var isTrial = false, trialEnds = null, trialUsed = false, trialExpired = false;
     var PROMO_CODE = "CRABINTOP";
     // Пришёл из бота ментора (кнопка с ?src=yacht / ?src=washing) → оплата идёт по подписке этого ментора.
     // Метка запоминается на устройстве: если человек вернётся в приложение позже, он останется за ментором.
@@ -1172,7 +1184,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var html='';
       html+=highlightsHTML();
       if(!memberKnown){ html+='<div class="skel skel-card"></div>'; }
-      if(memberKnown){ html+=memberPathHTML(); }
+      if(memberKnown){ html+=trialBarHTML()+memberPathHTML(); }
       html+='<div class="bento">';
       html+='<div class="tile" onclick="switchView(\'contacts\')"><div class="ti">'+ico('anchor')+'</div><b class="n" id="tile-base">5 600</b><small>работодателей в базе</small></div>';
       var unread=(INBOX&&INBOX.unread)||0, live=(INBOX&&INBOX.live)||0;
@@ -1253,6 +1265,61 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       document.querySelectorAll('.pay-btn-l').forEach(function(b){ b.textContent=payBtnLabel(); });
     };
     function payBtnHTML(extra){ return '<button class="btn btn-gold" '+(extra||'')+' onclick="payNow()"><span class="pay-btn-l">'+payBtnLabel()+'</span>'+arrBtn()+'</button>'; }
+    // Главная кнопка для гостя — пробные 24 часа. Если триал уже был — только тарифы.
+    function trialBlockHTML(){
+      if(trialUsed||isMember) return '';
+      return '<button class="btn btn-gold" onclick="startTrial()"><span>Попробовать 24 часа бесплатно</span>'+arrBtn()+'</button>'
+        +'<div class="trial-note">Сутки полного доступа: база, ответы работодателей, группа, ментор.</div>'
+        +'<div class="or-line">или сразу</div>';
+    }
+    function payBlockHTML(){ // тарифы + кнопка: золотая, если триала нет; обычная, если триал — главная
+      if(trialExpired&&!isMember){
+        SELECTED_PLAN='3m';
+        return '<div class="trial-note" style="margin:4px 0 12px;text-align:left">Пробные сутки прошли. Месяц за '+PRICE_1M+' активируется сам, как только на карте будут деньги — всё откроется автоматически.<br><br>Хочешь выгоднее — 3 месяца за '+PRICE_3M+': '+GUARANTEE_TXT.toLowerCase()+'.</div>'
+          +'<button class="btn btn-gold" onclick="payNow()"><span>3 месяца за '+PRICE_3M+'</span>'+arrBtn()+'</button>';
+      }
+      var primary=trialUsed||isMember;
+      return priceTilesHTML()+'<button class="btn '+(primary?'btn-gold':'btn-plain')+'" onclick="payNow()"><span class="pay-btn-l">'+payBtnLabel()+'</span>'+(primary?arrBtn():'')+'</button>';
+    }
+    window.startTrial=function(){
+      track('trial_click',{from:_lastLock||curV});
+      if(trialUsed){ popup('Пробный период уже был использован с этого аккаунта. Доступ открывается по подписке.'); return; }
+      sendPayIntent('trial');
+      try{ localStorage.setItem('amore_trial_clicked', String(Date.now())); }catch(e){}
+      openTribute(TRIAL_URL);
+    };
+    // Полоска на главной у триальщика
+    function trialBarHTML(){
+      if(!isTrial) return '';
+      var left=trialEnds?Math.max(0,Math.round((trialEnds.getTime()-Date.now())/3600000)):TRIAL_HOURS;
+      var when=trialEnds?(trialEnds.getHours()<10?'0':'')+trialEnds.getHours()+':'+(trialEnds.getMinutes()<10?'0':'')+trialEnds.getMinutes():'';
+      return '<div class="trial-bar"><div style="flex:1"><div class="tb-t">Пробный доступ · осталось '+left+' ч</div>'
+        +'<div class="tb-s">'+(when?'В '+when+' у тебя будет уже полная подписка. ':'')+'Выгоднее — 3 месяца за '+PRICE_3M+' с гарантией.</div></div>'
+        +'<button class="tb-btn" onclick="trialUpsell(\'bar\')">3 месяца</button></div>';
+    }
+    // Попап «3 месяца + гарантия»: через 2 минуты после первого входа в триале, один раз
+    function scheduleTrialPopup(){
+      var done=false; try{ done=localStorage.getItem('amore_trial_popup')==='1'; }catch(e){}
+      if(done) return;
+      setTimeout(function(){ if(!isTrial) return; try{ localStorage.setItem('amore_trial_popup','1'); }catch(e){} trialUpsell('popup'); }, 120000);
+    }
+    window.trialUpsell=function(from){
+      track('trial_upsell',{from:from||''}); SELECTED_PLAN='3m'; _lastLock='trial_'+(from||'');
+      var h='<div class="grip"></div>';
+      h+='<div class="det-title">Забрать 3 месяца сейчас</div>';
+      h+='<div class="det-sub" style="margin-bottom:6px">Ты уже внутри. Вместо '+PRICE_1M+' в месяц — '+PRICE_3M+' за три, и гарантия: '+GUARANTEE_TXT.toLowerCase()+'.</div>';
+      h+='<div class="feat-list">'
+        +'<div class="feat"><span class="fi">'+ico('check')+'</span>Экономия 30€ против помесячной оплаты</div>'
+        +'<div class="feat"><span class="fi">'+ico('check')+'</span>'+GUARANTEE_TXT+'</div>'
+        +'<div class="feat"><span class="fi">'+ico('chat')+'</span>Ментор ведёт все 3 месяца</div>'
+        +'</div>';
+      h+=priceTilesHTML()+payBtnHTML();
+      h+='<div class="trial-note">Оформишь 3 месяца — пробную подписку отмени в Tribute, чтобы не списалось дважды.</div>';
+      h+='<div class="price-later" onclick="closeModal()">Позже</div>';
+      document.getElementById('sheet').innerHTML=h;
+      document.getElementById('modal').className='overlay';
+      hap('select');
+    };
     // намерение оплатить → бэкенд (для цепочки «брошенной оплаты»). Ошибка не мешает открыть Tribute.
     function sendPayIntent(plan){
       try{
@@ -1279,7 +1346,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         +'<div class="feat"><span class="fi">'+ico('mail')+'</span>Ответы работодателей с переводом</div>'
         +'<div class="feat"><span class="fi">'+ico('chat')+'</span>Ментор по твоему направлению</div>'
         +'</div>';
-      h+=priceTilesHTML()+payBtnHTML();
+      h+=trialBlockHTML()+payBlockHTML();
       h+='<div class="price-later" onclick="closeModal()">Позже</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
@@ -1304,7 +1371,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         h+='<button class="btn btn-gold" style="margin-top:10px" onclick="claimDiscount()">Забрать скидку и открыть весь путь'+arrBtn()+'</button>';
         h+='<div class="price-later" onclick="closeModal()">'+PRICE_1M+'/мес или '+PRICE_3M+' за 3 месяца · Позже</div>';
       } else {
-        h+=priceTilesHTML()+payBtnHTML();
+        h+=trialBlockHTML()+payBlockHTML();
         h+='<div class="price-later" onclick="closeModal()">Позже</div>';
       }
       document.getElementById('sheet').innerHTML=h;
@@ -1375,7 +1442,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           h+='<div class="rw-code" style="margin-top:12px">Ты прошёл все шаги — спецпредложение: −10% по промокоду <b>'+PROMO_CODE+'</b></div>';
           h+='<button class="btn btn-gold" style="margin-top:10px" onclick="_lastLock=\'path_done\';claimDiscount()">Забрать скидку и открыть весь путь'+arrBtn()+'</button>';
         } else {
-          _lastLock='path_done'; h+=priceTilesHTML()+payBtnHTML();
+          _lastLock='path_done'; h+=trialBlockHTML()+payBlockHTML();
         }
       }
       h+='</div>';
@@ -1986,7 +2053,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       h+='<div class="det-title" style="text-align:center">'+title+'</div>';
       h+='<div style="text-align:center;font-size:13px;color:var(--fg2);line-height:1.5;margin:8px 4px 18px">'+text+'</div>';
       var rv=pickReview(); if(rv) h+='<div class="rv-q"><b>'+esc(rv.name)+'</b> — '+esc(rv.text)+'</div>';
-      h+=priceTilesHTML()+payBtnHTML();
+      h+=trialBlockHTML()+payBlockHTML();
       h+='<div class="price-later" onclick="closeModal()">Позже</div>';
       document.getElementById('sheet').innerHTML=h;
       document.getElementById('modal').className='overlay';
@@ -2546,7 +2613,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
               +'<div style="font-size:18px;font-weight:800;margin:10px 0 8px">Автопилот включён</div>'
               +'<div style="font-size:13.5px;color:var(--fg2);line-height:1.6">Твоя рассылка начнётся <b style="color:var(--fg)">завтра в 9:00 утра</b> и дальше будет идти сама каждый день. Каждый вечер пришлю отчёт: сколько писем ушло и сколько открыли.<br><br>Заходить в приложение больше не нужно — всё на автомате.</div>'
               +'<button class="btn btn-gold" style="margin-top:16px" onclick="closeModal()">Понятно</button></div>';
-          } else if(d&&d.massRequired){ massPaywall(); }
+          } else if(d&&d.trial){ popup('Авторассылка откроется с полной подпиской — через '+(trialEnds?Math.max(1,Math.round((trialEnds.getTime()-Date.now())/3600000)):TRIAL_HOURS)+' ч. Пока отправляй отклики вручную.'); refreshAutopilot(); }
+          else if(d&&d.massRequired){ massPaywall(); }
           else { popup((d&&d.error)||'Не получилось включить. Попробуй ещё раз.'); refreshAutopilot(); }
         }).catch(function(){ popup('Нет связи с сервером. Попробуй ещё раз.'); refreshAutopilot(); });
     };
@@ -2854,6 +2922,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(sp==='story_reply') setTimeout(function(){ shareStory('reply','Мне ответил работодатель! Ищу работу в море через AMORE'); }, 900);
         if(sp==='story_offer') setTimeout(function(){ shareStory('offer','Получил оффер на судно! Спасибо AMORE'); }, 900);
         if(sp==='path') window.__openPath=true;
+        if(sp==='pay'){ window.__goPay=true; window.__deepLink=true; }
         if(sp==='inbox'||sp==='inbox_auto'){ window.__goInbox=(sp==='inbox_auto'?'auto':'live'); window.__deepLink=true; }
         try{ if(new URLSearchParams(location.search).get('go')==='inbox'){ window.__goInbox='live'; window.__deepLink=true; } }catch(e){}
         // из бота: кнопка «Шаг n» → ?go=stepN
@@ -2878,8 +2947,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             setTimeout(function(){ fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})}).then(function(r){return r.json();}).then(function(d2){ if(d2&&d2.ok){ isAdmin=!!d2.admin; hasMass=!!d2.mass; isMember=!!d2.member; setStatus(isMember?'member':'guest', isMember?'✅ Ты участник':'🔒 Гостевой доступ'); try{ localStorage.setItem('amore_last_member', isMember?'1':'0'); }catch(e){} renderHome(); } }).catch(function(){}); }, 20000);
             return;
           }
-          if(d.ok){isAdmin=!!d.admin;hasMass=!!d.mass;}
-          if(d.ok&&d.member){isMember=true;setStatus('member','✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');}
+          if(d.ok){isAdmin=!!d.admin;hasMass=!!d.mass; trialExpired=!!d.trialExpired; isTrial=!!d.trial; trialEnds=d.trialEnds?new Date(d.trialEnds):null; trialUsed=!!d.trialUsed; if(isTrial&&(!trialEnds||isNaN(trialEnds.getTime()))) trialEnds=new Date(Date.now()+TRIAL_HOURS*3600000);}
+          if(d.ok&&d.member){isMember=true;setStatus('member',isTrial?'⏳ Пробный доступ':'✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');}
+          if(isTrial) scheduleTrialPopup();
           try{ localStorage.setItem('amore_last_member', (d.ok&&d.member)?'1':'0'); }catch(e){}
         })
         .catch(function(){setStatus('guest','⚠️ Нет связи с сервером');})
@@ -2893,7 +2963,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           renderHome(); loadVacancies(); updateSplashBtn(); pulseLoad(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); if(window.__openPath&&isMember){ window.__openPath=false; setTimeout(function(){ switchView('path'); }, 400); }
           if(window.__goInbox){ inboxTab=window.__goInbox; window.__goInbox=null; setTimeout(function(){ switchView('inbox'); }, 500); } else { setTimeout(function(){ inboxLoad(function(){ if(curV==='home') renderHome(); }); }, 1200); }
           if(window.__goStep){ var gs=window.__goStep; window.__goStep=0; setTimeout(function(){ goPathStep(gs); }, 500); }
-          if(window.__goPay){ window.__goPay=false; _lastLock='bot_offer'; setTimeout(function(){ if(!isMember) paySheet(); }, 700); } });
+          if(window.__goPay){ window.__goPay=false; _lastLock='bot_offer'; setTimeout(function(){ if(isTrial) trialUpsell('bot'); else if(!isMember) paySheet(); }, 700); } });
     })();
   </script>
 </body>
