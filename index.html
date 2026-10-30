@@ -802,6 +802,7 @@
     // Пробный доступ: отдельная подписка Tribute с триалом 24 ч → потом 50€/мес. Одна на всех источников (ментор считается по src в базе).
     var TRIAL_URL = "https://t.me/tribute/app?startapp=s1az4";
     var TRIAL_HOURS = 24;
+    var TRIAL_ENABLED = false; // true — «Попробовать 24 часа» главная кнопка; false — как было: 120€/50€. Те, кто уже в триале, дорабатывают по-старому
     var isTrial = false, trialEnds = null, trialUsed = false, trialExpired = false;
     var PROMO_CODE = "CRABINTOP";
     // Пришёл из бота ментора (кнопка с ?src=yacht / ?src=washing) → оплата идёт по подписке этого ментора.
@@ -1267,23 +1268,23 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function payBtnHTML(extra){ return '<button class="btn btn-gold" '+(extra||'')+' onclick="payNow()"><span class="pay-btn-l">'+payBtnLabel()+'</span>'+arrBtn()+'</button>'; }
     // Главная кнопка для гостя — пробные 24 часа. Если триал уже был — только тарифы.
     function trialBlockHTML(){
-      if(trialUsed||isMember) return '';
+      if(!TRIAL_ENABLED||trialUsed||isMember) return '';
       return '<button class="btn btn-gold" onclick="startTrial()"><span>Попробовать 24 часа бесплатно</span>'+arrBtn()+'</button>'
         +'<div class="trial-note">Сутки полного доступа: база, ответы работодателей, группа, ментор.</div>'
         +'<div class="or-line">или сразу</div>';
     }
     function payBlockHTML(){ // тарифы + кнопка: золотая, если триала нет; обычная, если триал — главная
       if(trialExpired&&!isMember){
-        SELECTED_PLAN='3m';
-        return '<div class="trial-note" style="margin:4px 0 12px;text-align:left">Пробные сутки прошли. Месяц за '+PRICE_1M+' активируется сам, как только на карте будут деньги — всё откроется автоматически.<br><br>Хочешь выгоднее — 3 месяца за '+PRICE_3M+': '+GUARANTEE_TXT.toLowerCase()+'.</div>'
-          +'<button class="btn btn-gold" onclick="payNow()"><span>3 месяца за '+PRICE_3M+'</span>'+arrBtn()+'</button>';
+        return '<div class="trial-note" style="margin:4px 0 12px;text-align:left">Пробные сутки прошли, а оплата не прошла. Если привязывал карту — пополни её, Tribute спишет сам и всё откроется. Если через СБП — автосписания нет, оформи подписку здесь:</div>'
+          +priceTilesHTML()+'<button class="btn btn-gold" onclick="payNow()"><span class="pay-btn-l">'+payBtnLabel()+'</span>'+arrBtn()+'</button>'
+          +'<div class="trial-note">Оформил заново — отмени пробную в Tribute (Мои подписки), чтобы не списалось дважды.</div>';
       }
-      var primary=trialUsed||isMember;
+      var primary=!TRIAL_ENABLED||trialUsed||isMember;
       return priceTilesHTML()+'<button class="btn '+(primary?'btn-gold':'btn-plain')+'" onclick="payNow()"><span class="pay-btn-l">'+payBtnLabel()+'</span>'+(primary?arrBtn():'')+'</button>';
     }
     window.startTrial=function(){
       track('trial_click',{from:_lastLock||curV});
-      if(trialUsed){ popup('Пробный период уже был использован с этого аккаунта. Доступ открывается по подписке.'); return; }
+      if(!TRIAL_ENABLED||trialUsed){ popup('Пробный период сейчас недоступен. Доступ открывается по подписке.'); paySheet(); return; }
       sendPayIntent('trial');
       try{ localStorage.setItem('amore_trial_clicked', String(Date.now())); }catch(e){}
       openTribute(TRIAL_URL);
@@ -1298,7 +1299,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         +'<button class="tb-btn" onclick="trialUpsell(\'bar\')">3 месяца</button></div>';
     }
     // Попап «3 месяца + гарантия»: через 2 минуты после первого входа в триале, один раз
+    var TRIAL_POPUP=false; // попап «3 месяца» через 2 минуты: 29 показов → 1 клик, выключен. Остались кнопка в полоске и финал в боте
     function scheduleTrialPopup(){
+      if(!TRIAL_POPUP) return;
       var done=false; try{ done=localStorage.getItem('amore_trial_popup')==='1'; }catch(e){}
       if(done) return;
       setTimeout(function(){ if(!isTrial) return; try{ localStorage.setItem('amore_trial_popup','1'); }catch(e){} trialUpsell('popup'); }, 120000);
