@@ -525,6 +525,8 @@
     .rv-tgv{width:100%;max-height:420px;border-radius:14px;background:#000;display:block}
     .rv-tgv.round{width:230px;height:230px;border-radius:50%;object-fit:cover;margin:0 auto}
     .fn-rev .rv-tgv{margin-bottom:10px}
+    .fn-bk{position:absolute;top:calc(14px + var(--safe-top));left:16px;z-index:5;height:34px;padding:0 14px;border-radius:17px;background:var(--card);box-shadow:var(--sh);display:flex;align-items:center;font-size:13px;font-weight:800;color:var(--fg2);cursor:pointer}
+    .fn-paid{position:absolute;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 26px}
     .fn-revh{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin:18px 4px 2px}
     .fn-rev .rv-thumb,.fn-rev .rv-shot{margin-bottom:10px;border-radius:12px;overflow:hidden}
     .fn-rev .rv-shot img{max-height:220px}
@@ -757,11 +759,13 @@
     </div>
     <!-- 5. ментор -->
     <div class="fn-screen" id="fn-mentor">
+      <div class="fn-bk" onclick="fnGo('result')">‹ Назад</div>
       <div class="fn-body" id="fn-mentorBox" style="padding-top:calc(58px + var(--safe-top,0px))"></div>
       <div class="fn-foot"><button class="fn-btn fn-primary" onclick="fnCommit()">Дальше →</button></div>
     </div>
     <!-- 6. «я готов» -->
     <div class="fn-screen" id="fn-commit">
+      <div class="fn-bk" onclick="fnGo('mentor')">‹ Назад</div>
       <div class="fn-hero">
         <div class="fn-badge">🤝</div>
         <div class="fn-h">Готов заниматься этим ближайшие 2–3 месяца?</div>
@@ -771,6 +775,7 @@
     </div>
     <!-- 7. цена -->
     <div class="fn-screen" id="fn-offer">
+      <div class="fn-bk" onclick="fnGo('commit')">‹ Назад</div>
       <div class="fn-body" style="padding-top:calc(58px + var(--safe-top,0px))">
         <div class="fn-oh" id="fn-offerTitle">Начинаем по твоему плану?</div>
         <div class="fn-osub" id="fn-offerSub">Всё, что нужно для первого контракта, в одном месте.</div>
@@ -1349,7 +1354,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function openTribute(url){ if(tg&&tg.openTelegramLink){ tg.openTelegramLink(url); } else { window.open(url,'_blank'); } }
     window.payNow=function(){
       track('pay_click',{from:_lastLock||curV, plan:SELECTED_PLAN});
-      if(!isMember) sendPayIntent(SELECTED_PLAN);
+      if(!isMember){ sendPayIntent(SELECTED_PLAN); payWatchStart(); }
       openTribute(TRIBUTE_URL);
     };
     // экран оплаты: два тарифа + кнопка. Открывается отовсюду, где раньше была прямая ссылка.
@@ -1944,7 +1949,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       merch:'Контейнеровозы, балкеры, ro-ro. Долгий, но самый стабильный путь: кадет, матрос, офицер.',
       yacht:'Средиземноморье, сезон с марта по октябрь. Английский обязателен. Вход через доки и личное знакомство.'
     };
-    var fnState={}, fnLeadSent=false;
+    var fnState={}, fnLeadSent=false, fnFromBot=false;
     function fnShouldRun(){ try{ return localStorage.getItem('amore_funnel_v')!==FUNNEL_VERSION; }catch(e){ return false; } }
     function fnMarkDone(){ try{ localStorage.setItem('amore_funnel_v',FUNNEL_VERSION); }catch(e){} }
     function fnSaveState(){ try{ localStorage.setItem('amore_fn_state',JSON.stringify(fnState)); }catch(e){} }
@@ -1952,27 +1957,34 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function fnDir(){ return FN_DIR[fnState.direction]||FN_DIR.any; }
     function fnMentorObj(){ var tgn=fnDir().tg; return MENTORS.filter(function(m){return m.tg===tgn;})[0]||MENTORS[0]; }
     function showFunnel(){
-      track('fn_show'); fnLeadSent=false; fnState=fnLoadState();
+      track('fn_show'); fnLeadSent=false; fnState=fnLoadState();   // fnFromBot здесь не трогаем: его ставит вход из бота/напоминания
       ['fn-g1','fn-g2'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.width='0';});
       document.getElementById('funnel').className='fn-overlay on';
       // уже отвечал, но закрыл на полпути — не мучаем вопросами заново, сразу план
       if(fnState.direction&&fnState.citizenship){ fnPlan(); } else { fnState={}; fnGo('q1'); }
     }
     function maybeStartFunnel(){ if(!isMember && fnShouldRun()){ setTimeout(showFunnel, 650); } }
+    // Цену в новой воронке человек уже видел? Тогда напоминания ведут сразу на оплату, иначе сначала план и ментор.
+    function fnOfferSeen(){ try{ return localStorage.getItem('amore_fn_offer')===FUNNEL_VERSION; }catch(e){ return true; } }
+    function showFunnelFromReminder(){
+      var st=fnLoadState(), rev={}; Object.keys(FN_DIR).forEach(function(k){ if(FN_DIR[k].path) rev[FN_DIR[k].path]=k; });
+      var dir=st.direction||rev[PATH.direction]||'';
+      if(dir) showFunnelFromBot({dir:dir, cit:st.citizenship||'', from:'reminder'}); else { fnFromBot=true; showFunnel(); }
+    }
     function showFunnelFromBot(gp){
       var dir=FN_DIR[gp.dir]?gp.dir:'', cit=({ua:1,eu:1,md:1,other:1})[gp.cit]?gp.cit:'';
       if(!dir){ showFunnel(); return; }
       var old=fnLoadState();
       if(!cit && old.citizenship) cit=old.citizenship;
       if(!cit){ // направление выбрал в боте, а паспорт бот не знает (старый пользователь): один вопрос и план
-        fnState={direction:dir}; fnLeadSent=false; track('fn_show',{from:'bot',dir:dir});
+        fnState={direction:dir}; fnLeadSent=false; fnFromBot=true; track('fn_show',{from:gp.from||'bot',dir:dir});
         document.getElementById('funnel').className='fn-overlay on';
         var bk=document.querySelector('#fn-q2 .fn-back'); if(bk) bk.style.display='none';
         var g=document.querySelector('#fn-q2 .fn-gtxt'); if(g) g.textContent='Один вопрос';
         fnGo('q2'); return;
       }
-      fnState={direction:dir, citizenship:cit}; fnLeadSent=false;
-      track('fn_show',{from:'bot',dir:dir});
+      fnState={direction:dir, citizenship:cit}; fnLeadSent=false; fnFromBot=true;
+      track('fn_show',{from:gp.from||'bot',dir:dir});
       ['fn-g1','fn-g2'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.width='0';});
       document.getElementById('funnel').className='fn-overlay on';
       if(old.documents && old.direction===dir) fnState.documents=old.documents;
@@ -1995,7 +2007,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       },300);
     };
     function fnSendLead(){
-      if(fnLeadSent||!tg||!tg.initData)return; fnLeadSent=true;
+      if(fnFromBot||fnLeadSent||!tg||!tg.initData)return; fnLeadSent=true;
       try{
         fetch(BACKEND_URL+'/lead',{method:'POST',headers:{'Content-Type':'application/json'},
           body:JSON.stringify({initData:tg.initData,citizenship:fnState.citizenship,documents:fnState.documents,direction:fnState.direction})}).catch(function(){});
@@ -2123,11 +2135,47 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       document.getElementById('fn-offerPay').innerHTML=priceTilesHTML();
       document.getElementById('fn-season').style.display=(fnState.direction==='crab')?'flex':'none';
       document.querySelectorAll('.pay-btn-l').forEach(function(b){ b.textContent=payBtnLabel(); });
+      try{ localStorage.setItem('amore_fn_offer',FUNNEL_VERSION); }catch(e){}
       track('fn_step',{s:'offer'}); track('lock_show',{kind:'funnel_offer'});
       fnGo('offer');
     }
     window.fnPay=function(){ _lastLock='funnel_offer'; fnMarkDone(); payNow(); };
-    window.fnSkip=function(){ track('fn_skip'); fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; };
+    // Человек ушёл в Tribute платить. Когда вернётся в апку — перепроверяем подписку (Tribute сообщает о платеже не мгновенно, поэтому несколько попыток).
+    var payWatch={until:0, busy:false, timer:null};
+    function payWatchStart(){ payWatch.until=Date.now()+15*60000; }
+    function payWatchCheck(left){
+      if(isMember||payWatch.busy||Date.now()>payWatch.until||!tg||!tg.initData) return;
+      payWatch.busy=true;
+      fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})})
+        .then(function(r){return r.json();}).then(function(d){
+          payWatch.busy=false;
+          if(d&&d.ok&&d.member){ payWatch.until=0; payDone(); }
+          else if(left>0 && !document.hidden){ clearTimeout(payWatch.timer); payWatch.timer=setTimeout(function(){ payWatchCheck(left-1); }, 5000); }
+        }).catch(function(){ payWatch.busy=false; });
+    }
+    function payDone(){
+      isMember=true; memberKnown=true; track('pay_seen_in_app');
+      try{ localStorage.setItem('amore_last_member','1'); localStorage.removeItem('amore_guest_remaining'); }catch(e){}
+      try{ setStatus('member','✅ Ты участник'); }catch(e){}
+      try{ closeModal(); }catch(e){}
+      var f=document.getElementById('funnel');
+      var box=document.createElement('div'); box.className='fn-paid';
+      box.innerHTML='<div class="fn-badge">🎉</div><div class="fn-h">Оплата прошла</div><div class="fn-d">Ты участник AMORE. Всё открыто: база работодателей, отклики, ментор и закрытая группа.</div><div style="width:100%;margin-top:26px"><button class="fn-btn fn-primary" onclick="payDoneClose()">Начать по плану →</button></div>';
+      f.appendChild(box); f.className='fn-overlay on';
+      try{ hap('success'); }catch(e){}
+      try{ renderHome(); loadVacancies(); }catch(e){}
+    }
+    window.payDoneClose=function(){ var f=document.getElementById('funnel'); var b=f.querySelector('.fn-paid'); if(b) f.removeChild(b); f.className='fn-overlay'; try{ switchView('path'); }catch(e){} };
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) payWatchCheck(8); });
+    window.addEventListener('focus', function(){ payWatchCheck(8); });
+    window.fnSkip=function(){
+      // Пройденной считаем воронку, только если человек дошёл до цены. Закрыл раньше — в следующий раз продолжит с плана.
+      // Но не навязываемся: после 3 закрытий больше не показываем.
+      var n=0; try{ n=(parseInt(localStorage.getItem('amore_fn_skips')||'0',10)||0)+1; localStorage.setItem('amore_fn_skips',String(n)); }catch(e){ n=99; }
+      var cur=document.querySelector('#funnel .fn-on'); track('fn_skip',{at:cur?cur.id.replace('fn-',''):'',n:n});
+      if(fnOfferSeen()||n>=3) fnMarkDone();
+      document.getElementById('funnel').className='fn-overlay';
+    };
     window.fnStartFree=function(from){ track('fn_free',{from:from||''}); fnMarkDone(); fnTrialStart(); document.getElementById('funnel').className='fn-overlay'; setTimeout(function(){ switchView('path'); }, 200); };
     function fnTrialStart(){
       if(!tg||!tg.initData)return;
@@ -3053,7 +3101,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           if(window.__goInbox){ inboxTab=window.__goInbox; window.__goInbox=null; setTimeout(function(){ switchView('inbox'); }, 500); } else { setTimeout(function(){ inboxLoad(function(){ if(curV==='home') renderHome(); }); }, 1200); }
           if(window.__goPlan){ var gp=window.__goPlan; window.__goPlan=null; setTimeout(function(){ if(isMember) switchView('path'); else showFunnelFromBot(gp); }, 550); }
           if(window.__goStep){ var gs=window.__goStep; window.__goStep=0; setTimeout(function(){ goPathStep(gs); }, 500); }
-          if(window.__goPay){ window.__goPay=false; _lastLock='bot_offer'; setTimeout(function(){ if(isTrial) trialUpsell('bot'); else if(!isMember) paySheet(); }, 700); } });
+          if(window.__goPay){ window.__goPay=false; _lastLock='bot_offer'; setTimeout(function(){ if(isTrial) trialUpsell('bot'); else if(!isMember){ if(fnOfferSeen()) paySheet(); else showFunnelFromReminder(); } }, 700); } });
     })();
   </script>
 </body>
