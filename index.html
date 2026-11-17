@@ -527,7 +527,13 @@
     .fn-rev .rv-tgv{margin-bottom:10px}
     .fn-bk{position:absolute;top:calc(14px + var(--safe-top));left:16px;z-index:5;height:34px;padding:0 14px;border-radius:17px;background:var(--card);box-shadow:var(--sh);display:flex;align-items:center;font-size:13px;font-weight:800;color:var(--fg2);cursor:pointer}
     .fn-paid{position:absolute;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 26px}
-    .fn-revh{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin:18px 4px 2px}
+    .fn-revh{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin:18px 4px 2px;display:flex;justify-content:space-between}
+    .fn-revh span{text-transform:none;letter-spacing:0;font-weight:700}
+    .fn-revs{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;margin:0 -20px;padding:0 20px 8px;scrollbar-width:none;align-items:flex-start}
+    .fn-revs::-webkit-scrollbar{display:none}
+    .fn-revs .fn-rev{flex:0 0 84%;scroll-snap-align:center;margin-top:10px}
+    .fn-revs.one .fn-rev{flex:1 1 100%}
+    .fn-revs .rv-tgv{max-height:300px}
     .fn-rev .rv-thumb,.fn-rev .rv-shot{margin-bottom:10px;border-radius:12px;overflow:hidden}
     .fn-rev .rv-shot img{max-height:220px}
     .fn-overlay.on ~ .overlay{z-index:210}
@@ -2107,10 +2113,11 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       if(!all.length) return '';
       var kw=FN_REV_KW[fnState.direction], mine=kw?all.filter(function(r){ return kw.test(r.dir||''); }):[];
       var general=all.filter(function(r){ return !String(r.dir||'').trim(); });
-      var list=(kw?mine.concat(general):all).slice(0,3);
+      var list=(kw?mine.concat(general):all).slice(0,12);   // все отзывы направления, листаются вбок
       if(!list.length) return '';
       window.__fnRev=list;
-      var h='<div class="fn-revh">'+(mine.length?'Отзывы по твоему направлению':'Отзывы участников')+'</div>';
+      var h='<div class="fn-revh">'+(mine.length?'Отзывы по твоему направлению':'Отзывы участников')+' · '+list.length+(list.length>1?'<span>листай →</span>':'')+'</div>';
+      h+='<div class="fn-revs'+(list.length===1?' one':'')+'">';
       list.forEach(function(r,i){
         h+='<div class="fn-rev">';
         if(r.type==='tgvideo'&&r.video) h+='<video class="rv-tgv'+(r.round?' round':'')+'" src="'+esc(r.video)+'" controls playsinline webkit-playsinline preload="metadata" onerror="rvVidFail(this)"></video>';
@@ -2120,6 +2127,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(r.text) h+='<div class="fn-revt">'+esc(String(r.text).length>220?String(r.text).slice(0,217)+'…':r.text)+'</div>';
         h+='<span>'+esc(r.name)+(r.dir?' · '+esc(r.dir):'')+'</span></div>';
       });
+      h+='</div>';
       return h;
     }
     window.rvVidFail=function(v){ try{ var c=v.closest('.fn-rev')||v.closest('.review'); if(c) c.style.display='none'; }catch(e){} };
