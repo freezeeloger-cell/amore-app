@@ -519,6 +519,14 @@
     .fn-rev span{display:block;font-size:11.5px;font-weight:700;color:var(--fg3);margin-top:6px}
     #fn-offer .price-row{margin:0}
     .fn-docq{display:flex;gap:8px;margin-top:10px}
+    .fn-mvn{position:relative;width:220px;height:220px;border-radius:50%;overflow:hidden;margin:0 auto 14px;background:#000;cursor:pointer;box-shadow:var(--sh-lg)}
+    .fn-mvn video{width:100%;height:100%;object-fit:cover;display:block}
+    .fn-mvh{position:absolute;left:0;right:0;bottom:0;padding:26px 8px 16px;font-size:11.5px;font-weight:800;color:#fff;text-align:center;background:linear-gradient(transparent,rgba(0,0,0,.65))}
+    .fn-revh{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin:18px 4px 2px}
+    .fn-rev .rv-thumb,.fn-rev .rv-shot{margin-bottom:10px;border-radius:12px;overflow:hidden}
+    .fn-rev .rv-shot img{max-height:220px}
+    .fn-overlay.on ~ .overlay{z-index:210}
+    .fn-overlay.on ~ .imgview{z-index:220}
     .fn-docq span{flex:1;text-align:center;padding:10px 8px;border-radius:12px;background:var(--soft);color:var(--fg);font-size:13px;font-weight:800;cursor:pointer}
     .fn-docq span:active{transform:scale(.97)}
     .fn-osmall{text-align:center;font-size:12.5px;color:var(--fg3);margin-top:14px}
@@ -1996,6 +2004,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       return (day<=10?'к началу ':(day<=20?'к середине ':'к концу '))+mon;
     }
     function fnPlan(again){
+      fnLoadReviews(); fnLoadMentorVideos();
       var dir=fnDir(), m=fnMentorObj(), mName=m.name.split(' ')[0];
       var cit=fnState.citizenship==='eu'?'С паспортом ЕС ты в сильной позиции: таких смотрят в первую очередь.':'Разберём твою ситуацию по шагам: что делать и в каком порядке.';
       var when=fnDateTxt();
@@ -2033,20 +2042,66 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     window.fnMentor=function(){
       fnSendLead(); // лид уходит, когда человек пошёл дальше плана (или отметил документы)
       var m=fnMentorObj(), dir=fnDir(), v=FN_VIDEO[fnState.direction]||'';
-      var h='<div class="fn-mcard"><div class="fn-mav" data-init="'+m.init+'" style="background:'+m.grad+'"><img src="'+esc(m.photo)+'" style="width:100%;height:100%;object-fit:cover" onerror="avFallback(this)"></div>';
+      var h='<div class="fn-mcard"><div id="fn-mvBox">'+fnMentorMediaHTML(m)+'</div>';
       h+='<div class="fn-veyebrow" style="opacity:.55;margin-bottom:6px">Твой ментор</div>';
       h+='<div class="fn-mname">'+esc(m.name)+' <span style="color:var(--ok)">✓</span></div><div class="fn-mdir">'+esc(m.dir)+'</div><div class="fn-mbio">'+esc(m.bio)+'</div>';
-      if(v) h+='<video class="fn-mvid" src="'+esc(v)+'" controls playsinline preload="metadata"></video>';
       h+='</div>';
       h+='<div class="fn-mdo">'
         +'<div class="fn-feat"><span class="fn-fi">✓</span> Отвечает на твои вопросы лично в Telegram</div>'
         +'<div class="fn-feat"><span class="fn-fi">✓</span> Сам прошёл этот путь и знает, где люди теряют время и деньги</div>'
         +'<div class="fn-feat"><span class="fn-fi">✓</span> Закрытая группа участников по твоему направлению</div></div>';
-      var r=fnState.direction==='crab'||fnState.direction==='any'?pickReview():null; // запасные отзывы про Норвегию; под другими менторами чужой отзыв не ставим
-      if(r&&r.text) h+='<div class="fn-rev">'+esc(r.text)+'<span>'+esc(r.name)+' · участник AMORE</span></div>';
+      h+='<div id="fn-revBox">'+fnReviewsHTML()+'</div>';
       document.getElementById('fn-mentorBox').innerHTML=h;
       track('fn_step',{s:'mentor',dir:fnState.direction||''}); fnGo('mentor');
     };
+    // Кружок ментора: тот же, что в боте (/mentor_video). Играет сам без звука, по нажатию — со звуком с начала.
+    var FN_MV=null, fnMvLoading=false;
+    function fnLoadMentorVideos(){
+      if(FN_MV||fnMvLoading) return; fnMvLoading=true;
+      fetch(BACKEND_URL+'/mentorVideos').then(function(r){return r.json();}).then(function(d){
+        fnMvLoading=false; FN_MV=(d&&d.videos)||{};
+        var b=document.getElementById('fn-mvBox'); if(b) b.innerHTML=fnMentorMediaHTML(fnMentorObj());
+      }).catch(function(){ fnMvLoading=false; });
+    }
+    function fnMentorMediaHTML(m){
+      var d=fnState.direction==='any'?'crab':fnState.direction, ver=FN_MV&&FN_MV[d], src=FN_VIDEO[d]||(ver?(BACKEND_URL+'/mentorVideo/'+d+'?v='+ver):'');
+      var av='<div class="fn-mav" data-init="'+m.init+'" style="background:'+m.grad+'"><img src="'+esc(m.photo)+'" style="width:100%;height:100%;object-fit:cover" onerror="avFallback(this)"></div>';
+      if(!src) return av;
+      return '<div class="fn-mvn" onclick="fnMvTap(this)"><video src="'+esc(src)+'" muted autoplay loop playsinline webkit-playsinline preload="auto" onerror="fnMvFail(this)"></video><div class="fn-mvh">🔊 Нажми, чтобы включить звук</div></div>';
+    }
+    window.fnMvTap=function(box){
+      var v=box.querySelector('video'), hnt=box.querySelector('.fn-mvh'); if(!v) return;
+      if(v.muted){ v.muted=false; v.loop=false; try{ v.currentTime=0; }catch(e){} v.play(); if(hnt) hnt.style.display='none'; track('fn_mentor_video',{dir:fnState.direction||''}); }
+      else if(v.paused) v.play(); else v.pause();
+    };
+    window.fnMvFail=function(v){ var b=document.getElementById('fn-mvBox'); if(b){ FN_MV={}; b.innerHTML=fnMentorMediaHTML(fnMentorObj()); } };
+    // Отзывы на экране ментора: настоящие, из таблицы отзывов. Сначала по направлению человека, если таких нет — любые.
+    var FN_REV_KW={crab:/краб|рыб|норвег|фабрик|трал/i, wash:/замыв|трюм/i, yacht:/яхт/i, merch:/торгов/i};
+    var fnRevLoading=false;
+    function fnLoadReviews(){
+      if((REVIEWS&&REVIEWS.length)||fnRevLoading) return; fnRevLoading=true;
+      fetch(BACKEND_URL+'/reviews').then(function(r){return r.json();}).then(function(d){
+        fnRevLoading=false; if(d&&d.ok&&d.reviews&&d.reviews.length){ REVIEWS=d.reviews; var b=document.getElementById('fn-revBox'); if(b) b.innerHTML=fnReviewsHTML(); }
+      }).catch(function(){ fnRevLoading=false; });
+    }
+    function fnReviewsHTML(){
+      var all=(REVIEWS||[]).filter(function(r){ return r && r.name && (r.text||r.photo||(r.type==='video'&&r.videoId)||isImgFile(r.link)); });
+      if(!all.length) return '';
+      var kw=FN_REV_KW[fnState.direction], mine=kw?all.filter(function(r){ return kw.test(r.dir||''); }):[];
+      var list=(mine.length?mine:all).slice(0,3);
+      window.__fnRev=list;
+      var h='<div class="fn-revh">'+(mine.length?'Отзывы по твоему направлению':'Отзывы участников')+'</div>';
+      list.forEach(function(r,i){
+        h+='<div class="fn-rev">';
+        if(r.type==='video'&&r.videoId) h+='<div class="rv-thumb" style="background-image:url(https://img.youtube.com/vi/'+esc(r.videoId)+'/hqdefault.jpg)" onclick="fnPlayRev('+i+')"><div class="play">▶</div></div>';
+        else { var src=r.photo?r.photo:(isImgFile(r.link)?r.link:''); var im=src.split(/[,\n;]+/).map(function(x){return x.trim();}).filter(function(x){return x;})[0];
+          if(im) h+='<div class="rv-shot" onclick="openImg(\''+esc(im)+'\')"><img src="'+esc(im)+'" loading="lazy"></div>'; }
+        if(r.text) h+='<div class="fn-revt">'+esc(String(r.text).length>220?String(r.text).slice(0,217)+'…':r.text)+'</div>';
+        h+='<span>'+esc(r.name)+(r.dir?' · '+esc(r.dir):'')+'</span></div>';
+      });
+      return h;
+    }
+    window.fnPlayRev=function(i){ var r=(window.__fnRev||[])[i]; if(r&&r.videoId){ track('fn_review_play'); playVid(r.videoId, r.name); } };
     window.fnCommit=function(){ track('fn_step',{s:'commit'}); fnGo('commit'); };
     window.fnYes=function(){ track('fn_yes'); hap('select'); fnOffer(); };
     function fnOffer(){
