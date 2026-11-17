@@ -522,6 +522,9 @@
     .fn-mvn{position:relative;width:220px;height:220px;border-radius:50%;overflow:hidden;margin:0 auto 14px;background:#000;cursor:pointer;box-shadow:var(--sh-lg)}
     .fn-mvn video{width:100%;height:100%;object-fit:cover;display:block}
     .fn-mvh{position:absolute;left:0;right:0;bottom:0;padding:26px 8px 16px;font-size:11.5px;font-weight:800;color:#fff;text-align:center;background:linear-gradient(transparent,rgba(0,0,0,.65))}
+    .rv-tgv{width:100%;max-height:420px;border-radius:14px;background:#000;display:block}
+    .rv-tgv.round{width:230px;height:230px;border-radius:50%;object-fit:cover;margin:0 auto}
+    .fn-rev .rv-tgv{margin-bottom:10px}
     .fn-revh{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--fg3);margin:18px 4px 2px}
     .fn-rev .rv-thumb,.fn-rev .rv-shot{margin-bottom:10px;border-radius:12px;overflow:hidden}
     .fn-rev .rv-shot img{max-height:220px}
@@ -1750,6 +1753,9 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(r.type==='video'&&r.videoId){
           html+='<div class="rv-thumb" style="background-image:url(https://img.youtube.com/vi/'+r.videoId+'/hqdefault.jpg)" onclick="playReview('+i+')"><div class="play">▶</div></div>';
           if(r.text)html+='<div class="rv-text" style="margin-top:10px">'+esc(r.text)+'</div>';
+        } else if(r.type==='tgvideo'&&r.video){
+          html+='<video class="rv-tgv'+(r.round?' round':'')+'" src="'+esc(r.video)+'" controls playsinline webkit-playsinline preload="metadata"></video>';
+          if(r.text)html+='<div class="rv-text" style="margin-top:10px">'+esc(r.text)+'</div>';
         } else if(r.type==='audio'&&r.link){
           if(r.text)html+='<div class="rv-text">'+esc(r.text)+'</div>';
           html+='<audio controls preload="none" src="'+esc(r.link)+'" style="width:100%;margin-top:10px"></audio>';
@@ -2085,7 +2091,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       }).catch(function(){ fnRevLoading=false; });
     }
     function fnReviewsHTML(){
-      var all=(REVIEWS||[]).filter(function(r){ return r && r.name && (r.text||r.photo||(r.type==='video'&&r.videoId)||isImgFile(r.link)); });
+      var all=(REVIEWS||[]).filter(function(r){ return r && r.name && (r.text||r.photo||(r.type==='video'&&r.videoId)||(r.type==='tgvideo'&&r.video)||isImgFile(r.link)); });
       if(!all.length) return '';
       var kw=FN_REV_KW[fnState.direction], mine=kw?all.filter(function(r){ return kw.test(r.dir||''); }):[];
       var list=(mine.length?mine:all).slice(0,3);
@@ -2093,7 +2099,8 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var h='<div class="fn-revh">'+(mine.length?'Отзывы по твоему направлению':'Отзывы участников')+'</div>';
       list.forEach(function(r,i){
         h+='<div class="fn-rev">';
-        if(r.type==='video'&&r.videoId) h+='<div class="rv-thumb" style="background-image:url(https://img.youtube.com/vi/'+esc(r.videoId)+'/hqdefault.jpg)" onclick="fnPlayRev('+i+')"><div class="play">▶</div></div>';
+        if(r.type==='tgvideo'&&r.video) h+='<video class="rv-tgv'+(r.round?' round':'')+'" src="'+esc(r.video)+'" controls playsinline webkit-playsinline preload="metadata"></video>';
+        else if(r.type==='video'&&r.videoId) h+='<div class="rv-thumb" style="background-image:url(https://img.youtube.com/vi/'+esc(r.videoId)+'/hqdefault.jpg)" onclick="fnPlayRev('+i+')"><div class="play">▶</div></div>';
         else { var src=r.photo?r.photo:(isImgFile(r.link)?r.link:''); var im=src.split(/[,\n;]+/).map(function(x){return x.trim();}).filter(function(x){return x;})[0];
           if(im) h+='<div class="rv-shot" onclick="openImg(\''+esc(im)+'\')"><img src="'+esc(im)+'" loading="lazy"></div>'; }
         if(r.text) h+='<div class="fn-revt">'+esc(String(r.text).length>220?String(r.text).slice(0,217)+'…':r.text)+'</div>';
