@@ -498,6 +498,29 @@
     .fn-fi{color:var(--ok);flex:0 0 auto;font-weight:800}
     .fn-season{display:flex;gap:10px;align-items:center;background:var(--soft);border:0;border-radius:14px;padding:12px 14px;margin-top:14px;font-size:12.5px;color:var(--fg2);line-height:1.45}
     .fn-season b{color:var(--fg)}
+    .fn-qs{font-size:13.5px;color:var(--fg2);line-height:1.5;margin:-10px 2px 16px}
+    .fn-ot{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .fn-ot b{font-weight:800}
+    .fn-ot i{font-style:normal;font-size:12px;font-weight:600;color:var(--fg2)}
+    .fn-back{display:inline-block;margin-top:12px;font-size:13px;font-weight:700;color:var(--fg3);cursor:pointer;padding:4px 2px}
+    .fn-sea{padding-right:64px}
+    .fn-who{display:inline-block;font-size:10.5px;font-weight:800;padding:2px 8px;border-radius:99px;margin-left:6px;vertical-align:1px;background:var(--soft);color:var(--fg2)}
+    .fn-who.we{background:var(--ok-soft);color:var(--ok)}
+    .fn-how{background:var(--soft);border-radius:var(--r-md);padding:14px 16px;margin-bottom:12px;font-size:13px;line-height:1.5;color:var(--fg2)}
+    .fn-how b{display:block;color:var(--fg);font-size:13.5px;margin-bottom:4px}
+    .fn-mcard{background:var(--card);box-shadow:var(--sh-lg);border-radius:var(--r);padding:20px;text-align:center;animation:fnpop .4s var(--ease) both}
+    .fn-mav{width:92px;height:92px;border-radius:50%;margin:0 auto 12px;overflow:hidden;display:grid;place-items:center;color:#fff;font-weight:800;font-size:26px}
+    .fn-mname{font-size:19px;font-weight:800;letter-spacing:-.3px}
+    .fn-mdir{font-size:12.5px;font-weight:700;color:var(--ok);margin-top:3px}
+    .fn-mbio{font-size:13.5px;color:var(--fg2);line-height:1.5;margin-top:10px}
+    .fn-mvid{width:100%;border-radius:16px;margin-top:14px;background:#000;max-height:300px}
+    .fn-mdo{background:var(--card);box-shadow:var(--sh);border-radius:var(--r-md);padding:6px 16px;margin-top:12px}
+    .fn-rev{background:var(--soft);border-radius:var(--r-md);padding:14px 16px;margin-top:12px;font-size:13.5px;line-height:1.5;color:var(--fg)}
+    .fn-rev span{display:block;font-size:11.5px;font-weight:700;color:var(--fg3);margin-top:6px}
+    #fn-offer .price-row{margin:0}
+    .fn-docq{display:flex;gap:8px;margin-top:10px}
+    .fn-docq span{flex:1;text-align:center;padding:10px 8px;border-radius:12px;background:var(--soft);color:var(--fg);font-size:13px;font-weight:800;cursor:pointer}
+    .fn-docq span:active{transform:scale(.97)}
     .fn-osmall{text-align:center;font-size:12.5px;color:var(--fg3);margin-top:14px}
     .fn-osmall span{color:var(--fg);font-weight:800;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 
@@ -693,86 +716,65 @@
 
   <div class="fn-overlay" id="funnel">
     <div class="fn-x" onclick="fnSkip()">✕</div>
-    <!-- интро -->
-    <div class="fn-screen fn-on" id="fn-intro">
-      <div class="fn-hero">
-        <div class="fn-badge">⚓</div>
-        <div class="fn-h">Помогу тебе<br>выйти в море</div>
-        <div class="fn-d">Отвечу на 3 коротких вопроса — и покажу, какой путь на судно реально твой. Это 20 секунд.</div>
-        <div class="fn-tag">● Без воды, по опыту практика</div>
-      </div>
-      <div class="fn-foot"><button class="fn-btn fn-primary" onclick="fnGo('q1')">Поехали →</button><div class="fn-skip" onclick="fnSkip()">Пропустить</div></div>
+    <!-- 1. направление -->
+    <div class="fn-screen fn-on" id="fn-q1">
+      <div class="fn-sea"><div class="fn-gauge" style="margin-top:0"><div class="fn-track"><div class="fn-fill" id="fn-g1"></div></div><div class="fn-gtxt">Вопрос 1 из 2</div></div></div>
+      <div class="fn-body"><div class="fn-q">Где хочешь работать?</div><div class="fn-qs">Два вопроса, и соберу твой план: что делать и кто тебя поведёт.</div><div class="fn-opts">
+        <div class="fn-opt" onclick="fnPick('direction','crab',this)"><span class="fn-oi">🦀</span> <span class="fn-ot"><b>Краб и рыба</b><i>Норвегия, Дания, Британия</i></span> <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('direction','wash',this)"><span class="fn-oi">🧽</span> <span class="fn-ot"><b>Замывка трюмов</b><i>самый быстрый выход в море</i></span> <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('direction','merch',this)"><span class="fn-oi">🚢</span> <span class="fn-ot"><b>Торговый флот</b><i>стабильные контракты</i></span> <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('direction','yacht',this)"><span class="fn-oi">⛵</span> <span class="fn-ot"><b>Яхты</b><i>нужен английский</i></span> <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('direction','any',this)"><span class="fn-oi">🤔</span> Не знаю, помоги выбрать <span class="fn-ok">✓</span></div>
+      </div></div>
     </div>
-    <!-- q1 -->
-    <div class="fn-screen" id="fn-q1">
-      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">⚓</div><div><div class="fn-name">Помощник AMORE</div><div class="fn-sub"><span class="fn-live"></span> на связи</div></div></div>
-        <div class="fn-gauge"><div class="fn-track"><div class="fn-fill" id="fn-g1"></div></div><div class="fn-gtxt">Шаг 1 из 3</div></div></div>
-      <div class="fn-body"><div class="fn-q">Какое у тебя гражданство?</div><div class="fn-opts">
-        <div class="fn-opt" onclick="fnPick('citizenship','eu',this)"><span class="fn-oi">🇪🇺</span> Страна ЕС <span class="fn-ok">✓</span></div>
+    <!-- 2. гражданство -->
+    <div class="fn-screen" id="fn-q2">
+      <div class="fn-sea"><div class="fn-gauge" style="margin-top:0"><div class="fn-track"><div class="fn-fill" id="fn-g2"></div></div><div class="fn-gtxt">Вопрос 2 из 2</div></div><span class="fn-back" onclick="fnGo('q1')">‹ Назад</span></div>
+      <div class="fn-body"><div class="fn-q">Какой у тебя паспорт?</div><div class="fn-opts">
         <div class="fn-opt" onclick="fnPick('citizenship','ua',this)"><span class="fn-oi">🇺🇦</span> Украина <span class="fn-ok">✓</span></div>
+        <div class="fn-opt" onclick="fnPick('citizenship','eu',this)"><span class="fn-oi">🇪🇺</span> Страна ЕС <span class="fn-ok">✓</span></div>
         <div class="fn-opt" onclick="fnPick('citizenship','md',this)"><span class="fn-oi">🌍</span> Молдова / Грузия / др. <span class="fn-ok">✓</span></div>
         <div class="fn-opt" onclick="fnPick('citizenship','other',this)"><span class="fn-oi">🛂</span> Россия / Беларусь <span class="fn-ok">✓</span></div>
       </div></div>
     </div>
-    <!-- q2 -->
-    <div class="fn-screen" id="fn-q2">
-      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">⚓</div><div><div class="fn-name">Помощник AMORE</div><div class="fn-sub"><span class="fn-live"></span> на связи</div></div></div>
-        <div class="fn-gauge"><div class="fn-track"><div class="fn-fill" id="fn-g2"></div></div><div class="fn-gtxt">Шаг 2 из 3</div></div></div>
-      <div class="fn-body"><div class="fn-q">Есть морские документы?</div><div class="fn-opts">
-        <div class="fn-opt" onclick="fnPick('documents','yes',this)"><span class="fn-oi">✅</span> BST + медкомиссия есть <span class="fn-ok">✓</span></div>
-        <div class="fn-opt" onclick="fnPick('documents','one',this)"><span class="fn-oi">📄</span> Только один из них <span class="fn-ok">✓</span></div>
-        <div class="fn-opt" onclick="fnPick('documents','no',this)"><span class="fn-oi">❌</span> Пока нет <span class="fn-ok">✓</span></div>
-        <div class="fn-opt" onclick="fnPick('documents','dk',this)"><span class="fn-oi">🤷</span> Не знаю, что нужно <span class="fn-ok">✓</span></div>
-      </div></div>
-    </div>
-    <!-- q3 -->
-    <div class="fn-screen" id="fn-q3">
-      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">⚓</div><div><div class="fn-name">Помощник AMORE</div><div class="fn-sub"><span class="fn-live"></span> на связи</div></div></div>
-        <div class="fn-gauge"><div class="fn-track"><div class="fn-fill" id="fn-g3"></div></div><div class="fn-gtxt">Шаг 3 из 3</div></div></div>
-      <div class="fn-body"><div class="fn-q">Куда хочешь попасть?</div><div class="fn-opts">
-        <div class="fn-opt" onclick="fnPick('direction','crab',this)"><span class="fn-oi">🦀</span> Краболов / рыбак <span class="fn-ok">✓</span></div>
-        <div class="fn-opt" onclick="fnPick('direction','wash',this)"><span class="fn-oi">🧽</span> Замывка трюмов <span class="fn-ok">✓</span></div>
-        <div class="fn-opt" onclick="fnPick('direction','yacht',this)"><span class="fn-oi">⛵</span> Яхтинг <span class="fn-ok">✓</span></div>
-        <div class="fn-opt" onclick="fnPick('direction','merch',this)"><span class="fn-oi">🚢</span> Торговый флот <span class="fn-ok">✓</span></div>
-        <div class="fn-opt" onclick="fnPick('direction','any',this)"><span class="fn-oi">🤔</span> Ещё не решил <span class="fn-ok">✓</span></div>
-      </div></div>
-    </div>
-    <!-- ai chat -->
-    <div class="fn-screen" id="fn-chat">
-      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">🤖</div><div><div class="fn-name">AI-ассистент AMORE</div><div class="fn-sub"><span class="fn-live"></span> анализирует ответы</div></div></div></div>
-      <div class="fn-body fnc-body" id="fn-chatBody"></div>
-      <div class="fn-foot fnc-foot" id="fn-chatQR"></div>
-    </div>
-    <!-- analyze -->
-    <div class="fn-screen" id="fn-analyze"><div class="fn-analyze"><div class="fn-radar"><span>⚓</span></div><div class="fn-h" style="font-size:20px">Смотрю твои ответы…</div><div class="fn-typing"><i></i><i></i><i></i></div></div></div>
-    <!-- result -->
+    <!-- собираю план -->
+    <div class="fn-screen" id="fn-analyze"><div class="fn-analyze"><div class="fn-radar"><span>⚓</span></div><div class="fn-h" style="font-size:20px">Собираю твой план…</div><div class="fn-typing"><i></i><i></i><i></i></div></div></div>
+    <!-- 4. план -->
     <div class="fn-screen" id="fn-result">
-      <div class="fn-sea"><div class="fn-mentor"><div class="fn-av">⚓</div><div><div class="fn-name">Помощник AMORE</div><div class="fn-sub">Готово · твой разбор</div></div></div></div>
-      <div class="fn-body" id="fn-resultBox"></div>
-      <div class="fn-foot"><button class="fn-btn fn-primary" onclick="fnGo('offer')">Показать мой путь →</button></div>
+      <div class="fn-body" id="fn-resultBox" style="padding-top:calc(58px + var(--safe-top,0px))"></div>
+      <div class="fn-foot"><button class="fn-btn fn-primary" onclick="fnMentor()">Кто меня поведёт? →</button></div>
     </div>
-    <!-- offer -->
+    <!-- 5. ментор -->
+    <div class="fn-screen" id="fn-mentor">
+      <div class="fn-body" id="fn-mentorBox" style="padding-top:calc(58px + var(--safe-top,0px))"></div>
+      <div class="fn-foot"><button class="fn-btn fn-primary" onclick="fnCommit()">Дальше →</button></div>
+    </div>
+    <!-- 6. «я готов» -->
+    <div class="fn-screen" id="fn-commit">
+      <div class="fn-hero">
+        <div class="fn-badge">🤝</div>
+        <div class="fn-h">Готов заниматься этим ближайшие 2–3 месяца?</div>
+        <div class="fn-d">Работу в море не находят за неделю. Нужно сделать документы, отправлять отклики и быть на связи с ментором.</div>
+      </div>
+      <div class="fn-foot"><button class="fn-btn fn-primary" onclick="fnYes()">Да, я готов 👊</button><div class="fn-skip" onclick="fnStartFree('commit')">Пока не готов. Начну с бесплатного</div></div>
+    </div>
+    <!-- 7. цена -->
     <div class="fn-screen" id="fn-offer">
-      <div class="fn-body">
-        <div style="text-align:center;font-size:34px;margin:6px 0 2px">🧭</div>
-        <div class="fn-oh">Твой короткий путь в море</div>
-        <div class="fn-osub" id="fn-offerSub">Всё, что нужно для первого контракта — в одном месте.</div>
-        <div class="fn-plan">
-          <div class="fn-ptop"><span style="font-size:26px">⚓</span><div><div class="fn-pname">AMORE</div><div style="font-size:11px;color:var(--fg2);font-weight:600">сообщество для работы в море</div></div><div class="fn-price"><b>50€</b><span>в месяц</span></div></div>
+      <div class="fn-body" style="padding-top:calc(58px + var(--safe-top,0px))">
+        <div class="fn-oh" id="fn-offerTitle">Начинаем по твоему плану?</div>
+        <div class="fn-osub" id="fn-offerSub">Всё, что нужно для первого контракта, в одном месте.</div>
+        <div class="fn-plan" style="padding:8px 18px">
+          <div class="fn-feat"><span class="fn-fi">✓</span> <span id="fn-offerMentor">Ментор-практик по твоему направлению</span></div>
           <div class="fn-feat"><span class="fn-fi">✓</span> База 5 600 работодателей Норвегии, Дании, Британии</div>
           <div class="fn-feat"><span class="fn-fi">✓</span> Отклики работодателям прямо из приложения</div>
           <div class="fn-feat"><span class="fn-fi">✓</span> Помощь с документами и резюме</div>
-          <div class="fn-feat"><span class="fn-fi">✓</span> Наставник-практик по твоему направлению</div>
         </div>
-        <div class="fn-season">🗓️ <div><b>Крабовый сезон стартует в январе.</b> Документы и поиск судна — это месяцы. Кто готовится сейчас — тот в январе в море.</div></div>
-        <div class="fn-freebar" id="fn-freebar">
-          <span class="fn-freebar-dot"></span>
-          <div><div class="fn-freebar-t">Первые шаги — бесплатно</div><div class="fn-freebar-s">Собери резюме, открой 5 контактов и отправь 3 отклика. Без оплаты.</div></div>
-        </div>
+        <div style="margin-top:16px" id="fn-offerPay"></div>
+        <div class="fn-season" id="fn-season" style="display:none">🗓️ <div><b>Крабовый сезон стартует в январе.</b> Документы и поиск судна — это месяцы. Кто готовится сейчас — тот в январе в море.</div></div>
       </div>
       <div class="fn-foot">
-        <button class="fn-btn fn-primary fn-primary-glow" onclick="fnStartFree()">Попробовать бесплатно →</button>
-        <div class="fn-osmall">Уже готов? <span onclick="fnSubscribe()">Открыть весь путь — 50€/мес (или 120€ за 3 месяца)</span></div>
+        <button class="fn-btn fn-primary fn-primary-glow" onclick="fnPay()"><span class="pay-btn-l"></span>&nbsp;→</button>
+        <div class="fn-skip" onclick="fnStartFree('offer')">Сначала попробую бесплатно: резюме, 5 контактов, 3 отклика</div>
       </div>
     </div>
   </div>
@@ -804,6 +806,7 @@
     var TRIAL_HOURS = 24;
     var TRIAL_ENABLED = false; // true — «Попробовать 24 часа» главная кнопка; false — как было: 120€/50€. Те, кто уже в триале, дорабатывают по-старому
     var isTrial = false, trialEnds = null, trialUsed = false, trialExpired = false;
+    var AI_OK = true; // есть ли на сервере помощник (ключ). Нет — в ответах работодателю сразу поле и «Отправить», без «Составить письмо»
     var PROMO_CODE = "CRABINTOP";
     // Пришёл из бота ментора (кнопка с ?src=yacht / ?src=washing) → оплата идёт по подписке этого ментора.
     // Метка запоминается на устройстве: если человек вернётся в приложение позже, он останется за ментором.
@@ -1216,7 +1219,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     var PATH_THREADS = { "Рыболовные суда": "", "Замывка трюмов": "", "Яхты": "", "Торговый флот": "" };
     var PATH_DIR2DOC = { "Рыболовные суда":"crab", "Замывка трюмов":"wash", "Яхты":"yacht", "Торговый флот":"merchant" };
     var PATH_WHO = {
-      "Рыболовные суда": "Норвегия, Дания, Британия — для Украины и ЕС; для РФ, РБ и СНГ — краб в России, рыбаки в Африке. Фабрика — самый реальный вход без опыта; краб — после фабрики или с опытом. Высокие деньги, тяжёлая работа, сезон.",
+      "Рыболовные суда": "Норвегия, Дания, Британия берут с любым паспортом, но нужна сезонная виза: с опытом заходить намного проще. Для РФ, РБ и СНГ есть ещё краб в России и рыбаки в Африке. Фабрика — самый реальный вход без опыта; краб — после фабрики или с опытом. Высокие деньги, тяжёлая работа, сезон.",
       "Замывка трюмов": "Балкеры по всему миру, бригадой. Нужны 4 базовых STCW и книжка. Ментор устраивает напрямую — самый быстрый выход в море.",
       "Яхты": "Средиземноморье, сезон март–октябрь. Английский обязателен, ENG1 вместо медкомиссии. Вход через доки и личное знакомство.",
       "Торговый флот": "Контейнеровозы, балкеры, ro-ro. Долгий, но самый стабильный путь: кадет → матрос → офицер. Ментор ведёт лично."
@@ -1906,30 +1909,76 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     }
     function maybeStartTour(){ if(tourShouldRun()){ tourI=0; setTimeout(renderTour, 700); } }
 
-    /* ===== ВОРОНКА-ОПРОСНИК ===== */
-    var FUNNEL_VERSION='2'; // подними номер, чтобы показать воронку заново
+    /* ===== ВОРОНКА v3: направление → паспорт → документы → план → ментор → «я готов» → цена ===== */
+    var FUNNEL_VERSION='3'; // подними номер, чтобы показать воронку заново
+    // Недель до первого рейса с нуля (без документов). 0 = срок в плане не показываем. Ставить только реальные цифры менторов.
+    var FN_WEEKS={crab:0, wash:0, merch:0, yacht:0};
+    var FN_DOC_WEEKS=2; // сколько из этого срока уходит на документы (у кого они есть — срок короче)
+    // Ссылка на кружок ментора (mp4). Пусто = без видео.
+    var FN_VIDEO={crab:'', wash:'', merch:'', yacht:''};
+    var FN_DIR={
+      crab:{n:'краб и рыба',p:'6 000–20 000 € в месяц',i:'🦀',path:'Рыболовные суда',tg:'crabnorway'},
+      wash:{n:'замывка трюмов',p:'2 000–3 000 € за контракт',i:'🧽',path:'Замывка трюмов',tg:'makarenko_88'},
+      yacht:{n:'яхты',p:'3 500–20 000 € в месяц',i:'⛵',path:'Яхты',tg:'shifvmmgf'},
+      merch:{n:'торговый флот',p:'1 000–10 000 € в месяц',i:'🚢',path:'Торговый флот',tg:'cmnnnt'},
+      any:{n:'подберём вместе',p:'',i:'🧭',path:null,tg:'crabnorway'}
+    };
+    // Что говорим про паспорта и вход. Тексты согласованы с Даней и менторами, менять только вместе с ними.
+    var FN_HOW={
+      crab:'Норвегия берёт с любым паспортом, но нужна сезонная виза. Без опыта её получают редко, с опытом заходить намного проще. Частый путь: сначала замывка или торговый флот, потом Норвегия.',
+      wash:'Балкеры по всему миру, работа бригадой. Ментор устраивает напрямую. Это самый быстрый выход в море.',
+      merch:'Контейнеровозы, балкеры, ro-ro. Долгий, но самый стабильный путь: кадет, матрос, офицер.',
+      yacht:'Средиземноморье, сезон с марта по октябрь. Английский обязателен. Вход через доки и личное знакомство.'
+    };
     var fnState={}, fnLeadSent=false;
     function fnShouldRun(){ try{ return localStorage.getItem('amore_funnel_v')!==FUNNEL_VERSION; }catch(e){ return false; } }
     function fnMarkDone(){ try{ localStorage.setItem('amore_funnel_v',FUNNEL_VERSION); }catch(e){} }
-    function showFunnel(){ track('fn_show'); fnState={}; fnLeadSent=false; ['fn-g1','fn-g2','fn-g3'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.width='0';}); fnGo('intro'); document.getElementById('funnel').className='fn-overlay on'; }
+    function fnSaveState(){ try{ localStorage.setItem('amore_fn_state',JSON.stringify(fnState)); }catch(e){} }
+    function fnLoadState(){ try{ var o=JSON.parse(localStorage.getItem('amore_fn_state')||'{}'); return (o&&typeof o==='object')?o:{}; }catch(e){ return {}; } }
+    function fnDir(){ return FN_DIR[fnState.direction]||FN_DIR.any; }
+    function fnMentorObj(){ var tgn=fnDir().tg; return MENTORS.filter(function(m){return m.tg===tgn;})[0]||MENTORS[0]; }
+    function showFunnel(){
+      track('fn_show'); fnLeadSent=false; fnState=fnLoadState();
+      ['fn-g1','fn-g2'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.width='0';});
+      document.getElementById('funnel').className='fn-overlay on';
+      // уже отвечал, но закрыл на полпути — не мучаем вопросами заново, сразу план
+      if(fnState.direction&&fnState.citizenship){ fnPlan(); } else { fnState={}; fnGo('q1'); }
+    }
     function maybeStartFunnel(){ if(!isMember && fnShouldRun()){ setTimeout(showFunnel, 650); } }
+    function showFunnelFromBot(gp){
+      var dir=FN_DIR[gp.dir]?gp.dir:'', cit=({ua:1,eu:1,md:1,other:1})[gp.cit]?gp.cit:'';
+      if(!dir){ showFunnel(); return; }
+      var old=fnLoadState();
+      if(!cit && old.citizenship) cit=old.citizenship;
+      if(!cit){ // направление выбрал в боте, а паспорт бот не знает (старый пользователь): один вопрос и план
+        fnState={direction:dir}; fnLeadSent=false; track('fn_show',{from:'bot',dir:dir});
+        document.getElementById('funnel').className='fn-overlay on';
+        var bk=document.querySelector('#fn-q2 .fn-back'); if(bk) bk.style.display='none';
+        var g=document.querySelector('#fn-q2 .fn-gtxt'); if(g) g.textContent='Один вопрос';
+        fnGo('q2'); return;
+      }
+      fnState={direction:dir, citizenship:cit}; fnLeadSent=false;
+      track('fn_show',{from:'bot',dir:dir});
+      ['fn-g1','fn-g2'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.width='0';});
+      document.getElementById('funnel').className='fn-overlay on';
+      if(old.documents && old.direction===dir) fnState.documents=old.documents;
+      fnSaveState(); fnPlan();
+    }
     window.fnGo=function(id){
       document.querySelectorAll('#funnel .fn-screen').forEach(function(s){s.className='fn-screen';});
       var el=document.getElementById('fn-'+id); if(el)el.className='fn-screen fn-on';
       var b=el&&el.querySelector('.fn-body'); if(b)b.scrollTop=0;
-      if(id==='q1')setTimeout(function(){fnFill('fn-g1',33);},80);
-      if(id==='q2')setTimeout(function(){fnFill('fn-g2',66);},80);
-      if(id==='q3')setTimeout(function(){fnFill('fn-g3',100);},80);
+      if(id==='q1')setTimeout(function(){fnFill('fn-g1',50);},80);
+      if(id==='q2')setTimeout(function(){fnFill('fn-g2',100);},80);
     };
     function fnFill(id,pct){var e=document.getElementById(id);if(e)e.style.width=pct+'%';}
     window.fnPick=function(key,val,el){
-      fnState[key]=val; track('fn_pick',{k:key,v:val});
+      fnState[key]=val; track('fn_pick',{k:key,v:val}); hap('select');
       var box=el.parentNode; box.querySelectorAll('.fn-opt').forEach(function(o){o.className='fn-opt';}); el.className='fn-opt fn-sel';
       setTimeout(function(){
-        if(key==='citizenship')fnGo('q2');
-        else if(key==='documents')fnGo('q3');
-        else { fnGo('chat'); fnSendLead(); startFnChat(); }
-      },340);
+        if(key==='direction')fnGo('q2');
+        else { fnSaveState(); fnGo('analyze'); setTimeout(fnPlan,1300); }
+      },300);
     };
     function fnSendLead(){
       if(fnLeadSent||!tg||!tg.initData)return; fnLeadSent=true;
@@ -1938,112 +1987,83 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           body:JSON.stringify({initData:tg.initData,citizenship:fnState.citizenship,documents:fnState.documents,direction:fnState.direction})}).catch(function(){});
       }catch(e){}
     }
-    function fnResult(){
-      var cit={eu:'Гражданство ЕС — ты в сильной позиции. Норвежцы смотрят на таких в первую очередь.',
-        ua:'Украинцам сейчас реально попасть в море — многие берут в приоритете. Разберём твою ситуацию точечно.',
-        md:'С твоим гражданством вариантов хватает — важно зайти к правильным работодателям, а не вслепую.',
-        other:'С таким гражданством путь сложнее, но не закрыт. Честно разберём, что реально в твоём случае.'}[fnState.citizenship]||'';
-      var doc={yes:'Документы уже есть — считай, половина пути пройдена.',
-        one:'Один документ есть — второй добьём быстро, это неделя.',
-        no:'Документов пока нет — не страшно. BST и медкомиссия делаются буквально за неделю.',
-        dk:'С документами разберёмся: нужны всего два — BST и медкомиссия. Покажем где и как.'}[fnState.documents]||'';
-      var dir={crab:{n:'краболов / рыбак',p:'6 000–20 000 € в месяц',i:'🦀'},
-        wash:{n:'замывка трюмов',p:'2 000–3 000 € за контракт',i:'🧽'},
-        yacht:{n:'яхтинг',p:'3 500–20 000 € в месяц',i:'⛵'},
-        merch:{n:'торговый флот',p:'1 000–10 000 € в месяц',i:'🚢'},
-        any:{n:'море (определимся вместе)',p:'от 3 500 € в месяц',i:'🧭'}}[fnState.direction]||{n:'море',p:'',i:'🧭'};
-      var h='<div class="fn-verdict"><div class="fn-veyebrow">Твой разбор</div><div class="fn-vtitle">'+dir.i+' Направление: '+dir.n+'</div><div class="fn-vtext">'+cit+' '+doc+'</div></div>';
-      h+='<div class="fn-path">';
+    // «к середине февраля» — только если в FN_WEEKS стоит реальный срок
+    function fnDateTxt(){
+      var w=FN_WEEKS[fnState.direction]||0; if(!w) return '';
+      if(fnState.documents==='yes') w=Math.max(1,w-FN_DOC_WEEKS);
+      var d=new Date(Date.now()+w*7*86400000), day=d.getDate();
+      var mon=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'][d.getMonth()];
+      return (day<=10?'к началу ':(day<=20?'к середине ':'к концу '))+mon;
+    }
+    function fnPlan(again){
+      var dir=fnDir(), m=fnMentorObj(), mName=m.name.split(' ')[0];
+      var cit=fnState.citizenship==='eu'?'С паспортом ЕС ты в сильной позиции: таких смотрят в первую очередь.':'Разберём твою ситуацию по шагам: что делать и в каком порядке.';
+      var when=fnDateTxt();
+      var h='<div class="fn-verdict"><div class="fn-veyebrow">Твой план</div><div class="fn-vtitle">'+dir.i+' '+(fnState.direction==='any'?'Направление подберём вместе':('Направление: '+dir.n))+'</div>';
+      if(when) h+='<div class="fn-vtitle" style="font-size:17px;margin-top:10px">Реальный срок: на судне '+when+'</div>';
+      h+='<div class="fn-vtext">'+cit+'</div></div>';
+      var how=FN_HOW[fnState.direction]||'';
+      if(how) h+='<div class="fn-how"><b>'+(fnState.direction==='crab'?'Норвегия: как туда заходят':'Берут с любым паспортом')+'</b>'+esc(how)+'</div>';
       var steps=[];
-      if(fnState.documents==='yes') steps.push(['Резюме моряка','Собери CV по шаблону — за минуту, бесплатно.']);
-      else steps.push(['Сделать документы','BST + медкомиссия. Поможем, где и как — быстро и без переплат.']);
-      steps.push(['Выйти на работодателей','База '+dir.n+': пиши напрямую, без посредников.']);
-      steps.push(['Заработок '+dir.p,'Реальные цифры по твоему направлению из практики.']);
-      steps.forEach(function(s,i){ h+='<div class="fn-prow" style="animation-delay:'+(i*0.09)+'s"><div class="fn-pn">'+(i+1)+'</div><div><div class="fn-ph">'+s[0]+'</div><div class="fn-pd">'+s[1]+'</div></div></div>'; });
+      if(fnState.documents==='yes') steps.push(['Документы','','Уже есть. Половина пути пройдена.','done']);
+      else if(fnState.documents==='no') steps.push(['Документы','мы','Ничего страшного. В AMORE мы помогаем их сделать: скажем, какие нужны и где быстрее и без переплат.']);
+      else steps.push(['Документы','мы','Скажем, какие нужны под твоё направление и где сделать быстрее и без переплат. Они у тебя уже есть?<div class="fn-docq"><span onclick="fnDocs(\'yes\')">Уже есть</span><span onclick="fnDocs(\'no\')">Пока нет</span></div>']);
+      if(fnState.direction==='any') steps.push(['Выбрать направление','мы','Ментор посмотрит твою ситуацию и скажет, куда тебе реально зайти.']);
+      steps.push(['Резюме моряка','мы','Собирается в приложении за минуту, на английском или норвежском.']);
+      steps.push(['Отклики работодателям','мы','Пишешь напрямую из приложения, без посредников. Ответы переведём на русский.']);
+      steps.push(['Ментор на связи','мы',mName+' отвечает на твои вопросы лично.']);
+      steps.push(['Первый контракт','',dir.p?('Заработок по направлению: '+dir.p+'.'):'Цифры по заработку покажем, когда определимся с направлением.']);
+      h+='<div class="fn-path">';
+      steps.forEach(function(s,i){
+        var who=s[1]?'<span class="fn-who'+(s[1]==='мы'?' we':'')+'">'+(s[1]==='мы'?'помогаем мы':'делаешь ты')+'</span>':'';
+        h+='<div class="fn-prow" style="animation-delay:'+(i*0.07)+'s"><div class="fn-pn">'+(s[3]==='done'?'✓':(i+1))+'</div><div><div class="fn-ph">'+s[0]+who+'</div><div class="fn-pd">'+s[2]+'</div></div></div>';
+      });
       h+='</div>';
       document.getElementById('fn-resultBox').innerHTML=h;
-      track('fn_result',{dir:fnState.direction||'',goal:fnState.goal||'',ready:fnState.ready||''});
-      document.getElementById('fn-offerSub').textContent='Под твоё направление — '+dir.n+'. Всё для первого контракта в одном месте.';
-      fnGo('result');
+      if(!again) track('fn_result',{dir:fnState.direction||'',cit:fnState.citizenship||''});
+      // направление сразу в «Мой путь», чтобы после воронки апка была уже под него
+      try{ if(dir.path && !PATH.direction){ PATH.direction=dir.path; pathSave(); } }catch(e){}
+      if(!again) fnGo('result');
     }
-    /* ---------- AI-ЧАТ В ВОРОНКЕ (скриптованный, под tone AMORE) ---------- */
-    var fnChat = { steps:[], i:0 };
-    function fnChatBuild(){
-      var dirLine={
-        crab:'🦀 Краболов — серьёзный выбор. Деньги там реальные, но работа жёсткая. Сам начинал именно с него.',
-        wash:'🧽 Замывка трюмов — быстрый вход в море и живые деньги за контракт. Нормальный старт.',
-        yacht:'⛵ Яхтинг — чисто, престижно и платят хорошо. Но заходят туда по-своему — покажу как.',
-        merch:'🚢 Торговый флот — стабильные контракты и рост по карьере. Разложу, с чего начать.',
-        any:'🧭 Ещё не определился — это нормально. По ответам подскажу, что реально твоё.'
-      }[fnState.direction]||'Принял. Гляну по твоим ответам.';
-      var docLine={
-        yes:'И документы у тебя уже есть — считай, половина пути пройдена. Ты реально близко.',
-        one:'Один документ есть — второй добьём за неделю, это не преграда.',
-        no:'Документов пока нет — это не страшно. BST и медкомиссия делаются за неделю-две.',
-        dk:'По документам всё просто: нужны всего два — BST и медкомиссия. Покажу, где и как.'
-      }[fnState.documents]||'';
-      return [
-        {t:'msg', text:'Привет 👋 Гляну твои ответы — пару секунд.'},
-        {t:'msg', text:dirLine},
-        {t:'q', key:'goal', text:'Скажи честно: тебе в море ради денег или хочешь поменять жизнь целиком?',
-          opts:[{label:'💰 Ради денег',val:'money'},{label:'🔄 Сменить жизнь',val:'life'},{label:'И то, и то',val:'both'}]},
-        {t:'react', key:'goal', map:{
-          money:'Понятно, деньги — честная мотивация. В море они есть, если зайти правильно.',
-          life:'Уважаю. Море реально меняет жизнь — сам это прошёл.',
-          both:'Так и должно быть — и деньги, и другая жизнь. Это совмещается.'}},
-        {t:'q', key:'ready', text:'Если помогу с документами и выведу на работодателя — готов выйти в первый рейс в ближайшие 1–2 месяца?',
-          opts:[{label:'🔥 Да, готов',val:'yes'},{label:'🧭 Нужно подготовиться',val:'prep'},{label:'Пока думаю',val:'think'}]},
-        {t:'msg', textFn:function(){ return docLine || 'Хорошо, тогда двигаемся по шагам.'; }},
-        {t:'last', text:'Понял тебя. Собираю разбор под твой случай — и покажу, что можно сделать прямо сейчас бесплатно 🧭'}
-      ];
-    }
-    window.startFnChat=function(){
-      var body=document.getElementById('fn-chatBody'); if(body)body.innerHTML='';
-      var qr=document.getElementById('fn-chatQR'); if(qr)qr.innerHTML='';
-      fnChat.steps=fnChatBuild(); fnChat.i=0;
-      fnChatNext();
+    window.fnDocs=function(v){
+      fnState.documents=v; fnSaveState(); track('fn_pick',{k:'documents',v:v}); hap('select');
+      var box=document.getElementById('fn-resultBox'), st=box?box.scrollTop:0; fnPlan(true); if(box) box.scrollTop=st;
+      fnSendLead();
     };
-    function fnChatScroll(){ var b=document.getElementById('fn-chatBody'); if(b)b.scrollTop=b.scrollHeight; }
-    function fnChatTyping(cb, ms){
-      var body=document.getElementById('fn-chatBody'); if(!body){cb();return;}
-      var t=document.createElement('div'); t.className='fnc-row fnc-a';
-      t.innerHTML='<div class="fnc-av">🤖</div><div class="fnc-b fnc-typing"><span></span><span></span><span></span></div>';
-      body.appendChild(t); fnChatScroll();
-      setTimeout(function(){ if(t.parentNode)t.parentNode.removeChild(t); cb(); }, ms||900);
+    window.fnMentor=function(){
+      fnSendLead(); // лид уходит, когда человек пошёл дальше плана (или отметил документы)
+      var m=fnMentorObj(), dir=fnDir(), v=FN_VIDEO[fnState.direction]||'';
+      var h='<div class="fn-mcard"><div class="fn-mav" data-init="'+m.init+'" style="background:'+m.grad+'"><img src="'+esc(m.photo)+'" style="width:100%;height:100%;object-fit:cover" onerror="avFallback(this)"></div>';
+      h+='<div class="fn-veyebrow" style="opacity:.55;margin-bottom:6px">Твой ментор</div>';
+      h+='<div class="fn-mname">'+esc(m.name)+' <span style="color:var(--ok)">✓</span></div><div class="fn-mdir">'+esc(m.dir)+'</div><div class="fn-mbio">'+esc(m.bio)+'</div>';
+      if(v) h+='<video class="fn-mvid" src="'+esc(v)+'" controls playsinline preload="metadata"></video>';
+      h+='</div>';
+      h+='<div class="fn-mdo">'
+        +'<div class="fn-feat"><span class="fn-fi">✓</span> Отвечает на твои вопросы лично в Telegram</div>'
+        +'<div class="fn-feat"><span class="fn-fi">✓</span> Сам прошёл этот путь и знает, где люди теряют время и деньги</div>'
+        +'<div class="fn-feat"><span class="fn-fi">✓</span> Закрытая группа участников по твоему направлению</div></div>';
+      var r=fnState.direction==='crab'||fnState.direction==='any'?pickReview():null; // запасные отзывы про Норвегию; под другими менторами чужой отзыв не ставим
+      if(r&&r.text) h+='<div class="fn-rev">'+esc(r.text)+'<span>'+esc(r.name)+' · участник AMORE</span></div>';
+      document.getElementById('fn-mentorBox').innerHTML=h;
+      track('fn_step',{s:'mentor',dir:fnState.direction||''}); fnGo('mentor');
+    };
+    window.fnCommit=function(){ track('fn_step',{s:'commit'}); fnGo('commit'); };
+    window.fnYes=function(){ track('fn_yes'); hap('select'); fnOffer(); };
+    function fnOffer(){
+      var dir=fnDir(), m=fnMentorObj(), when=fnDateTxt();
+      SELECTED_PLAN='3m'; _lastLock='funnel_offer';
+      document.getElementById('fn-offerTitle').textContent=when?('На судне '+when+'. Начинаем?'):'Начинаем по твоему плану?';
+      document.getElementById('fn-offerSub').textContent=fnState.direction==='any'?'Сначала ментор поможет выбрать направление. Дальше идём по шагам.':('Твоё направление: '+dir.n+'. Всё для первого контракта в одном месте.');
+      document.getElementById('fn-offerMentor').textContent='Твой ментор: '+m.name;
+      document.getElementById('fn-offerPay').innerHTML=priceTilesHTML();
+      document.getElementById('fn-season').style.display=(fnState.direction==='crab')?'flex':'none';
+      document.querySelectorAll('.pay-btn-l').forEach(function(b){ b.textContent=payBtnLabel(); });
+      track('fn_step',{s:'offer'}); track('lock_show',{kind:'funnel_offer'});
+      fnGo('offer');
     }
-    function fnChatSay(text, cb){
-      fnChatTyping(function(){
-        var body=document.getElementById('fn-chatBody'); if(!body)return;
-        var r=document.createElement('div'); r.className='fnc-row fnc-a';
-        r.innerHTML='<div class="fnc-av">🤖</div><div class="fnc-b">'+text+'</div>';
-        body.appendChild(r); fnChatScroll(); if(cb)setTimeout(cb,420);
-      }, Math.min(1500, 550+String(text).length*11));
-    }
-    function fnChatUser(label){
-      var body=document.getElementById('fn-chatBody'); if(!body)return;
-      var r=document.createElement('div'); r.className='fnc-row fnc-u';
-      r.innerHTML='<div class="fnc-b fnc-ub">'+label+'</div>';
-      body.appendChild(r); fnChatScroll();
-    }
-    function fnChatNext(){
-      if(fnChat.i>=fnChat.steps.length){ setTimeout(fnResult,600); return; }
-      var s=fnChat.steps[fnChat.i++];
-      if(s.t==='msg'){ fnChatSay(s.textFn?s.textFn():s.text, fnChatNext); }
-      else if(s.t==='last'){ fnChatSay(s.text, function(){ setTimeout(fnResult,950); }); }
-      else if(s.t==='react'){ var txt=(s.map&&s.map[fnState[s.key]])||''; if(txt) fnChatSay(txt, fnChatNext); else fnChatNext(); }
-      else if(s.t==='q'){ fnChatSay(s.text, function(){ fnChatShowQR(s); }); }
-    }
-    function fnChatShowQR(s){
-      var qr=document.getElementById('fn-chatQR'); if(!qr)return; qr.innerHTML='';
-      s.opts.forEach(function(o){
-        var b=document.createElement('button'); b.className='fnc-qr'; b.textContent=o.label;
-        b.onclick=function(){ fnState[s.key]=o.val; fnChatUser(o.label); qr.innerHTML=''; fnChatNext(); };
-        qr.appendChild(b);
-      });
-      fnChatScroll();
-    }
+    window.fnPay=function(){ _lastLock='funnel_offer'; fnMarkDone(); payNow(); };
     window.fnSkip=function(){ track('fn_skip'); fnMarkDone(); document.getElementById('funnel').className='fn-overlay'; };
-    window.fnStartFree=function(){ track('fn_free'); fnMarkDone(); fnTrialStart(); document.getElementById('funnel').className='fn-overlay'; setTimeout(function(){ switchView('path'); }, 200); };
+    window.fnStartFree=function(from){ track('fn_free',{from:from||''}); fnMarkDone(); fnTrialStart(); document.getElementById('funnel').className='fn-overlay'; setTimeout(function(){ switchView('path'); }, 200); };
     function fnTrialStart(){
       if(!tg||!tg.initData)return;
       try{ fetch(BACKEND_URL+'/trialStart',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})}).catch(function(){}); }catch(e){}
@@ -2775,12 +2795,13 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         } else {
           h+='<div class="ib-msg ib-in"><div class="ib-meta">'+(m.auto?'Автоответ':'Работодатель')+' · '+esc(ibDate(m.ts))+(m.subject?' · '+esc(m.subject):'')+(m.att?' · 📎 есть вложение':'')+'</div>'+esc(m.body||'(текст пустой — возможно, только вложение)');
           if(m.tr) h+='<div class="ib-tr"><div class="ib-meta">🌐 Перевод</div>'+esc(m.tr)+'</div>';
-          else h+='<div><span class="ib-link" id="ibtr'+k+'" onclick="inboxTranslate('+k+')">🌐 Перевести на русский</span></div>';
+          else if(AI_OK) h+='<div><span class="ib-link" id="ibtr'+k+'" onclick="inboxTranslate('+k+')">🌐 Перевести на русский</span></div>';
           h+='</div>';
         }
       });
       if(t.auto){ h+='<div style="font-size:12px;color:var(--fg2);line-height:1.5;margin:4px 2px">Это автоответ: письмо дошло, отвечать не нужно. Когда человек вернётся и напишет сам — ответ появится во вкладке «Ответы».</div>'; return h; }
       var d=IB_DRAFT[t.employer]||{};
+      if(!AI_OK){ d=IB_DRAFT[t.employer]=IB_DRAFT[t.employer]||{}; d.show=true; d.comment=''; }
       h+='<div class="plan-box" style="margin-top:8px"><div style="font-size:14px;font-weight:800">✍️ Ответить работодателю</div>';
       if(!d.show){
         h+='<div style="font-size:12px;color:var(--fg2);margin:6px 0 10px;line-height:1.5">Напиши по-русски своими словами, что хочешь ответить. Помощник составит письмо на языке работодателя, ты проверишь и отправишь.</div>';
@@ -2793,7 +2814,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         h+='<textarea class="ib-ta" id="ibLetter" style="min-height:190px" oninput="ibKeep(\'letter\',this.value)">'+esc(d.letter||'')+'</textarea>';
         h+='<div style="font-size:11.5px;color:var(--fg2);margin-top:6px;line-height:1.45">Проверь текст. Если есть слова в [квадратных скобках] — впиши туда свои данные.</div>';
         h+='<button class="btn btn-gold" id="ibSendBtn" onclick="inboxSend()">📤 Отправить работодателю</button>';
-        h+='<div style="text-align:center"><span class="ib-link" onclick="inboxRedo()">← Переделать с помощником</span></div>';
+        if(AI_OK) h+='<div style="text-align:center"><span class="ib-link" onclick="inboxRedo()">← Переделать с помощником</span></div>';
       }
       h+='</div>';
       return h;
@@ -2929,7 +2950,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(sp==='inbox'||sp==='inbox_auto'){ window.__goInbox=(sp==='inbox_auto'?'auto':'live'); window.__deepLink=true; }
         try{ if(new URLSearchParams(location.search).get('go')==='inbox'){ window.__goInbox='live'; window.__deepLink=true; } }catch(e){}
         // из бота: кнопка «Шаг n» → ?go=stepN
-        try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm){ window.__goStep=parseInt(gm[1],10); window.__deepLink=true; } if(go==='pay'){ window.__goPay=true; window.__deepLink=true; } }catch(e){}
+        try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm){ window.__goStep=parseInt(gm[1],10); window.__deepLink=true; } if(go==='pay'){ window.__goPay=true; window.__deepLink=true; } if(go==='plan'){ var _qs=new URLSearchParams(location.search); window.__goPlan={dir:_qs.get('dir')||'',cit:_qs.get('cit')||''}; window.__deepLink=true; } }catch(e){}
       }catch(e){}
       if(tg.BackButton){ try{ tg.BackButton.onClick(function(){ goBack(); }); }catch(e){} }
       try{ if(tg.requestFullscreen) tg.requestFullscreen(); }catch(e){}
@@ -2950,7 +2971,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             setTimeout(function(){ fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})}).then(function(r){return r.json();}).then(function(d2){ if(d2&&d2.ok){ isAdmin=!!d2.admin; hasMass=!!d2.mass; isMember=!!d2.member; setStatus(isMember?'member':'guest', isMember?'✅ Ты участник':'🔒 Гостевой доступ'); try{ localStorage.setItem('amore_last_member', isMember?'1':'0'); }catch(e){} renderHome(); } }).catch(function(){}); }, 20000);
             return;
           }
-          if(d.ok){isAdmin=!!d.admin;hasMass=!!d.mass; trialExpired=!!d.trialExpired; isTrial=!!d.trial; trialEnds=d.trialEnds?new Date(d.trialEnds):null; trialUsed=!!d.trialUsed; if(isTrial&&(!trialEnds||isNaN(trialEnds.getTime()))) trialEnds=new Date(Date.now()+TRIAL_HOURS*3600000);}
+          if(d.ok){isAdmin=!!d.admin;hasMass=!!d.mass; trialExpired=!!d.trialExpired; isTrial=!!d.trial; if(typeof d.ai==='boolean') AI_OK=d.ai; trialEnds=d.trialEnds?new Date(d.trialEnds):null; trialUsed=!!d.trialUsed; if(isTrial&&(!trialEnds||isNaN(trialEnds.getTime()))) trialEnds=new Date(Date.now()+TRIAL_HOURS*3600000);}
           if(d.ok&&d.member){isMember=true;setStatus('member',isTrial?'⏳ Пробный доступ':'✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');}
           if(isTrial) scheduleTrialPopup();
           try{ localStorage.setItem('amore_last_member', (d.ok&&d.member)?'1':'0'); }catch(e){}
@@ -2959,12 +2980,13 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         .finally(function(){ memberKnown=true;
           try{
             var _sp=(tg.initDataUnsafe&&tg.initDataUnsafe.start_param)||''; var _seen=false; try{ _seen=localStorage.getItem('amore_seen')==='1'; }catch(e){}
-            track('app_open',{sp:_sp, go:(window.__goStep||0), ret:_seen?1:0});
+            track('app_open',{sp:_sp, go:(window.__goStep||(window.__goPlan?'plan':0)), ret:_seen?1:0});
             // заставку показываем только при первом заходе; вернувшимся и пришедшим по кнопке из бота — сразу приложение
             if(_seen || window.__deepLink || _sp==='path') setTimeout(function(){ closeSplash(); }, 500);
           }catch(e){}
           renderHome(); loadVacancies(); updateSplashBtn(); pulseLoad(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); if(window.__openPath&&isMember){ window.__openPath=false; setTimeout(function(){ switchView('path'); }, 400); }
           if(window.__goInbox){ inboxTab=window.__goInbox; window.__goInbox=null; setTimeout(function(){ switchView('inbox'); }, 500); } else { setTimeout(function(){ inboxLoad(function(){ if(curV==='home') renderHome(); }); }, 1200); }
+          if(window.__goPlan){ var gp=window.__goPlan; window.__goPlan=null; setTimeout(function(){ if(isMember) switchView('path'); else showFunnelFromBot(gp); }, 550); }
           if(window.__goStep){ var gs=window.__goStep; window.__goStep=0; setTimeout(function(){ goPathStep(gs); }, 500); }
           if(window.__goPay){ window.__goPay=false; _lastLock='bot_offer'; setTimeout(function(){ if(isTrial) trialUpsell('bot'); else if(!isMember) paySheet(); }, 700); } });
     })();
