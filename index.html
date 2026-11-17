@@ -1754,7 +1754,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
           html+='<div class="rv-thumb" style="background-image:url(https://img.youtube.com/vi/'+r.videoId+'/hqdefault.jpg)" onclick="playReview('+i+')"><div class="play">▶</div></div>';
           if(r.text)html+='<div class="rv-text" style="margin-top:10px">'+esc(r.text)+'</div>';
         } else if(r.type==='tgvideo'&&r.video){
-          html+='<video class="rv-tgv'+(r.round?' round':'')+'" src="'+esc(r.video)+'" controls playsinline webkit-playsinline preload="metadata"></video>';
+          html+='<video class="rv-tgv'+(r.round?' round':'')+'" src="'+esc(r.video)+'" controls playsinline webkit-playsinline preload="metadata" onerror="rvVidFail(this)"></video>';
           if(r.text)html+='<div class="rv-text" style="margin-top:10px">'+esc(r.text)+'</div>';
         } else if(r.type==='audio'&&r.link){
           if(r.text)html+='<div class="rv-text">'+esc(r.text)+'</div>';
@@ -2094,12 +2094,14 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       var all=(REVIEWS||[]).filter(function(r){ return r && r.name && (r.text||r.photo||(r.type==='video'&&r.videoId)||(r.type==='tgvideo'&&r.video)||isImgFile(r.link)); });
       if(!all.length) return '';
       var kw=FN_REV_KW[fnState.direction], mine=kw?all.filter(function(r){ return kw.test(r.dir||''); }):[];
-      var list=(mine.length?mine:all).slice(0,3);
+      var general=all.filter(function(r){ return !String(r.dir||'').trim(); });
+      var list=(kw?mine.concat(general):all).slice(0,3);
+      if(!list.length) return '';
       window.__fnRev=list;
       var h='<div class="fn-revh">'+(mine.length?'Отзывы по твоему направлению':'Отзывы участников')+'</div>';
       list.forEach(function(r,i){
         h+='<div class="fn-rev">';
-        if(r.type==='tgvideo'&&r.video) h+='<video class="rv-tgv'+(r.round?' round':'')+'" src="'+esc(r.video)+'" controls playsinline webkit-playsinline preload="metadata"></video>';
+        if(r.type==='tgvideo'&&r.video) h+='<video class="rv-tgv'+(r.round?' round':'')+'" src="'+esc(r.video)+'" controls playsinline webkit-playsinline preload="metadata" onerror="rvVidFail(this)"></video>';
         else if(r.type==='video'&&r.videoId) h+='<div class="rv-thumb" style="background-image:url(https://img.youtube.com/vi/'+esc(r.videoId)+'/hqdefault.jpg)" onclick="fnPlayRev('+i+')"><div class="play">▶</div></div>';
         else { var src=r.photo?r.photo:(isImgFile(r.link)?r.link:''); var im=src.split(/[,\n;]+/).map(function(x){return x.trim();}).filter(function(x){return x;})[0];
           if(im) h+='<div class="rv-shot" onclick="openImg(\''+esc(im)+'\')"><img src="'+esc(im)+'" loading="lazy"></div>'; }
@@ -2108,6 +2110,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       });
       return h;
     }
+    window.rvVidFail=function(v){ try{ var c=v.closest('.fn-rev')||v.closest('.review'); if(c) c.style.display='none'; }catch(e){} };
     window.fnPlayRev=function(i){ var r=(window.__fnRev||[])[i]; if(r&&r.videoId){ track('fn_review_play'); playVid(r.videoId, r.name); } };
     window.fnCommit=function(){ track('fn_step',{s:'commit'}); fnGo('commit'); };
     window.fnYes=function(){ track('fn_yes'); hap('select'); fnOffer(); };
