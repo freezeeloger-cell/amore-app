@@ -952,6 +952,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
       }catch(e){}
     }
     var HAS_PROMO = !window.__amoreSrc;   // скидка по промокоду действует только на общей подписке, не на подписках менторов
+    var guestConfirmed = false; // сервер точно сказал: подписки нет. Только тогда можно показывать воронку и цену
     var memberKnown = false; // пока не проверили доступ — не показываем гостевые блоки (чтобы не мигали участнику)
 
     var FLAG = { "Норвегия": "🇳🇴", "Дания": "🇩🇰", "Британия": "🇬🇧" };
@@ -1869,7 +1870,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
 
     /* ---------- ПРОФИЛЬ ---------- */
     function updateSplashBtn(){ try{ var b=document.getElementById('sp-btn'); if(!b)return; var passed = (localStorage.getItem('amore_funnel_v')==='1'); b.textContent = (passed||isMember) ? 'Войти →' : 'Продолжить →'; }catch(e){} }
-    window.closeSplash=function(){ var s=document.getElementById('splash'); if(s && s.className.indexOf('hide')>=0) return; if(s) s.className='splash hide'; try{ localStorage.setItem('amore_seen','1'); }catch(e){} track('splash_close'); if(typeof fnShouldRun==='function' && !isMember && !window.__deepLink && fnShouldRun()){ setTimeout(showFunnel, 300); } };
+    window.closeSplash=function(){ var s=document.getElementById('splash'); if(s && s.className.indexOf('hide')>=0) return; if(s) s.className='splash hide'; try{ localStorage.setItem('amore_seen','1'); }catch(e){} track('splash_close'); if(!window.__deepLink){ if(memberKnown){ if(guestConfirmed && fnShouldRun()) setTimeout(showFunnel, 300); } else { window.__fnPending=true; } } };
     window.subscribe=function(){ if(isMember){ track('manage_sub',{}); openTribute(TRIBUTE_URL); return; } paySheet(); };
 
     /* ---------- ПОДСКАЗКИ «?» ---------- */
@@ -1963,21 +1964,26 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     function fnDir(){ return FN_DIR[fnState.direction]||FN_DIR.any; }
     function fnMentorObj(){ var tgn=fnDir().tg; return MENTORS.filter(function(m){return m.tg===tgn;})[0]||MENTORS[0]; }
     function showFunnel(){
+      if(!fnAllowed()) return;   // участнику и «неизвестно кому» воронку не показываем никогда
       track('fn_show'); fnLeadSent=false; fnState=fnLoadState();   // fnFromBot здесь не трогаем: его ставит вход из бота/напоминания
       ['fn-g1','fn-g2'].forEach(function(id){var e=document.getElementById(id);if(e)e.style.width='0';});
       document.getElementById('funnel').className='fn-overlay on';
       // уже отвечал, но закрыл на полпути — не мучаем вопросами заново, сразу план
       if(fnState.direction&&fnState.citizenship){ fnPlan(); } else { fnState={}; fnGo('q1'); }
     }
-    function maybeStartFunnel(){ if(!isMember && fnShouldRun()){ setTimeout(showFunnel, 650); } }
+    function maybeStartFunnel(){ if(guestConfirmed && !isMember && fnShouldRun()){ setTimeout(showFunnel, 650); } }
+    function fnAllowed(){ return (guestConfirmed && !isMember) || (!!window.__fnPreview && isAdmin); }   // второе — только предпросмотр для админа по кнопке из /funnel_preview
+    function fnForceClose(){ try{ var f=document.getElementById('funnel'); if(f && !f.querySelector('.fn-paid')) f.className='fn-overlay'; }catch(e){} }
     // Цену в новой воронке человек уже видел? Тогда напоминания ведут сразу на оплату, иначе сначала план и ментор.
     function fnOfferSeen(){ try{ return localStorage.getItem('amore_fn_offer')===FUNNEL_VERSION; }catch(e){ return true; } }
     function showFunnelFromReminder(){
+      if(!fnAllowed()) return;
       var st=fnLoadState(), rev={}; Object.keys(FN_DIR).forEach(function(k){ if(FN_DIR[k].path) rev[FN_DIR[k].path]=k; });
       var dir=st.direction||rev[PATH.direction]||'';
       if(dir) showFunnelFromBot({dir:dir, cit:st.citizenship||'', from:'reminder'}); else { fnFromBot=true; showFunnel(); }
     }
     function showFunnelFromBot(gp){
+      if(!fnAllowed()) return;
       var dir=FN_DIR[gp.dir]?gp.dir:'', cit=({ua:1,eu:1,md:1,other:1})[gp.cit]?gp.cit:'';
       if(!dir){ showFunnel(); return; }
       var old=fnLoadState();
@@ -2135,6 +2141,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
     window.fnCommit=function(){ track('fn_step',{s:'commit'}); fnGo('commit'); };
     window.fnYes=function(){ track('fn_yes'); hap('select'); fnOffer(); };
     function fnOffer(){
+      if(!fnAllowed()){ fnForceClose(); return; }
       var dir=fnDir(), m=fnMentorObj(), when=fnDateTxt();
       SELECTED_PLAN='3m'; _lastLock='funnel_offer';
       document.getElementById('fn-offerTitle').textContent=when?('На судне '+when+'. Начинаем?'):'Начинаем по твоему плану?';
@@ -2162,7 +2169,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         }).catch(function(){ payWatch.busy=false; });
     }
     function payDone(){
-      isMember=true; memberKnown=true; track('pay_seen_in_app');
+      isMember=true; memberKnown=true; guestConfirmed=false; track('pay_seen_in_app');
       try{ localStorage.setItem('amore_last_member','1'); localStorage.removeItem('amore_guest_remaining'); }catch(e){}
       try{ setStatus('member','✅ Ты участник'); }catch(e){}
       try{ closeModal(); }catch(e){}
@@ -3071,7 +3078,7 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         if(sp==='inbox'||sp==='inbox_auto'){ window.__goInbox=(sp==='inbox_auto'?'auto':'live'); window.__deepLink=true; }
         try{ if(new URLSearchParams(location.search).get('go')==='inbox'){ window.__goInbox='live'; window.__deepLink=true; } }catch(e){}
         // из бота: кнопка «Шаг n» → ?go=stepN
-        try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm){ window.__goStep=parseInt(gm[1],10); window.__deepLink=true; } if(go==='pay'){ window.__goPay=true; window.__deepLink=true; } if(go==='plan'){ var _qs=new URLSearchParams(location.search); window.__goPlan={dir:_qs.get('dir')||'',cit:_qs.get('cit')||''}; window.__deepLink=true; } }catch(e){}
+        try{ var go=new URLSearchParams(location.search).get('go')||''; var gm=go.match(/^step([1-5])$/); if(gm){ window.__goStep=parseInt(gm[1],10); window.__deepLink=true; } if(go==='pay'){ window.__goPay=true; window.__deepLink=true; } if(go==='plan'){ var _qs=new URLSearchParams(location.search); window.__goPlan={dir:_qs.get('dir')||'',cit:_qs.get('cit')||''}; window.__deepLink=true; if(_qs.get('preview')==='1') window.__fnPreview=true; } }catch(e){}
       }catch(e){}
       if(tg.BackButton){ try{ tg.BackButton.onClick(function(){ goBack(); }); }catch(e){} }
       try{ if(tg.requestFullscreen) tg.requestFullscreen(); }catch(e){}
@@ -3088,12 +3095,15 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
         .then(function(d){
           if(d&&d.transient){ // Telegram не ответил серверу — не выдаём участника за гостя: берём прошлый статус и переспросим через 20с
             var prev=null; try{ prev=localStorage.getItem('amore_last_member'); }catch(e){}
+            guestConfirmed=false; // сервер не смог проверить — это не «гость», воронку не показываем
             if(prev==='1'){ isMember=true; setStatus('member','✅ Ты участник'); } else { isMember=false; setStatus('guest','🔒 Гостевой доступ'); }
-            setTimeout(function(){ fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})}).then(function(r){return r.json();}).then(function(d2){ if(d2&&d2.ok){ isAdmin=!!d2.admin; hasMass=!!d2.mass; isMember=!!d2.member; setStatus(isMember?'member':'guest', isMember?'✅ Ты участник':'🔒 Гостевой доступ'); try{ localStorage.setItem('amore_last_member', isMember?'1':'0'); }catch(e){} renderHome(); } }).catch(function(){}); }, 20000);
+            setTimeout(function(){ fetch(BACKEND_URL+'/check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({initData:tg.initData})}).then(function(r){return r.json();}).then(function(d2){ if(d2&&d2.ok){ isAdmin=!!d2.admin; hasMass=!!d2.mass; isMember=!!d2.member; guestConfirmed=!d2.member; if(isMember) fnForceClose(); setStatus(isMember?'member':'guest', isMember?'✅ Ты участник':'🔒 Гостевой доступ'); try{ localStorage.setItem('amore_last_member', isMember?'1':'0'); }catch(e){} renderHome(); } }).catch(function(){}); }, 20000);
             return;
           }
           if(d.ok){isAdmin=!!d.admin;hasMass=!!d.mass; trialExpired=!!d.trialExpired; isTrial=!!d.trial; if(typeof d.ai==='boolean') AI_OK=d.ai; trialEnds=d.trialEnds?new Date(d.trialEnds):null; trialUsed=!!d.trialUsed; if(isTrial&&(!trialEnds||isNaN(trialEnds.getTime()))) trialEnds=new Date(Date.now()+TRIAL_HOURS*3600000);}
           if(d.ok&&d.member){isMember=true;setStatus('member',isTrial?'⏳ Пробный доступ':'✅ Ты участник');try{localStorage.removeItem('amore_guest_remaining');}catch(e){}} else {isMember=false;setStatus('guest','🔒 Гостевой доступ');}
+          guestConfirmed = !!(d.ok && d.member===false && !d.admin);   // только чёткий ответ «не участник»; админам и при ошибке сервера — нет
+          if(isMember && !(window.__fnPreview && isAdmin)) fnForceClose();
           if(isTrial) scheduleTrialPopup();
           try{ localStorage.setItem('amore_last_member', (d.ok&&d.member)?'1':'0'); }catch(e){}
         })
@@ -3104,12 +3114,14 @@ var TRIBUTE_MASS_URL = "https://t.me/tribute/app?startapp=s113I";
             track('app_open',{sp:_sp, go:(window.__goStep||(window.__goPlan?'plan':0)), ret:_seen?1:0});
             // заставку показываем только при первом заходе; вернувшимся и пришедшим по кнопке из бота — сразу приложение
             if(_seen || window.__deepLink || _sp==='path') setTimeout(function(){ closeSplash(); }, 500);
+            // «Продолжить» нажали до ответа сервера: решаем теперь, когда ответ есть
+            if(window.__fnPending){ window.__fnPending=false; if(guestConfirmed && !window.__deepLink && fnShouldRun()) setTimeout(showFunnel, 300); }
           }catch(e){}
           renderHome(); loadVacancies(); updateSplashBtn(); pulseLoad(); setTimeout(function(){ if(CONTACTS.length===0) loadContacts(true); }, 800); if(window.__openPath&&isMember){ window.__openPath=false; setTimeout(function(){ switchView('path'); }, 400); }
           if(window.__goInbox){ inboxTab=window.__goInbox; window.__goInbox=null; setTimeout(function(){ switchView('inbox'); }, 500); } else { setTimeout(function(){ inboxLoad(function(){ if(curV==='home') renderHome(); }); }, 1200); }
-          if(window.__goPlan){ var gp=window.__goPlan; window.__goPlan=null; setTimeout(function(){ if(isMember) switchView('path'); else showFunnelFromBot(gp); }, 550); }
+          if(window.__goPlan){ var gp=window.__goPlan; window.__goPlan=null; setTimeout(function(){ if(fnAllowed()) showFunnelFromBot(gp); else if(isMember) switchView('path'); }, 550); }
           if(window.__goStep){ var gs=window.__goStep; window.__goStep=0; setTimeout(function(){ goPathStep(gs); }, 500); }
-          if(window.__goPay){ window.__goPay=false; _lastLock='bot_offer'; setTimeout(function(){ if(isTrial) trialUpsell('bot'); else if(!isMember){ if(fnOfferSeen()) paySheet(); else showFunnelFromReminder(); } }, 700); } });
+          if(window.__goPay){ window.__goPay=false; _lastLock='bot_offer'; setTimeout(function(){ if(isTrial) trialUpsell('bot'); else if(!isMember && guestConfirmed){ if(fnOfferSeen()) paySheet(); else showFunnelFromReminder(); } }, 700); } });
     })();
   </script>
 </body>
